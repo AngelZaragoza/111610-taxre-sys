@@ -1,94 +1,126 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
 const conexion = require("../db/db-connection");
-// const usuarios = "usuarios";
-// const personas = "personas";
 
 class Usuario {
+  nombreTabla = "usuarios";
+
+  //**********************************
+  //* Métodos llamados por el router *
+  //**********************************
+  listaUsuarios = async (req, res) => {
+    let sql = `SELECT p.apellido, p.nombre, p.fecha_nac, u.usuario_id, u.alias, r.nombre AS rol
+      FROM personas p JOIN usuarios u
+        ON p.persona_id = u.persona_id
+      JOIN roles r
+        ON u.rol_id = r.rol_id`;
+
+    const lista = await conexion.query(sql);
+    if (!lista.length) {
+      res
+        .status(404)
+        .json({ success: false, message: "No se encontraron usuarios" });
+    }
+    res.status(200).json(lista);
+  };
+
   nuevoUsuario = async (req, res) => {
-    let {
-      apellido,
-      nombre,
-      direccion,
-      telef,
-      correo = null,
-      fechaNac = null,
-      usuario,
-      pass,
-      rol,
-    } = req.body;
+    try {
+      let {
+        apellido,
+        nombre,
+        direccion,
+        telef,
+        correo = null,
+        fechaNac = null,
+        username,
+        password,
+        rol,
+      } = req.body; //Recupera los campos enviados desde el form
 
-    let hashed = await bcrypt.hash(pass, 10);
+      password = await this.passwordUtil(password);
+      console.log(password);
 
-    //Llama el stored procedure que inserta la persona y el usuario al mismo tiempo
-    let sql = "CALL nuevo_usuario(?,?,?,?,?,?,?,?,?)";
-    conexion.db.query(
-      sql,
-      [
+      let user = { apellido, nombre, username };
+      console.log(user);
+
+      //Llama el stored procedure que inserta la persona y el usuario al mismo tiempo
+      let sql = "CALL nuevo_usuario(?,?,?,?,?,?,?,?,?)";
+      const results = await conexion.query(sql, [
         apellido,
         nombre,
         direccion,
         telef,
         correo,
         fechaNac,
-        usuario,
-        hashed,
+        username,
+        password,
         rol,
-      ],
-      (error, results) => {
-        if (error) {
-          console.log(error);
-          return res.status(400).json(error);
-        }
-        //Loguear resultados no es muy informativo ya que se llama
-        //un stored procedure que no devuelve la cantidad de filas afectadas p.ej.
-        // console.log(results);
-        return res
-          .status(201)
-          .json({ success: true, action: "added", user: usuario });
-      }
-    );
-  };
+      ]).then;
 
-  loginUsuario = async (req, res) => {
-    let { usuario, correo, pass } = req.body;
-
-    if (usuario) {
-      // const found = await this.getUsuarioAlias(usuario).then((found) => {
-      //   if (found.success) {
-      //     let autorizado = await bcrypt.compare(pass, found.user.password);
-      //     res.status(200).json({user: found.user.alias, auth: autorizado});
-      //   } else {
-      //     res.status(404).json({user: found.message, auth: autorizado});
-      //   }
-      // })
-
-      let found = await this.getUsuarioAlias(usuario);
-      if (found.success) {
-        let autorizado = await bcrypt.compare(pass, found.user.password);
-        res.status(200).json({ user: found.user.alias, auth: autorizado });
-      } else {
-        res.status(404).json({ user: found.message, auth: autorizado });
-      }
+      console.log(results);
+      return res.status(201).json({ success: "true", action: "added", user });
+    } catch (err) {
+      console.log("Error en procedure", err);
+      return res.status(500).json(err);
     }
   };
 
-  getUsuarioAlias = async (alias) => {
-    let sql = `SELECT * FROM usuarios WHERE alias = ?`;
-    conexion.db.query(sql, [alias], (error, results) => {
-      if (error) {
-        console.log(error);
-        return null;
+  loginUsuario = async (req, res) => {
+    let { usuario, pass } = req.body;
+    let user = {};
+
+    if (usuario.length > 0) {
+      user = await this.getUsuario("alias", usuario);
+    } else {
+      return res.status(400).json({ error: "Introduzca nombre de usuario" });
+    }
+
+    if (!user.message) {
+      console.log(user);
+      // console.log("tamano", user.length);
+      // console.log("pass", user.password);
+      let autorizado = await this.passwordUtil(pass, user.password);
+      if (autorizado) {
+        let { password, ...userSinPass} = user;
+        console.log(req.session);
+        return res.status(200).json({ userSinPass, auth: autorizado });
+        
       }
-      console.log(results);
-      if (results.length > 0) {
-        return { success: true, user: results };
-      } else {
-        return { success: false, message: "No existe usuario" };
-      }
-    });
+      // res.status(200).json({ user: user.alias, auth: autorizado });
+    } else {
+      console.log(user);
+      res.status(404).json({ error: user.message });
+    }
   };
 
+  //**********************************
+  //* Métodos auxiliares internos *
+  //**********************************
+
+  getUsuario = async (field, value) => {
+    let sql = `SELECT * FROM usuarios WHERE ${field} = ?`;
+    const user = await conexion.query(sql, [value]);
+    if (user.length > 0) {
+      return user[0];
+    } else {
+      return { message: "No existe usuario" };
+    }
+  };
+
+  passwordUtil = async (password, hash) => {
+    if (!hash) {
+      //Si no se proporciona hash, se calcula y devuelve hash
+      return await bcrypt.hash(password, 10);
+    } else {
+      //Si se proporciona hash, se compara y devuelve true o false
+      let authorized = await bcrypt.compare(password, hash);
+      return authorized;
+    }
+  };
+
+  /*
+  Método que probablemente sirva para recuperar por urlQuery
   getUsuarioByAlias = async (req, res) => {
     let { usuario } = req.query;
     let sql = `SELECT * FROM usuarios WHERE alias = ?`;
@@ -107,21 +139,9 @@ class Usuario {
       }
     });
   };
+  */
 
-  listaUsuarios = (req, res) => {
-    let sql = `SELECT p.apellido, p.nombre, p.fecha_nac, u.alias, r.nombre AS rol
-      FROM personas p JOIN usuarios u
-        ON p.persona_id = u.persona_id
-      JOIN roles r
-        ON u.rol_id = r.rol_id`;
-    conexion.db.query(sql, (error, results) => {
-      if (error) {
-        console.log(error);
-      } else {
-        res.status(200).json(results);
-      }
-    });
-  };
+  
 }
 
 module.exports = new Usuario();
