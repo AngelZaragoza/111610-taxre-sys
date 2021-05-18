@@ -1,11 +1,15 @@
 const express = require("express");
-const dotenv = require("dotenv");
-dotenv.config();
-// const conexion = require("../db/db-connection");
+const dotenv = require("dotenv").config();
+const conexion = require("../db/db-connection");
 const cors = require("cors");
 const usuarios = require("../routes/usuarios.route");
+
 const session = require("express-session");
 const MySQLStore = require("express-mysql-session")(session);
+
+const passport = require('passport');
+require('../lib/passport');
+
 
 //*****************************************
 //Configuración de varios middleware
@@ -45,6 +49,13 @@ app.use(
 );
 
 //*****************************************
+//Configuración del middleware passport
+//*****************************************
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+//*****************************************
 //Configuración del puerto del servidor
 //*****************************************
 
@@ -56,8 +67,10 @@ const port = Number(process.env.PORT || 3400);
 
 app.use("/usuarios", usuarios);
 app.get('/', (req, res, next) => {
-  res.status(200).json(req.session);
+  console.log( req.user );
+  res.status(200).json( req.session );
 })
+
 //*****************************************
 //Levanta el servidor e informa el puerto
 //*****************************************
@@ -80,6 +93,7 @@ process.on("SIGINT", () => {
 
 function shutDown(signal) {
   console.log(`${signal} recibido: cerrando server`);
+  //sessionStore.clearExpiredSessions();  
   server.close(() => {
     console.log("Servidor cerrado con éxito");
     process.exit(0);

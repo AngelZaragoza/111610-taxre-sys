@@ -25,8 +25,27 @@ class ConexionDB {
         }
         if (connection) {
           console.log("Conexión establecida");
-          connection.release();
-          resolve("connected");
+          // connection.release();
+          resolve(connection);
+        }
+      });
+    }).catch(err => {
+      throw err;
+    });
+  };
+
+  getConnection = async () => {
+    console.log("Obteniendo...");
+    return new Promise((resolve, reject) => {
+      this.db.getConnection((error, connection) => {
+        if (error) {
+          console.log("Error de BD", error.code);
+          reject(error.code);
+        }
+        if (connection) {
+          console.log("Obtenido...");
+          // connection.release();
+          resolve(connection);
         }
       });
     }).catch(err => {

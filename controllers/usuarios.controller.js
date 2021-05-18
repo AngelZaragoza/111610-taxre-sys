@@ -76,7 +76,7 @@ class Usuario {
       return res.status(400).json({ error: "Introduzca nombre de usuario" });
     }
 
-    if (!user.message) {
+    if (user) {
       console.log(user);
       // console.log("tamano", user.length);
       // console.log("pass", user.password);
@@ -86,13 +86,17 @@ class Usuario {
         console.log(req.session);
         return res.status(200).json({ userSinPass, auth: autorizado });
         
-      }
-      // res.status(200).json({ user: user.alias, auth: autorizado });
+      }      
     } else {
       console.log(user);
-      res.status(404).json({ error: user.message });
+      res.status(404).json({ error: "No existe usuario" });
     }
   };
+
+  logoutUsuario = (req, res, next) => {
+    req.logout();
+    res.redirect('/');
+  }
 
   //**********************************
   //* Métodos auxiliares internos *
@@ -104,7 +108,7 @@ class Usuario {
     if (user.length > 0) {
       return user[0];
     } else {
-      return { message: "No existe usuario" };
+      return null;
     }
   };
 
