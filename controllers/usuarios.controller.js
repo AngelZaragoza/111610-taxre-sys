@@ -93,6 +93,14 @@ class Usuario {
     }
   };
 
+  loginSuccess = (req, res, next) => {
+    // req.logout();
+    console.log( 'Session:', req.session );
+    console.log( 'Usuario:', req.user );
+    console.log( 'Passport:', req.passport );
+    res.status(200).json( req.session );
+  }
+
   logoutUsuario = (req, res, next) => {
     req.logout();
     res.redirect('/');
