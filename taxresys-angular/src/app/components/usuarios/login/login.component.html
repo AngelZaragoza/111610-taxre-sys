@@ -15,18 +15,30 @@
 <div class="container" data-aos="fade-up">
   <div class="row justify-content-center">
     <div class="col col-lg-4 shadow p-3 mb-5 fondo-semitransp rounded">
-      <form id="login" method="post" action="Login">
+      <form [formGroup]="forma" (ngSubmit)="logIn()" novalidate>
         <div class="form-group">
           <label for="usuario" class="col-form-label">Usuario:</label>
           <input
             type="text"
             class="form-control"
+            [ngClass]="{
+              'border-danger':
+                !forma.controls['usuario'].valid &&
+                forma.controls['usuario'].touched
+            }"
             id="usuario"
-            name="usuario"
-            required
+            formControlName="usuario"
             placeholder="Usuario"
           />
-          <div class="validate"></div>
+          <div
+            *ngIf="
+              !forma.controls['usuario'].valid &&
+              forma.controls['usuario'].touched
+            "
+            class="text-danger"
+          >
+            Ingrese nombre de usuario
+          </div>
         </div>
 
         <div class="form-group">
@@ -34,17 +46,29 @@
           <input
             type="password"
             class="form-control"
+            [ngClass]="{
+              'border-danger':
+                !forma.controls['pass'].valid &&
+                forma.controls['pass'].touched
+            }"
             id="pass"
-            name="pass"
-            required
+            formControlName="pass"
             placeholder="Password"
           />
-          <div class="validate"></div>
+          <div
+            *ngIf="
+              !forma.controls['pass'].valid &&
+              forma.controls['pass'].touched
+            "
+            class="text-danger"
+          >
+            Ingrese password
+          </div>
         </div>
 
         <div class="form-group row">
           <div class="col-sm-6 offset-sm-6">
-            <button (click)="logIn()" type="button" class="btn btn-primary btn-block">
+            <button type="submit" class="btn btn-primary btn-block" [disabled]="forma.invalid">
               Verificar
             </button>
           </div>

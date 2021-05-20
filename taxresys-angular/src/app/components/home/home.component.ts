@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DoCheck } from '@angular/core';
+import { UsuariosService } from 'src/app/services/usuarios.service';
 
 @Component({
   selector: 'app-home',
@@ -6,11 +7,18 @@ import { Component, OnInit } from '@angular/core';
   styles: [
   ]
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements DoCheck {
 
-  constructor() { }
+  saludo:string;
 
-  ngOnInit(): void {
+  constructor( private _usuariosService: UsuariosService ) { }
+
+  ngDoCheck(): void {
+    if(this._usuariosService.user['status']) {
+      this.saludo = "Para comenzar debe loguearse";
+    } else {
+      this.saludo = `Bienvenido ${this._usuariosService.user.alias}`;
+    }
   }
 
 }

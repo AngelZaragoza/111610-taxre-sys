@@ -82,29 +82,54 @@ class Usuario {
       // console.log("pass", user.password);
       let autorizado = await this.passwordUtil(pass, user.password);
       if (autorizado) {
-        let { password, ...userSinPass} = user;
+        let { password, ...userSinPass } = user;
         console.log(req.session);
         return res.status(200).json({ userSinPass, auth: autorizado });
-        
-      }      
+      }
     } else {
       console.log(user);
       res.status(404).json({ error: "No existe usuario" });
     }
   };
 
-  loginSuccess = (req, res, next) => {
-    // req.logout();
-    console.log( 'Session:', req.session );
-    console.log( 'Usuario:', req.user );
-    console.log( 'Passport:', req.passport );
-    res.status(200).json( req.session );
+  //**********************************
+  //* Métodos auxiliares internos *
+  //**********************************
+  checkAuth(req, res, next) {
+    console.log("Desde la prueba de auth:");
+    if (req.isAuthenticated()) {
+      console.log("Logueado");      
+      console.log(req.user);
+      res.redirect("login-success");      
+    } else {
+      console.log("Debe Loguear... next");
+      next();
+    }
   }
+
+  loginSuccess = (req, res, next) => {
+    
+    console.log("Desde login Success");
+    console.log("Session:", req.session);
+    console.log("Usuario:", req.user);    
+    
+    let { password, ...userSinPass } = req.user;
+    console.log(userSinPass);
+    res.status(200).json(userSinPass);
+    
+  };
+
+  loginFailed = (req, res, next) => {
+    console.log("Session F:", req.session);
+    console.log("Usuario F:", req.user);
+    res.status(401).json({ status: "unauthorized" });
+  };
 
   logoutUsuario = (req, res, next) => {
     req.logout();
-    res.redirect('/');
-  }
+    console.log(req.session);
+    res.status(200).json({ status: "logged out" });
+  };
 
   //**********************************
   //* Métodos auxiliares internos *
@@ -152,8 +177,6 @@ class Usuario {
     });
   };
   */
-
-  
 }
 
 module.exports = new Usuario();

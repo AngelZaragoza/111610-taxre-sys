@@ -13,13 +13,14 @@
   </button>
   <div class="collapse navbar-collapse" id="navbarNavDropdown">
     <ul class="navbar-nav justify-content-start ml-4">
-      <li class="nav-item" routerLinkActive="active">
-        <a class="nav-link" [routerLink]="['alumnos']">Alumnos</a>
-      </li>
-      <li class="nav-item" routerLinkActive="active">
-        <a class="nav-link" href="#">Cursos</a>
-      </li>
-      <!-- <li class="nav-item dropdown">
+      
+        <li *ngIf="logged" class="nav-item" routerLinkActive="active">
+          <a class="nav-link" [routerLink]="['viajes']">Viajes</a>
+        </li>
+        <li class="nav-item" routerLinkActive="active">
+          <a class="nav-link" href="#">Tarifas</a>
+        </li>
+        <li class="nav-item dropdown justify-content-end">
           <a
             class="nav-link dropdown-toggle"
             href="#"
@@ -28,21 +29,29 @@
             data-toggle="dropdown"
             aria-haspopup="true"
             aria-expanded="false"
-            >Drop Down</a
+            >Perfiles</a
           >
           <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <a class="dropdown-item" href="#">Drop Down 2</a>
+            <a class="dropdown-item" [routerLink]="['usuarios', 'lista']">Usuarios</a>
             <a class="dropdown-item" href="#">Drop Down 3</a>
             <a class="dropdown-item" href="#">Drop Down 4</a>
           </div>
-        </li> -->
+        </li>
+      
     </ul>
   </div>
   <div class="nav-item justify-content-end">
     <a
+      *ngIf="!logged"
       class="nav-link btn btn-outline-light justify-content-end"
       [routerLink]="['usuarios', 'login']"
       >Login</a
+    >
+    <button
+      *ngIf="logged"
+      class="nav-link btn btn-outline-light justify-content-end"
+      (click)="logout()"      
+      >LogOut {{ user.alias }}</button
     >
   </div>
 </nav>

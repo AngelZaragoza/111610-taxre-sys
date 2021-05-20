@@ -43,6 +43,7 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
+      httpOnly : false,
       maxAge: 1000 * 60 * 60 * 8 //8hrs de duración máxima de la cookie
     }
   })
@@ -66,10 +67,10 @@ const port = Number(process.env.PORT || 3400);
 //*****************************************
 
 app.use("/usuarios", usuarios);
-app.get('/', (req, res, next) => {
-  console.log( req.user );
-  res.status(200).json( req.session );
-})
+// app.get('/', (req, res, next) => {
+//   console.log( req.user );
+//   res.status(200).json( req.session );
+// })
 
 //*****************************************
 //Levanta el servidor e informa el puerto
