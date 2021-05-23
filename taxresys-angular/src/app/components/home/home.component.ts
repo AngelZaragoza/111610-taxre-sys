@@ -13,11 +13,11 @@ export class HomeComponent implements DoCheck {
 
   constructor( private _usuariosService: UsuariosService ) { }
 
-  ngDoCheck(): void {
-    if(this._usuariosService.user['status']) {
+  ngDoCheck(): void {    
+    if(!this._usuariosService.user.logged) {
       this.saludo = "Para comenzar debe loguearse";
     } else {
-      this.saludo = `Bienvenido ${this._usuariosService.user.alias}`;
+      this.saludo = `Bienvenid@ ${this._usuariosService.user.alias}`;
     }
   }
 

@@ -1,30 +1,44 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpXsrfTokenExtractor } from '@angular/common/http';
 import { environment } from '../../environments/environment';
+import { Usuario } from '../classes/usuario';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UsuariosService {
   user: any = {};
+  usuarioFull: Usuario;
+  logged: boolean;
   cookie: string;
 
-  constructor(private http: HttpClient, private token: HttpXsrfTokenExtractor) {
+  constructor( private http: HttpClient ) {
     console.log('Usuarios listo');
-    // this.cookie = await this.token.getToken();    
   }
 
+  //Chequea si hay un usuario logueado
+  //**********************************
   checkAuth() {
     try {
       let local = localStorage.getItem('user');
       console.log('Local => ', local);
-      this.user = JSON.parse(local);
-
-      if (this.user['usuario_id']) {
-        console.log(this.user.alias);
-        return true;
+      
+      if (local) {
+        
+        //Si se recupera data de localStorage, se procede con:
+        this.user = JSON.parse(local);
+        
+        //Si hay un id en el localStorage, recupera su alias y devuelve true
+        if (this.user['usuario_id']) {
+          console.log(this.user.alias);
+          return true;
+        } else {
+          return false;
+        }
       } else {
-        return false;
+        
+        //Si no se recupera nada de localStorage, se procede con:
+        localStorage.setItem('user',JSON.stringify({ logged:false }));
       }
     } catch (error) {
       console.log(error);
@@ -33,13 +47,12 @@ export class UsuariosService {
   }
 
   //Método principal para manejar los requests
+  //******************************************
   private request(method: string, url: string, data?: any) {
-
     const result = this.http.request(method, url, {
       body: data,
       responseType: 'json',
       observe: 'body',
-      //withCredentials: true //probar para recibir cookies
       // headers: {
       //   Authorization: `Bearer ${token}`,
       // },
@@ -50,6 +63,8 @@ export class UsuariosService {
     });
   }
 
+  //Métodos de Autenticación
+  //************************
   async passportLogin(user: any) {
     console.log(user);
 
@@ -61,13 +76,10 @@ export class UsuariosService {
       .then((res: any) => {
         console.log(' Respuesta ');
         console.log(res);
-        localStorage.setItem('user', JSON.stringify(res));        
+        localStorage.setItem('user', JSON.stringify(res));
       })
       .catch((err: any) => {
-        console.log(err);
-        console.log(err.status);        
-        // this.user = {};
-        // console.log(this.user);
+        console.log(err);   
       })
       .finally(() => {
         this.checkAuth();
@@ -86,6 +98,37 @@ export class UsuariosService {
       })
       .catch((err: any) => {
         console.log(err);
+      })
+      .finally(() => {
+        this.checkAuth();
       });
+  }
+
+  //Métodos de manejo de Usuarios
+  //*****************************
+  async getUsuarios() {
+    let lista: any[] = [];
+    await this.request('GET', `${environment.serverUrl}/usuarios`)
+      .then((res: any[]) => {
+        lista = res.map((u) => u);
+      })
+      .catch((err: any) => {
+        console.log(err);
+      });
+
+    console.log('Lista usuarios:', lista);
+    return lista;
+  }
+
+  async detalleUsuario(id) {
+    let usuario: any;
+    await this.request(
+      'GET',
+      `${environment.serverUrl}/usuarios/detalle/${id}`
+    ).then((res: any) => {
+      console.log(res);
+      usuario = res;
+    });
+    return usuario;
   }
 }

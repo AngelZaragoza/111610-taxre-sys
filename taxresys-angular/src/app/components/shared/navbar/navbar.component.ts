@@ -1,5 +1,6 @@
-import { Component, OnInit, DoCheck} from '@angular/core';
-
+import { Component, DoCheck } from '@angular/core';
+import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
 import { UsuariosService } from 'src/app/services/usuarios.service';
 
 @Component({
@@ -8,15 +9,13 @@ import { UsuariosService } from 'src/app/services/usuarios.service';
   styles: [],
 })
 export class NavbarComponent implements DoCheck {
-  // @Input() logged: boolean = false;
-  // @Input() username: string;
   
   logged = false;
   user = {};
 
-  constructor(private _usuariosService: UsuariosService) {}
+  constructor(private _usuariosService: UsuariosService, private route: Router) { }
 
-  ngDoCheck(): void {    
+  ngDoCheck(): void {
     this.logged = this._usuariosService.checkAuth();
     if (this.logged) {
       this.user = this._usuariosService.user;
@@ -26,6 +25,6 @@ export class NavbarComponent implements DoCheck {
 
   logout() {
     this._usuariosService.passportLogout();
-    this._usuariosService.checkAuth();
+    this.route.navigateByUrl('/home');    
   }
 }

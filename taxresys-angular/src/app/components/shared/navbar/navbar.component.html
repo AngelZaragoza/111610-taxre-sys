@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-info">
+<nav class="navbar navbar-expand-lg navbar-dark fondo-navbar">
   <a class="navbar-brand" [routerLink]="['home']">Inicio</a>
   <button
     class="navbar-toggler"
@@ -18,9 +18,9 @@
           <a class="nav-link" [routerLink]="['viajes']">Viajes</a>
         </li>
         <li class="nav-item" routerLinkActive="active">
-          <a class="nav-link" href="#">Tarifas</a>
+          <a class="nav-link" [routerLink]="['tarifas']">Tarifas</a>
         </li>
-        <li class="nav-item dropdown justify-content-end">
+        <li *ngIf="logged" class="nav-item dropdown justify-content-end">
           <a
             class="nav-link dropdown-toggle"
             href="#"
@@ -29,10 +29,10 @@
             data-toggle="dropdown"
             aria-haspopup="true"
             aria-expanded="false"
-            >Perfiles</a
+            >Datos Personales</a
           >
-          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <a class="dropdown-item" [routerLink]="['usuarios', 'lista']">Usuarios</a>
+          <div class="dropdown-menu" routerLinkActive="active" aria-labelledby="navbarDropdown">
+            <a class="dropdown-item" routerLinkActive="active" [routerLink]="['usuarios']">Usuarios</a>
             <a class="dropdown-item" href="#">Drop Down 3</a>
             <a class="dropdown-item" href="#">Drop Down 4</a>
           </div>

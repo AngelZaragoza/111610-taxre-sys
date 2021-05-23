@@ -24,6 +24,24 @@ class Usuario {
     res.status(200).json(lista);
   };
 
+  detalleUsuario = async (req, res) => {
+    let { id } = req.params; //Recupera los campos enviados desde el form
+    console.log(id);
+    let sql = 
+    `SELECT p.persona_id, p.apellido, p.nombre, p.direccion, p.telefono, p.email, p.fecha_nac,
+            u.usuario_id, u.alias, u.rol_id
+      FROM personas p JOIN usuarios u
+        ON p.persona_id = u.persona_id
+     WHERE p.persona_id = ?`;
+    const results = await conexion.query(sql, [id]);
+
+    if (results.length > 0) {
+      res.status(200).json(results);
+    } else {
+      res.status(404).json({error: "No existe usuario"});
+    }
+  };
+
   nuevoUsuario = async (req, res) => {
     try {
       let {
@@ -35,7 +53,7 @@ class Usuario {
         fechaNac = null,
         username,
         password,
-        rol,
+        rol_id,
       } = req.body; //Recupera los campos enviados desde el form
 
       password = await this.passwordUtil(password);
@@ -55,7 +73,7 @@ class Usuario {
         fechaNac,
         username,
         password,
-        rol,
+        rol_id,
       ]).then;
 
       console.log(results);
@@ -77,9 +95,7 @@ class Usuario {
     }
 
     if (user) {
-      console.log(user);
-      // console.log("tamano", user.length);
-      // console.log("pass", user.password);
+      console.log(user);      
       let autorizado = await this.passwordUtil(pass, user.password);
       if (autorizado) {
         let { password, ...userSinPass } = user;
@@ -98,9 +114,9 @@ class Usuario {
   checkAuth(req, res, next) {
     console.log("Desde la prueba de auth:");
     if (req.isAuthenticated()) {
-      console.log("Logueado");      
+      console.log("Logueado");
       console.log(req.user);
-      res.redirect("login-success");      
+      res.redirect("login-success");
     } else {
       console.log("Debe Loguear... next");
       next();
@@ -108,15 +124,13 @@ class Usuario {
   }
 
   loginSuccess = (req, res, next) => {
-    
     console.log("Desde login Success");
     console.log("Session:", req.session);
-    console.log("Usuario:", req.user);    
-    
+    console.log("Usuario:", req.user);
+
     let { password, ...userSinPass } = req.user;
     console.log(userSinPass);
-    res.status(200).json(userSinPass);
-    
+    res.status(200).json({ logged: true, ...userSinPass });
   };
 
   loginFailed = (req, res, next) => {
@@ -128,7 +142,7 @@ class Usuario {
   logoutUsuario = (req, res, next) => {
     req.logout();
     console.log(req.session);
-    res.status(200).json({ status: "logged out" });
+    res.status(200).json({ logged: false });
   };
 
   //**********************************

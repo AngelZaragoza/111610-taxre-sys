@@ -17,8 +17,10 @@ function checkAuth(req, res, next) {
   }
 }
 //Rutas con passport implementado
-router.route("/nuevo").post(usuariosController.nuevoUsuario);
 router.route("/").get(usuariosController.listaUsuarios);
+router.route("/detalle/:id").get(usuariosController.detalleUsuario);
+
+router.route("/nuevo").post(usuariosController.nuevoUsuario);
 
 router.route("/login").get(checkAuth);
 
@@ -32,7 +34,7 @@ router.route("/passportLogin").post(
     console.log('Desde Passport authenticate:');
     
     console.log(req.session.id, userSinPass, req.session.cookie);    
-    res.status(200).json(userSinPass);
+    res.status(200).json({ logged: true, ...userSinPass });
   }
 );
 
