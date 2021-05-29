@@ -1,31 +1,33 @@
-<table class="table table-hover table-inverse table-responsive">
-  <thead class="thead-inverse">
-    <tr>
-      <th>Usuario</th>
-      <th>Apellido</th>
-      <th>Nombre</th>
-      <th>Rol</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td scope="row">1</td>
-      <td>2</td>
-      <td>3</td>
-      <td>4</td>
-    </tr>
-    <tr>
-      <td scope="row">5</td>
-      <td>6</td>
-      <td>7</td>
-      <td>8</td>
-    </tr>
-  </tbody>
-</table>
-
-<div class="btn-group" role="group" aria-label="Opciones de Usuarios">
-  <button type="button" [routerLink]="['nuevo']" class="btn btn-secondary">Nuevo Usuario</button>
-  <button type="button" [routerLink]="['editar']" class="btn btn-secondary">Editar Detalles</button>
+<div class="container">
+  <div class="row">
+    <div class="col-md-5">
+      <table
+        *ngIf="lista.length > 0"
+        class="table table-hover table-responsive"
+      >
+        <thead class="thead-light">
+          <tr>
+            <th scope="col">Usuario</th>
+            <th scope="col">Nombre</th>
+            <th scope="col">Rol</th>
+            <th scope="col">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of lista">
+            <th scope="row">{{ user.alias }}</th>
+            <td>{{ user.nombre }}</td>
+            <td>{{ user.rol }}</td>
+            <td> <a [routerLink]="[ 'detalle', user.usuario_id ]">Detalles</a> </td>
+            <!-- <td> <a [editar]="edicion" [routerLink]="[ 'detalle', user.usuario_id ]">Detalles</a> </td> -->
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="col-md-7" >
+      <router-outlet></router-outlet>
+    </div>
+  </div>
 </div>
 
-<router-outlet></router-outlet>
+

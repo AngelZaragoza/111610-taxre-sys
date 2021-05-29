@@ -29,10 +29,27 @@
             data-toggle="dropdown"
             aria-haspopup="true"
             aria-expanded="false"
-            >Datos Personales</a
+            >Listados</a
           >
           <div class="dropdown-menu" routerLinkActive="active" aria-labelledby="navbarDropdown">
             <a class="dropdown-item" routerLinkActive="active" [routerLink]="['usuarios']">Usuarios</a>
+            <a class="dropdown-item" href="#">Drop Down 3</a>
+            <a class="dropdown-item" href="#">Drop Down 4</a>
+          </div>
+        </li>
+        <li *ngIf="logged" class="nav-item dropdown justify-content-end">
+          <a
+            class="nav-link dropdown-toggle"
+            href="#"
+            id="navbarDropdown"
+            role="button"
+            data-toggle="dropdown"
+            aria-haspopup="true"
+            aria-expanded="false"
+            >Administración</a
+          >
+          <div class="dropdown-menu" routerLinkActive="active" aria-labelledby="navbarDropdown">
+            <a class="dropdown-item" routerLinkActive="active" [routerLink]="['usuarios', 'nuevo']">Nuevo Usuario</a>
             <a class="dropdown-item" href="#">Drop Down 3</a>
             <a class="dropdown-item" href="#">Drop Down 4</a>
           </div>

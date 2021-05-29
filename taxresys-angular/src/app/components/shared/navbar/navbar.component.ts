@@ -9,22 +9,26 @@ import { UsuariosService } from 'src/app/services/usuarios.service';
   styles: [],
 })
 export class NavbarComponent implements DoCheck {
-  
   logged = false;
   user = {};
 
-  constructor(private _usuariosService: UsuariosService, private route: Router) { }
+  constructor(
+    private _usuariosService: UsuariosService,
+    private route: Router
+  ) {    
+  }
 
   ngDoCheck(): void {
     this.logged = this._usuariosService.checkAuth();
     if (this.logged) {
       this.user = this._usuariosService.user;
-      console.log('Logueado: ', this.logged);
+      // console.log('Logueado: ', this.logged);
     }
   }
 
   logout() {
     this._usuariosService.passportLogout();
-    this.route.navigateByUrl('/home');    
+    this.route.navigateByUrl('/home');
   }
+  
 }

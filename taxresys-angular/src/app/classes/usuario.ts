@@ -1,13 +1,15 @@
 export class Usuario {
   persona_id: Number;
   usuario_id: Number;
-  apellido: string;
-  nombre: string;
-  direccion: string;
-  telef: string;
-  correo: string = null;
-  fechaNac: Date;
-  username: string;
-  password: string;
   rol_id: Number;
+  alias: String;
+  password: String;
+
+  constructor() {
+    this.persona_id = 0;
+    this.usuario_id = 0;
+    this.rol_id = 0;
+    this.alias = '';
+    this.password = '';
+  }
 }

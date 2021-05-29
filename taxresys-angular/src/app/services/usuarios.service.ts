@@ -1,19 +1,24 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpXsrfTokenExtractor } from '@angular/common/http';
 import { environment } from '../../environments/environment';
-import { Usuario } from '../classes/usuario';
+import { DTODetalleUsuario } from '../classes/detalle-usuario';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UsuariosService {
   user: any = {};
-  usuarioFull: Usuario;
+  roles: any = {};
+  usuarioFull: DTODetalleUsuario;
   logged: boolean;
   cookie: string;
 
   constructor( private http: HttpClient ) {
     console.log('Usuarios listo');
+    this.getRoles().then((res) => {
+      this.roles = res;
+      console.table(this.roles);
+    })
   }
 
   //Chequea si hay un usuario logueado
@@ -21,7 +26,7 @@ export class UsuariosService {
   checkAuth() {
     try {
       let local = localStorage.getItem('user');
-      console.log('Local => ', local);
+      // console.log('Local => ', local);
       
       if (local) {
         
@@ -128,7 +133,21 @@ export class UsuariosService {
     ).then((res: any) => {
       console.log(res);
       usuario = res;
-    });
-    return usuario;
+    });    
+    return usuario[0];
+  }
+
+  async getRoles() {
+    let lista: any[] = [];
+    await this.request('GET', `${environment.serverUrl}/usuarios/roles`)
+      .then((res: any[]) => {
+        lista = res.map((rol) => rol);
+      })
+      .catch((err: any) => {
+        console.log(err);
+      });
+
+    console.log('Lista roles:', lista);
+    return lista;
   }
 }

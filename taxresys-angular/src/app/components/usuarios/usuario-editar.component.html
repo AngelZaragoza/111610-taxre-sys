@@ -1,1 +1,126 @@
-<p>usuario-editar works!</p>
+<div
+  class="container-fluid shadow-sm p-2 mb-2 fondo-titulo rounded"
+  data-aos="fade-in"
+>
+  <div class="row justify-content-center text-center">
+    <div class="col col-md-6">
+      <h2 id="saludo"></h2>
+      <h4>Datos personales</h4>
+    </div>
+    <div class="col-md-3">
+      <button (click)="activarEdicion()" class="btn btn-info btn-block">
+        Editar Datos
+      </button>
+    </div>
+    <div class="col-md-3">
+      <button
+        type="button"
+        data-toggle="modal"
+        data-target="#editUsuario"
+        class="btn btn-info btn-block"
+      >
+        Editar Usuario
+      </button>
+    </div>
+  </div>
+</div>
+
+<app-form-persona [persona]="persona" [editar]="editar" (emitEstado)="editar=$event"></app-form-persona>
+
+
+<p>Usuario-Recibido! {{ idPer | json }}</p>
+<p><b>Editar: </b> {{ editar }} --- <b>DoCheck: </b> {{ testCheck }}</p>
+
+<div *ngIf="detalle">
+  <p>{{ detalle | json }}</p>
+</div>
+
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="editUsuario"
+  data-backdrop="static"
+  data-keyboard="false"
+  tabindex="-1"
+  aria-labelledby="staticBackdropLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">Modal title</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="container justify-content-between">
+          <form [formGroup]="editUsuario" >
+            <div class="form-group row">
+              <label for="rol_id" class="col-sm-3 col-form-label"
+                >Rol Usuario:
+              </label>
+              <div class="col-sm-9">
+                <select
+                  class="form-control"
+                  [disabled]="_usuariosService.user['rol_id'] !== 1"
+                  formControlName="rol_id"
+                >
+                  <option
+                    *ngFor="let rol of roles"
+                    [value]="rol.rol_id"
+                    [selected]="rol.rol_id == usuario.rol_id"
+                  >
+                    {{ rol.nombre }}
+                  </option>
+                </select>
+                <small id="helpId" class="text-muted">Rol de Usuario</small>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="alias" class="col-sm-3 col-form-label"
+                >Username:
+              </label>
+              <div class="col-sm-9">
+                <input
+                  type="text"
+                  formControlName="alias"
+                  class="form-control"
+                  aria-describedby="helpId"
+                />
+                <small id="helpId" class="text-muted">Nombre de Usuario</small>
+              </div>
+            </div>
+            <!-- <div class="form-group row">
+              <label for="alias" class="col-sm-3 col-form-label"
+                >Antiguo Password:
+              </label>
+              <div class="col-sm-9">
+                <input
+                  type="text"
+                  formControlName="password"
+                  class="form-control"
+                  aria-describedby="helpId"
+                />
+                <small id="helpId" class="text-muted">Password Anterior</small>
+              </div>
+            </div> -->
+
+          </form>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+          Cancelar
+        </button>
+        <button type="button" (click)="logUsEdit()" class="btn btn-primary">Guardar cambios</button>
+      </div>
+    </div>
+  </div>
+</div>
