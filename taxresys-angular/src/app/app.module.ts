@@ -17,7 +17,7 @@ import { LoginComponent } from './components/usuarios/login/login.component';
 import { UsuarioNuevoComponent } from './components/usuarios/usuario-nuevo.component';
 import { UsuarioEditarComponent } from './components/usuarios/usuario-editar.component';
 import { UsuarioListaComponent } from './components/usuarios/usuario-lista.component';
-import { FormPersonaComponent } from './components/form-persona/form-persona.component';
+import { FormPersonaComponent } from './components/shared/form-persona/form-persona.component';
 
 
 

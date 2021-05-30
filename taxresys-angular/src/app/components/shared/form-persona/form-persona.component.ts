@@ -1,6 +1,5 @@
 import { Component, Input, Output, EventEmitter, DoCheck } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { DTODetalleUsuario } from 'src/app/classes/detalle-usuario';
 import { Persona } from 'src/app/classes/persona';
 import { UsuariosService } from 'src/app/services/usuarios.service';
 
@@ -9,12 +8,15 @@ import { UsuariosService } from 'src/app/services/usuarios.service';
   templateUrl: './form-persona.component.html',
 })
 export class FormPersonaComponent implements DoCheck {
+  //Atributos que pueden ser seteados desde el componente padre
   @Input() persona: Persona = new Persona();
   @Input() editar: boolean = true;
-  nuevo: boolean;
-
+  @Input() nuevo: boolean = true;
+  @Input() ready: boolean = false;
+  
   @Output() emitEstado: EventEmitter<boolean>;
   @Output() emitPersona: EventEmitter<Persona>;
+    
   datosPersona: FormGroup;
 
   constructor(private _usuariosService: UsuariosService) {
@@ -53,11 +55,10 @@ export class FormPersonaComponent implements DoCheck {
 
     console.log('Editar => ', this.editar);
   }
-
+  
   ngDoCheck(): void {
     //En cada cambio del formulario, chequea si "editar" es false
-    //Cuando se cumple, setea el formulario con los datos de Persona
-    this.nuevo = this.persona.persona_id === 0 ? true : false;
+    //Cuando se cumple, setea el formulario con los datos de Persona    
     if (!this.editar) {
       console.log('DoCheck =>', this.persona);
       this.datosPersona.setValue(this.persona);
@@ -65,6 +66,7 @@ export class FormPersonaComponent implements DoCheck {
   }
 
   cancelEdit() {
+    //Setea "editar" en false y lo emite hacia el componente padre
     this.editar = false;
     this.datosPersona.reset(this.persona);
     this.emitEstado.emit(this.editar);
@@ -72,17 +74,17 @@ export class FormPersonaComponent implements DoCheck {
 
   savePersona() {
     console.log(`Formulario => `, this.datosPersona.value);
-    if (this.datosPersona.valid) {
+    let mensaje = this.nuevo? '¿Los Datos son correctos?' : '¿Desea guardar los Cambios?';
+    
+    if(confirm( mensaje )) {    
       //Recorre los campos del form y asigna los valores al objeto Persona
       for (const key in this.datosPersona.value) {
-        let value = this.datosPersona.value[key];
-        console.log(value);
+        let value = this.datosPersona.value[key];        
         if (value === '' || value === null) {
           this.persona[key] = null;
         } else {
           this.persona[key] = value;
-        }
-        // this.persona[key] = this.datosPersona.get(key).value;
+        }        
       }
       console.table(this.persona);
       

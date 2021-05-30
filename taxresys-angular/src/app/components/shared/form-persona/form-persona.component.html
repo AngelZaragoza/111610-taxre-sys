@@ -1,0 +1,182 @@
+<div class="container shadow p-3 mb-3 rounded">
+    <div class="row justify-content-center">
+      <div class="col-md-11">
+        <form [formGroup]="datosPersona" (ngSubmit)="savePersona()">
+          <fieldset [disabled]="!editar">
+            <div class="form-group row">
+              <label for="apellido" class="col-md-2 col-form-label"
+                >Apellido *</label
+              >
+              <div class="col-md-10">
+                <input
+                  type="text"
+                  class="form-control"
+                  [ngClass]="{
+                    'border-danger':
+                      !datosPersona.get('apellido').valid &&
+                      datosPersona.get('apellido').touched
+                  }"
+                  formControlName="apellido"
+                  placeholder="Apellido"
+                />
+                <div
+                  *ngIf="
+                    datosPersona.controls['apellido'].errors?.required &&
+                    datosPersona.controls['apellido'].touched
+                  "
+                  class="text-danger"
+                >
+                  Debe ingresar el Apellido
+                </div>
+              </div>
+            </div>
+  
+            <div class="form-group row">
+              <label for="nombre" class="col-md-2 col-form-label">Nombre *</label>
+              <div class="col-md-10">
+                <input
+                  type="text"                  
+                  formControlName="nombre"
+                  placeholder="Nombre"
+                  class="form-control"
+                  [ngClass]="{
+                    'border-danger':
+                      !datosPersona.get('nombre').valid &&
+                      datosPersona.get('nombre').touched
+                  }"
+                  
+                />
+                <div
+                  *ngIf="
+                    datosPersona.controls['nombre'].errors?.required &&
+                    datosPersona.controls['nombre'].touched
+                  "
+                  class="text-danger"
+                >
+                  Debe ingresar el Nombre
+                </div>
+              </div>
+            </div>
+  
+            <div class="form-group row">
+              <label for="direccion" class="col-md-2 col-form-label"
+                >Dirección *</label
+              >
+              <div class="col-md-10">
+                <input
+                  type="text"
+                  formControlName="direccion"
+                  placeholder="Dirección"
+                  class="form-control"
+                  [ngClass]="{
+                    'border-danger':
+                      !datosPersona.get('direccion').valid &&
+                      datosPersona.get('direccion').touched
+                  }"                  
+                />
+                <div
+                  *ngIf="
+                    datosPersona.controls['direccion'].errors?.required &&
+                    datosPersona.controls['direccion'].touched
+                  "
+                  class="text-danger"
+                >
+                  Ingrese Dirección
+                </div>
+              </div>
+            </div>
+  
+            <div class="form-group row">
+              <label for="email" class="col-md-2 col-form-label">E-mail:</label>
+              <div class="col-md-10">
+                <input
+                  type="text"
+                  class="form-control"
+                  [ngClass]="{
+                    'border-danger':
+                      !datosPersona.get('email').valid &&
+                      datosPersona.get('email').touched
+                  }"
+                  formControlName="email"
+                  placeholder="usuario@correo.com"
+                />
+                <div
+                  *ngIf="
+                    datosPersona.controls['email'].errors?.required &&
+                    datosPersona.controls['email'].touched
+                  "
+                  class="text-danger"
+                >
+                  Debe ingresar una dirección de e-mail válida
+                </div>
+              </div>
+            </div>
+  
+            <div class="form-group row">
+              <label for="telefono" class="col-md-2 col-form-label"
+                >Teléfono *</label
+              >
+              <div class="col-md-4">
+                <input
+                  type="text"
+                  class="form-control"
+                  [ngClass]="{
+                    'border-danger':
+                      !datosPersona.get('telefono').valid &&
+                      datosPersona.get('telefono').touched
+                  }"
+                  formControlName="telefono"
+                  placeholder="35155556666"
+                />
+                <div
+                  *ngIf="
+                    datosPersona.controls['telefono'].errors?.required &&
+                    datosPersona.controls['telefono'].touched
+                  "
+                  class="text-danger"
+                >
+                  Ingrese nro de Teléfono
+                </div>
+              </div>
+              <label for="telefono" class="col-md-2 col-form-label"
+                >Nacimiento</label
+              >
+              <div class="col-md-4">
+                <input
+                  type="date"
+                  class="form-control"
+                  formControlName="fecha_nac"
+                />
+              </div>
+            </div>
+  
+            <div *ngIf="editar" class="form-group row">
+              <div class="col-sm-6">
+                <button *ngIf="!nuevo"
+                  (click)="cancelEdit()"
+                  class="btn btn-secondary btn-block"                
+                >
+                  Descartar cambios...
+                </button>
+                <button *ngIf="nuevo"
+                  type="reset"
+                  class="btn btn-secondary btn-block"                  
+                >
+                  Limpiar campos...
+                </button>
+              </div>
+              <div class="col-sm-6">
+                <button                
+                  type="submit"
+                  class="btn btn-primary btn-block"
+                  [disabled]="datosPersona.invalid"
+                >
+                  Guardar cambios...
+                </button>
+              </div>
+            </div>
+          </fieldset>
+        </form>
+      </div>
+    </div>
+  </div>

@@ -2,8 +2,8 @@ export class Usuario {
   persona_id: Number;
   usuario_id: Number;
   rol_id: Number;
-  alias: String;
-  password: String;
+  alias: string;
+  password: string;
 
   constructor() {
     this.persona_id = 0;

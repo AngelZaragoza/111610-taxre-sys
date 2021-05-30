@@ -2,8 +2,12 @@
   class="container-fluid shadow-sm p-2 mb-2 fondo-titulo rounded"
   data-aos="fade-in"
 >
-  <div class="row justify-content-center text-center">
-    <div class="col col-md-7">
+  
+  <div class="row text-center align-middle">
+    <div class="col col-md-2">
+      <a class="btn btn-outline-danger">Volver al Inicio</a>
+    </div>
+    <div class="col col-md-8">
       <h2 id="saludo"></h2>
       <h4>Datos Nuevo Usuario</h4>
     </div>
@@ -22,22 +26,32 @@
         <div class="carousel-inner">
           <div class="carousel-item active">
             <app-form-persona
+              [nuevo]="true"
               (emitPersona)="listenNuevo($event)"
             ></app-form-persona>
           </div>
           <div class="carousel-item">
             <div class="container shadow p-3 mb-3 rounded">
-              <!-- <div class="container justify-content-between"> -->
               <div class="row justify-content-center">
                 <div class="col-md-11">
-                  <form [formGroup]="newUsuario">
+                  <h3>Form Invalid: {{ newUsuario.invalid }}</h3>
+                  <h3>Estado Persona: {{ ready }}</h3>
+                  <form [formGroup]="newUsuario" (ngSubmit)="saveUsuario()">
                     <div class="form-group row">
                       <label for="rol_id" class="col-sm-3 col-form-label"
                         >Rol Usuario:
                       </label>
                       <div class="col-sm-9">
-                        <select class="form-control" formControlName="rol_id">
-                          <!-- <option selected>-- Seleccione un Rol --</option> -->
+                        <select
+                          class="form-control"
+                          formControlName="rol_id"
+                          [ngClass]="{
+                            'border-danger': newUsuario.get('rol_id').invalid
+                          }"
+                        >
+                          <option value="" selected>
+                            -- Seleccione un Rol --
+                          </option>
                           <option
                             *ngFor="let rol of roles"
                             [value]="rol.rol_id"
@@ -58,10 +72,17 @@
                           class="form-control"
                           placeholder="Alias / Nombre de Usuario"
                         />
-                        <!-- aria-describedby="helpId"
-                        <small id="helpId" class="text-muted"
-                          >Introduzca su Alias / Nombre de Usuario</small
-                        > -->
+                        <!-- aria-describedby="helpId" -->
+                        <small
+                          id="helpId"
+                          [ngClass]="
+                            newUsuario.get('alias').invalid
+                              ? 'text-danger'
+                              : 'text-success'
+                          "
+                        >
+                          De 5 a 20 caracteres
+                        </small>
                       </div>
                     </div>
                     <div class="form-group row">
@@ -70,13 +91,10 @@
                       </label>
                       <div class="col-sm-9">
                         <input
-                          type="password"
+                          type="text"
                           formControlName="password"
                           class="form-control"
-                          />
-                          <!-- aria-describedby="helpId"
-                        <small id="helpId" class="text-muted"
-                          >Introduzca su Password</small> -->
+                        />
                       </div>
                     </div>
                     <div class="form-group row">
@@ -85,14 +103,37 @@
                       </label>
                       <div class="col-sm-9">
                         <input
-                          type="password"
-                          formControlName="password"
+                          type="text"
+                          formControlName="passwordConfirm"
                           class="form-control"
-                          id="passwordConfirm"
-                          />
-                          <!-- aria-describedby="helpId"
-                        <small id="helpId" class="text-muted"
-                          >Vuelva a introducir su Password</small> -->
+                        />
+                        <small
+                          *ngIf="
+                            newUsuario.errors?.nocoincide &&
+                            (newUsuario.touched || newUsuario.dirty)
+                          "
+                          class="text-danger"
+                          >Los password no coinciden
+                        </small>
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <div class="col-sm-6">
+                        <button
+                          type="reset"
+                          class="btn btn-secondary btn-block"
+                        >
+                          Limpiar campos...
+                        </button>
+                      </div>
+                      <div class="col-sm-6">
+                        <button
+                          type="submit"
+                          class="btn btn-primary btn-block"
+                          [disabled]="newUsuario.invalid && ready"
+                        >
+                          Guardar cambios...
+                        </button>
                       </div>
                     </div>
                   </form>
@@ -102,7 +143,7 @@
           </div>
         </div>
       </div>
-      <div class="row justify-content-around">
+      <div *ngIf="ready" class="row justify-content-around">
         <div class="col-md-4">
           <button
             class="btn btn-outline-info btn-sm btn-block"

@@ -1,24 +1,22 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpXsrfTokenExtractor } from '@angular/common/http';
 import { environment } from '../../environments/environment';
-import { DTODetalleUsuario } from '../classes/detalle-usuario';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UsuariosService {
   user: any = {};
-  roles: any = {};
-  usuarioFull: DTODetalleUsuario;
+  roles: any = {};  
   logged: boolean;
   cookie: string;
 
-  constructor( private http: HttpClient ) {
+  constructor(private http: HttpClient) {
     console.log('Usuarios listo');
     this.getRoles().then((res) => {
       this.roles = res;
       console.table(this.roles);
-    })
+    });
   }
 
   //Chequea si hay un usuario logueado
@@ -26,13 +24,11 @@ export class UsuariosService {
   checkAuth() {
     try {
       let local = localStorage.getItem('user');
-      // console.log('Local => ', local);
-      
+
       if (local) {
-        
         //Si se recupera data de localStorage, se procede con:
         this.user = JSON.parse(local);
-        
+
         //Si hay un id en el localStorage, recupera su alias y devuelve true
         if (this.user['usuario_id']) {
           console.log(this.user.alias);
@@ -41,9 +37,8 @@ export class UsuariosService {
           return false;
         }
       } else {
-        
         //Si no se recupera nada de localStorage, se procede con:
-        localStorage.setItem('user',JSON.stringify({ logged:false }));
+        localStorage.setItem('user', JSON.stringify({ logged: false }));
       }
     } catch (error) {
       console.log(error);
@@ -84,7 +79,7 @@ export class UsuariosService {
         localStorage.setItem('user', JSON.stringify(res));
       })
       .catch((err: any) => {
-        console.log(err);   
+        console.log(err);
       })
       .finally(() => {
         this.checkAuth();
@@ -125,7 +120,7 @@ export class UsuariosService {
     return lista;
   }
 
-  async detalleUsuario(id) {
+  async detalleUsuario(id: Number) {
     let usuario: any;
     await this.request(
       'GET',
@@ -133,10 +128,32 @@ export class UsuariosService {
     ).then((res: any) => {
       console.log(res);
       usuario = res;
-    });    
+    });
     return usuario[0];
   }
 
+  async nuevoUsuarioFull(nuevo: any) {
+    let user: any;
+    await this.request(
+      'POST',
+      `${environment.serverUrl}/usuarios/nuevo`,
+      nuevo
+    ).then((res) => (user = res));
+    return user;
+  }
+
+  async updatePersona(persona: any, id: Number) {
+    let pers: any;
+    await this.request(
+      'POST',
+      `${environment.serverUrl}/usuarios/detalle/${id}`,
+      persona
+    ).then((res) => (pers = res));
+    return pers;
+  }
+
+  //Métodos auxiliares
+  //*****************************
   async getRoles() {
     let lista: any[] = [];
     await this.request('GET', `${environment.serverUrl}/usuarios/roles`)

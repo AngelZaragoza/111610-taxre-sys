@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container-fluid">
   <div class="row">
     <div class="col-md-5">
       <table
@@ -18,16 +18,20 @@
             <th scope="row">{{ user.alias }}</th>
             <td>{{ user.nombre }}</td>
             <td>{{ user.rol }}</td>
-            <td> <a [routerLink]="[ 'detalle', user.usuario_id ]">Detalles</a> </td>
-            <!-- <td> <a [editar]="edicion" [routerLink]="[ 'detalle', user.usuario_id ]">Detalles</a> </td> -->
+            <td>
+              <a
+                class="btn btn-sm btn-warning"
+                [routerLink]="['detalle', user.usuario_id]"
+                >Detalles</a
+              >
+            </td>
           </tr>
         </tbody>
       </table>
     </div>
-    <div class="col-md-7" >
+    <div class="col-md-7">
+      <!-- Aquí se renderiza la ruta hija -->
       <router-outlet></router-outlet>
     </div>
   </div>
 </div>
-
-

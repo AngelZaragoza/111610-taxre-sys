@@ -10,10 +10,12 @@ import { UsuariosService } from 'src/app/services/usuarios.service';
 export class UsuarioListaComponent implements OnInit {
 
   lista: any[] = [];
-  edicion = false;  
+  
   constructor( private _usuariosService: UsuariosService ) { }
 
   ngOnInit(): void {
+    
+    //Controlar usuario que realiza solicitud
     this.getUsuarios();
   }
 

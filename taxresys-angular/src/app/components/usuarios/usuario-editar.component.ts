@@ -1,10 +1,10 @@
 import { Component, DoCheck } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { UsuariosService } from 'src/app/services/usuarios.service';
+import { UsuariosService } from '../../services/usuarios.service';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { DTODetalleUsuario } from 'src/app/classes/detalle-usuario';
-import { Persona } from 'src/app/classes/persona';
-import { Usuario } from 'src/app/classes/usuario';
+import { DTODetalleUsuario } from '../../classes/detalle-usuario';
+import { Persona } from '../../classes/persona';
+import { Usuario } from '../../classes/usuario';
 
 @Component({
   selector: 'app-usuario-editar',
@@ -17,26 +17,16 @@ export class UsuarioEditarComponent {
   detalle: DTODetalleUsuario = new DTODetalleUsuario();
   persona: Persona = new Persona();
   usuario: Usuario = new Usuario();
-  roles: any;
-  testCheck = 0;
-  editPersona: FormGroup;
+  testCheck = 0;  
+  
+  //Formulario y objeto de roles de usuario
   editUsuario: FormGroup;
+  roles: any;
 
   constructor(
     public _usuariosService: UsuariosService,
     private activatedRoute: ActivatedRoute
-  ) {
-    //ASIGNAR VALORES CAMPO POR CAMPO
-    //******************** */
-    // this.editPersona = new FormGroup({
-    //   persona_id: new FormControl(''),
-    //   apellido: new FormControl('', Validators.required),
-    //   nombre: new FormControl('', Validators.required),
-    //   direccion: new FormControl('', Validators.required),
-    //   telefono: new FormControl('', Validators.required),
-    //   email: new FormControl('', [Validators.email]),
-    //   fecha_nac: new FormControl(''),
-    // });    
+  ) {    
 
     this.roles = this._usuariosService.roles;
 
@@ -45,20 +35,20 @@ export class UsuarioEditarComponent {
       usuario_id: new FormControl(''),
       rol_id: new FormControl(''),
       alias: new FormControl(''),
-      password: new FormControl('')
+      password: new FormControl(''),
     });
 
     //Se ejecuta con cada llamada a la ruta que renderiza este componente
     //excepto cuando el parámetro que viene con la ruta no cambia.
     //Setea "editar" en falso para evitar ediciones accidentales.
-    this.activatedRoute.params.subscribe((params) => {
-      this.idPer = params;
+    this.activatedRoute.params.subscribe((params) => {      
+      this.idPer = params['usuario_id'];
       this.testCheck++;
-      this.editar = false;      
-      this.detalleUsuario(this.idPer.usuario_id).finally(() => {
+      this.editar = false;
+      
+      this.detalleUsuario(this.idPer).finally(() => {
         console.table(this.usuario);
-        console.table(this.persona);
-        // this.editPersona.setValue(this.persona);
+        console.table(this.persona);        
         this.editUsuario.setValue(this.usuario);
       });
     });
@@ -80,17 +70,25 @@ export class UsuarioEditarComponent {
     this.editar = !this.editar;
   }
 
-  // cancelEdit() {
-  //   this.editPersona.reset(this.persona);
-  //   this.activarEdicion();
-  // }
 
-  // logEdit() {
-  //   console.log(this.editPersona.value);
-  // }
+  listenPersona(persona) {
+    //Recibe el objeto "persona" desde el evento del componente hijo
+    this.persona = persona;
+    this.activarEdicion();
+    console.table(this.persona);
+    this.updatePersona();
+  }
 
+  async updatePersona() {
+    let result = await this._usuariosService.updatePersona(this.persona, this.idPer);
+    if (result['success']) {
+      alert(`Cambios guardados!: ${result['resp']['info']}`);
+      // this.route.navigateByUrl('/home');
+    } else {
+      alert(`Algo falló`);
+    }
+  }
   logUsEdit() {
     console.log(this.editUsuario.value);
-    
   }
 }

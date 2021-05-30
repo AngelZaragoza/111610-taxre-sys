@@ -25,8 +25,14 @@
   </div>
 </div>
 
-<app-form-persona [persona]="persona" [editar]="editar" (emitEstado)="editar=$event"></app-form-persona>
-
+<!-- Aquí se renderiza el componente con el form datosPersona -->
+<app-form-persona
+  [persona]="persona"
+  [editar]="editar"
+  [nuevo]="false"
+  (emitEstado)="editar = $event"
+  (emitPersona)="listenPersona($event)"
+></app-form-persona>
 
 <p>Usuario-Recibido! {{ idPer | json }}</p>
 <p><b>Editar: </b> {{ editar }} --- <b>DoCheck: </b> {{ testCheck }}</p>
@@ -60,7 +66,7 @@
       </div>
       <div class="modal-body">
         <div class="container justify-content-between">
-          <form [formGroup]="editUsuario" >
+          <form [formGroup]="editUsuario">
             <div class="form-group row">
               <label for="rol_id" class="col-sm-3 col-form-label"
                 >Rol Usuario:
@@ -110,7 +116,6 @@
                 <small id="helpId" class="text-muted">Password Anterior</small>
               </div>
             </div> -->
-
           </form>
         </div>
       </div>
@@ -119,7 +124,9 @@
         <button type="button" class="btn btn-secondary" data-dismiss="modal">
           Cancelar
         </button>
-        <button type="button" (click)="logUsEdit()" class="btn btn-primary">Guardar cambios</button>
+        <button type="button" (click)="logUsEdit()" class="btn btn-primary">
+          Guardar cambios
+        </button>
       </div>
     </div>
   </div>
