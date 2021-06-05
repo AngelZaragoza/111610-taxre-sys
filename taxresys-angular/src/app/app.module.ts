@@ -2,9 +2,11 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule, HttpClientXsrfModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 //Servicios
 import { UsuariosService } from './services/usuarios.service';
+import { AdherentesService } from './services/adherentes.service';
 
 //Rutas
 import { AppRoutingModule } from './app.routes';
@@ -18,6 +20,12 @@ import { UsuarioNuevoComponent } from './components/usuarios/usuario-nuevo.compo
 import { UsuarioEditarComponent } from './components/usuarios/usuario-editar.component';
 import { UsuarioListaComponent } from './components/usuarios/usuario-lista.component';
 import { FormPersonaComponent } from './components/shared/form-persona/form-persona.component';
+import { AdherenteListaComponent } from './components/adherentes/adherente-lista.component';
+import { AdherenteNuevoComponent } from './components/adherentes/adherente-nuevo.component';
+import { AdherenteEditarComponent } from './components/adherentes/adherente-editar.component';
+import { ChoferListaComponent } from './components/choferes/chofer-lista.component';
+import { ChoferEditarComponent } from './components/choferes/chofer-editar.component';
+import { ChoferNuevoComponent } from './components/choferes/chofer-nuevo.component';
 
 
 
@@ -30,11 +38,18 @@ import { FormPersonaComponent } from './components/shared/form-persona/form-pers
     UsuarioNuevoComponent,
     UsuarioEditarComponent,
     UsuarioListaComponent,
-    FormPersonaComponent
+    FormPersonaComponent,
+    AdherenteListaComponent,
+    AdherenteNuevoComponent,
+    AdherenteEditarComponent,
+    ChoferListaComponent,
+    ChoferEditarComponent,
+    ChoferNuevoComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
+    NgbModule,
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
@@ -43,7 +58,8 @@ import { FormPersonaComponent } from './components/shared/form-persona/form-pers
     })
   ],
   providers: [
-    UsuariosService
+    UsuariosService,
+    AdherentesService
   ],
   bootstrap: [AppComponent]
 })

@@ -2,10 +2,9 @@
   class="container-fluid shadow-sm p-2 mb-2 fondo-titulo rounded"
   data-aos="fade-in"
 >
-  
   <div class="row text-center align-middle">
     <div class="col col-md-2">
-      <a class="btn btn-outline-danger">Volver al Inicio</a>
+      <a class="btn btn-outline-danger" [routerLink]="['/home']">Volver al Inicio</a>
     </div>
     <div class="col col-md-8">
       <h2 id="saludo"></h2>
@@ -16,7 +15,7 @@
 
 <div class="container">
   <div class="row justify-content-center">
-    <div class="col-lg-8">
+    <div class="col-lg-9">
       <div
         id="datosUsuario"
         class="carousel slide"
@@ -91,7 +90,7 @@
                       </label>
                       <div class="col-sm-9">
                         <input
-                          type="text"
+                          type="password"
                           formControlName="password"
                           class="form-control"
                         />
@@ -103,7 +102,7 @@
                       </label>
                       <div class="col-sm-9">
                         <input
-                          type="text"
+                          type="password"
                           formControlName="passwordConfirm"
                           class="form-control"
                         />
@@ -130,7 +129,7 @@
                         <button
                           type="submit"
                           class="btn btn-primary btn-block"
-                          [disabled]="newUsuario.invalid && ready"
+                          [disabled]="!newUsuario.valid || !ready"
                         >
                           Guardar cambios...
                         </button>
@@ -143,10 +142,12 @@
           </div>
         </div>
       </div>
-      <div *ngIf="ready" class="row justify-content-around">
+      <!-- <div *ngIf="ready" class="row justify-content-around"> -->
+      <div class="row justify-content-around">
         <div class="col-md-4">
           <button
-            class="btn btn-outline-info btn-sm btn-block"
+            #prevSlide
+            [ngClass]="ready ? 'btn btn-info btn-block' : 'btn btn-outline-info btn-sm btn-block'" 
             href="#datosUsuario"
             data-slide="prev"
             aria-hidden="true"
@@ -156,10 +157,11 @@
         </div>
         <div class="col-md-4">
           <button
-            class="btn btn-outline-info btn-sm btn-block"
+            #nextSlide            
+            [ngClass]="ready ? 'btn btn-info btn-block' : 'btn btn-outline-info btn-sm btn-block'"
             href="#datosUsuario"
             data-slide="next"
-            aria-hidden="false"
+            aria-hidden="false"            
           >
             Siguiente
           </button>

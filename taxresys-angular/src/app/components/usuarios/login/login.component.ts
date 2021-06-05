@@ -9,36 +9,44 @@ import { UsuariosService } from '../../../services/usuarios.service';
   templateUrl: './login.component.html',
 })
 export class LoginComponent implements OnInit {
-  
   forma: FormGroup;
   minChar = 5;
+  result: any = {};
 
-  constructor(private _usuariosService: UsuariosService, private route: Router) {
+  constructor(
+    private _usuariosService: UsuariosService,
+    private route: Router
+  ) {
     this.forma = new FormGroup({
       usuario: new FormControl('', [
         Validators.required,
-        Validators.minLength(this.minChar)
+        Validators.minLength(this.minChar),
       ]),
-      pass: new FormControl('', [Validators.required, Validators.minLength(this.minChar)]),
+      pass: new FormControl('', [
+        Validators.required,
+        Validators.minLength(this.minChar),
+      ]),
     });
   }
 
   ngOnInit(): void {}
 
-  
   logForma() {
-    console.log(this.forma.controls);    
+    console.log(this.forma.controls);
   }
-  
-  async logIn() {    
-    await this._usuariosService.passportLogin(this.forma.value);
-    console.log(this._usuariosService.user);
+
+  async logIn() {
     
-    if(this._usuariosService.user.logged) {      
+    this.result = await this._usuariosService.passportLogin(this.forma.value);
+    
+    if( this.result['error'] ) console.log(this.result['error']);   
+    
+    console.log(this._usuariosService.user);
+
+    if (this._usuariosService.user.logged) {
       this.route.navigateByUrl('/home');
     }
-    
-    //Agregar lógica de respuesta en caso de falla de login
 
+    //Agregar lógica de respuesta en caso de falla de login
   }
 }

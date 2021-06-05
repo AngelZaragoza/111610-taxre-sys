@@ -34,12 +34,14 @@
   (emitPersona)="listenPersona($event)"
 ></app-form-persona>
 
-<p>Usuario-Recibido! {{ idPer | json }}</p>
+<!-- <p>Usuario-Recibido! {{ idPer | json }}</p>
 <p><b>Editar: </b> {{ editar }} --- <b>DoCheck: </b> {{ testCheck }}</p>
 
 <div *ngIf="detalle">
   <p>{{ detalle | json }}</p>
-</div>
+</div> -->
+
+<pre> Usuario logueado es Admin: {{ isAdmin }}</pre>
 
 <!-- Modal -->
 <div
@@ -54,7 +56,9 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="staticBackdropLabel">Modal title</h5>
+        <h5 class="modal-title" id="staticBackdropLabel">
+          Editar Datos de Usuario
+        </h5>
         <button
           type="button"
           class="close"
@@ -71,11 +75,18 @@
               <label for="rol_id" class="col-sm-3 col-form-label"
                 >Rol Usuario:
               </label>
-              <div class="col-sm-9">
+              <div *ngIf="!isAdmin" class="col-sm-9">
+                <select class="form-control" formControlName="rol_id">
+                  <option [value]="usuario.rol_id">
+                    {{ rolNombre }}
+                  </option>
+                </select>
+              </div>
+              <div *ngIf="isAdmin" class="col-sm-9">
                 <select
                   class="form-control"
-                  [disabled]="_usuariosService.user['rol_id'] !== 1"
                   formControlName="rol_id"
+                  [disabled]="!isAdmin"
                 >
                   <option
                     *ngFor="let rol of roles"
@@ -104,12 +115,12 @@
             </div>
             <!-- <div class="form-group row">
               <label for="alias" class="col-sm-3 col-form-label"
-                >Antiguo Password:
+                >Password Actual:
               </label>
               <div class="col-sm-9">
                 <input
                   type="text"
-                  formControlName="password"
+                  formControlName="passwordAnterior"
                   class="form-control"
                   aria-describedby="helpId"
                 />

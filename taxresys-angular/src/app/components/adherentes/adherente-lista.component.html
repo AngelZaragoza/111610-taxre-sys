@@ -1,0 +1,42 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-5">
+      <div class="shadow-sm p-2 mb-2 fondo-titulo text-center rounded">
+        
+        <h4 *ngIf="loading"> <i class="fas fa-spinner fa-pulse"></i>   Cargando...   </h4>        
+        <h4 *ngIf="!loading && lista[0].error?.success">{{ lista[0].error.message }}</h4>
+        <h4 *ngIf="!loading && lista[0]['persona_id']">Adherentes registrados</h4>
+        
+      </div>
+
+      <table *ngIf="!loading && lista[0]['persona_id']" class="table table-hover table-responsive">
+        <thead class="thead-light">
+          <tr>
+            <th scope="col">Apellido</th>
+            <th scope="col">Nombre</th>
+            <th scope="col">Cant. Móviles</th>
+            <th scope="col">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let adh of lista">
+            <th scope="row">{{ adh.apellido }}</th>
+            <td>{{ adh.nombre }}</td>
+            <td>{{ adh.moviles_activos }}</td>
+            <td>
+              <a
+                class="btn btn-sm btn-warning"
+                [routerLink]="['detalle', adh.adherente_id]"
+                >Detalles</a
+              >
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="col-md-7">
+      <!-- Aquí se renderiza la ruta hija -->
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</div>

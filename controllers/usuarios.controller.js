@@ -1,4 +1,3 @@
-const express = require("express");
 const bcrypt = require("bcrypt");
 const conexion = require("../db/db-connection");
 
@@ -8,6 +7,18 @@ class Usuario {
   //**********************************
   //* Métodos llamados por el router *
   //**********************************
+  listaRoles = async (req, res) => {
+    let sql = `SELECT * FROM roles`;
+
+    const lista = await conexion.query(sql);
+    if (!lista.length) {
+      res
+        .status(404)
+        .json({ success: false, message: "No se encontraron roles" });
+    }
+    res.status(200).json(lista);
+  };
+
   listaUsuarios = async (req, res) => {
     let sql = `SELECT p.apellido, p.nombre, p.fecha_nac, u.usuario_id, u.alias, r.nombre AS rol
       FROM personas p JOIN usuarios u
@@ -20,38 +31,39 @@ class Usuario {
       res
         .status(404)
         .json({ success: false, message: "No se encontraron usuarios" });
+    } else {
+      res.status(200).json(lista);
     }
-    res.status(200).json(lista);
   };
 
   detalleUsuario = async (req, res) => {
-    let { id } = req.params; //Recupera los campos enviados desde el form
-    console.log(id);
-    let sql = 
-    `SELECT p.persona_id, p.apellido, p.nombre, p.direccion, p.telefono, p.email, p.fecha_nac,
-            u.usuario_id, u.alias, u.rol_id
-      FROM personas p JOIN usuarios u
-        ON p.persona_id = u.persona_id
-     WHERE p.persona_id = ?`;
+    let { id } = req.params; //Recupera el id enviado por parámetro
+    let sql = `SELECT p.persona_id, p.apellido, p.nombre, p.direccion,
+                      p.telefono, p.email, DATE_FORMAT(p.fecha_nac, '%Y-%m-%d') AS fecha_nac,
+                      u.usuario_id, u.rol_id, u.alias, u.password
+                FROM personas p JOIN usuarios u
+                  ON p.persona_id = u.persona_id
+               WHERE u.usuario_id = ?`;
+              //  WHERE p.persona_id = ?`;
     const results = await conexion.query(sql, [id]);
 
     if (results.length > 0) {
       res.status(200).json(results);
     } else {
-      res.status(404).json({error: "No existe usuario"});
+      res.status(404).json({ success: false, message: "No existe usuario" });
     }
   };
 
-  nuevoUsuario = async (req, res) => {
+  nuevoUsuarioFull = async (req, res) => {
     try {
       let {
         apellido,
         nombre,
         direccion,
-        telef,
-        correo = null,
-        fechaNac = null,
-        username,
+        telefono,
+        email = null,
+        fecha_nac = null,
+        alias,
         password,
         rol_id,
       } = req.body; //Recupera los campos enviados desde el form
@@ -59,30 +71,43 @@ class Usuario {
       password = await this.passwordUtil(password);
       console.log(password);
 
-      let user = { apellido, nombre, username };
+      let user = { apellido, nombre, alias };
       console.log(user);
 
       //Llama el stored procedure que inserta la persona y el usuario al mismo tiempo
       let sql = "CALL nuevo_usuario(?,?,?,?,?,?,?,?,?)";
-      const results = await conexion.query(sql, [
-        apellido,
-        nombre,
-        direccion,
-        telef,
-        correo,
-        fechaNac,
-        username,
-        password,
-        rol_id,
-      ]).then;
-
-      console.log(results);
-      return res.status(201).json({ success: "true", action: "added", user });
+      const results = await conexion
+        .query(sql, [
+          apellido,
+          nombre,
+          direccion,
+          telefono,
+          email,
+          fecha_nac,
+          alias,
+          password,
+          rol_id,
+        ])
+        .then((resp) => {
+          console.log(resp);
+          return res
+            .status(201)
+            .json({ success: "true", action: "added", user, resp });
+        })
+        .catch((err) => {
+          console.log("Error en procedure", err);
+          return res.status(500).json(err);
+        });
+      // console.log(results);
     } catch (err) {
       console.log("Error en procedure", err);
       return res.status(500).json(err);
     }
   };
+
+  //**********************************
+  //* Métodos llamados por passport *
+  //**********************************
 
   loginUsuario = async (req, res) => {
     let { usuario, pass } = req.body;
@@ -95,7 +120,7 @@ class Usuario {
     }
 
     if (user) {
-      console.log(user);      
+      console.log(user);
       let autorizado = await this.passwordUtil(pass, user.password);
       if (autorizado) {
         let { password, ...userSinPass } = user;
@@ -108,9 +133,6 @@ class Usuario {
     }
   };
 
-  //**********************************
-  //* Métodos auxiliares internos *
-  //**********************************
   checkAuth(req, res, next) {
     console.log("Desde la prueba de auth:");
     if (req.isAuthenticated()) {
@@ -136,7 +158,7 @@ class Usuario {
   loginFailed = (req, res, next) => {
     console.log("Session F:", req.session);
     console.log("Usuario F:", req.user);
-    res.status(401).json({ status: "unauthorized" });
+    res.status(401).json({ success: false, message: "Usuario o Password incorrectos" });
   };
 
   logoutUsuario = (req, res, next) => {

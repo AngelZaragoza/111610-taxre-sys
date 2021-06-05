@@ -4,13 +4,13 @@ import { UsuariosService } from 'src/app/services/usuarios.service';
 @Component({
   selector: 'app-usuario-lista',
   templateUrl: './usuario-lista.component.html',
-  styles: [
-  ]
+  styles: []
 })
 export class UsuarioListaComponent implements OnInit {
 
   lista: any[] = [];
-  
+  loading: boolean;
+
   constructor( private _usuariosService: UsuariosService ) { }
 
   ngOnInit(): void {
@@ -20,7 +20,11 @@ export class UsuarioListaComponent implements OnInit {
   }
 
   async getUsuarios() {
+    
+    //Implementar ngIf de Cargando...
+    this.loading = true;
     this.lista = await this._usuariosService.getUsuarios();
+    this.loading = false;
   }
 
 }

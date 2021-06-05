@@ -7,7 +7,7 @@ import { environment } from '../../environments/environment';
 })
 export class UsuariosService {
   user: any = {};
-  roles: any = {};  
+  roles: any[] = [];
   logged: boolean;
   cookie: string;
 
@@ -31,7 +31,7 @@ export class UsuariosService {
 
         //Si hay un id en el localStorage, recupera su alias y devuelve true
         if (this.user['usuario_id']) {
-          console.log(this.user.alias);
+          console.log(this.user.alias, this.user.rol_id);
           return true;
         } else {
           return false;
@@ -45,7 +45,7 @@ export class UsuariosService {
       return false;
     }
   }
-
+  
   //Método principal para manejar los requests
   //******************************************
   private request(method: string, url: string, data?: any) {
@@ -67,6 +67,7 @@ export class UsuariosService {
   //************************
   async passportLogin(user: any) {
     console.log(user);
+    let result: any;
 
     await this.request(
       'POST',
@@ -77,13 +78,18 @@ export class UsuariosService {
         console.log(' Respuesta ');
         console.log(res);
         localStorage.setItem('user', JSON.stringify(res));
+        result = res;
       })
       .catch((err: any) => {
         console.log(err);
+        result = err;
       })
       .finally(() => {
+        console.log('Pasa por finally');
         this.checkAuth();
       });
+
+    return result;
   }
 
   async passportLogout() {
@@ -134,18 +140,16 @@ export class UsuariosService {
 
   async nuevoUsuarioFull(nuevo: any) {
     let user: any;
-    await this.request(
-      'POST',
-      `${environment.serverUrl}/usuarios/nuevo`,
-      nuevo
-    ).then((res) => (user = res));
+    await this.request('POST', `${environment.serverUrl}/usuarios/nuevo`, nuevo)
+      .then((res) => (user = res))
+      .catch((err) => (user = err));
     return user;
   }
 
   async updatePersona(persona: any, id: Number) {
     let pers: any;
     await this.request(
-      'POST',
+      'PUT',
       `${environment.serverUrl}/usuarios/detalle/${id}`,
       persona
     ).then((res) => (pers = res));

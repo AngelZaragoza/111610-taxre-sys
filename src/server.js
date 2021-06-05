@@ -3,6 +3,7 @@ const dotenv = require("dotenv").config();
 const conexion = require("../db/db-connection");
 const cors = require("cors");
 const usuarios = require("../routes/usuarios.route");
+const adherentes = require("../routes/adherentes.route");
 
 const session = require("express-session");
 const MySQLStore = require("express-mysql-session")(session);
@@ -67,6 +68,7 @@ const port = Number(process.env.PORT || 3400);
 //*****************************************
 
 app.use("/usuarios", usuarios);
+app.use("/adherentes", adherentes);
 
 //*****************************************
 //Levanta el servidor e informa el puerto
