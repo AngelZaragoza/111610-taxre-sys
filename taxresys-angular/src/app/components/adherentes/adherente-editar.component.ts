@@ -70,7 +70,6 @@ export class AdherenteEditarComponent {
     this.editar = !this.editar;
   }
 
-
   listenPersona(persona) {
     //Recibe el objeto "persona" desde el evento del componente hijo
     this.persona = persona;
@@ -80,7 +79,10 @@ export class AdherenteEditarComponent {
   }
 
   async updatePersona() {
-    let result = await this._adherentesService.updatePersona(this.persona, this.persona.persona_id);
+    let result = await this._adherentesService.updatePersona(
+      this.persona,
+      this.persona.persona_id
+    );
     if (result['success']) {
       alert(`Datos Actualizados!: ${result['resp']['info']}`);
       // this.route.navigateByUrl('/home');
@@ -90,17 +92,28 @@ export class AdherenteEditarComponent {
   }
 
   async updateAdherente() {
+    this.loading = true;
+
     this.adherente = this.editAdherente.value;
-    let cierraModal = document.querySelector('#editUsuario');
+    let cierraModal = document.querySelector('#toggleModal');
     console.log(cierraModal);
-    
-    let result = await this._adherentesService.updateAdherente(this.adherente, this.adherente.adherente_id);
-    if (result['success']) {
-      alert(`Datos Actualizados!: ${result['resp']['info']}`);    
-    } else {
-      alert(`Algo falló`);
+
+    //Pide confirmación para el guardado (a mejorar aspecto...)
+    if (confirm(`¿Guardar cambios?`)) {
+      let result = await this._adherentesService.updateAdherente(
+        this.adherente,
+        this.adherente.adherente_id
+      );
+
+      if (result['success']) {
+        //Envía un evento 'click' al botón que abre y cierra el modal
+        cierraModal.dispatchEvent(new Event('click', { bubbles: true }));
+        alert(`Datos Actualizados!: ${result['resp']['info']}`);
+      } else {
+        alert(`Algo falló`);
+      }
     }
-    
-    cierraModal.dispatchEvent(new Event("modal('hide')", { bubbles: true }));
+
+    this.loading = false;
   }
 }

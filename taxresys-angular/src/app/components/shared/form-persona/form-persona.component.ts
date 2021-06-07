@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, DoCheck } from '@angular/core';
+import { Component, Input, Output, EventEmitter, DoCheck, OnDestroy } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Persona } from 'src/app/classes/persona';
 import { UsuariosService } from 'src/app/services/usuarios.service';
@@ -7,7 +7,7 @@ import { UsuariosService } from 'src/app/services/usuarios.service';
   selector: 'app-form-persona',
   templateUrl: './form-persona.component.html',
 })
-export class FormPersonaComponent implements DoCheck {
+export class FormPersonaComponent implements DoCheck, OnDestroy {
   //Atributos que pueden ser seteados desde el componente padre
   @Input() persona: Persona = new Persona();
   @Input() editar: boolean = true;
@@ -59,8 +59,7 @@ export class FormPersonaComponent implements DoCheck {
   ngDoCheck(): void {
     //En cada cambio del formulario, chequea si "editar" es false
     //Cuando se cumple, setea el formulario con los datos de Persona    
-    if (!this.editar) {
-      console.log('DoCheck =>', this.persona);
+    if (!this.editar) {      
       this.datosPersona.setValue(this.persona);
     }
   }
@@ -91,5 +90,9 @@ export class FormPersonaComponent implements DoCheck {
       //Emite el objeto persona para que lo tome el componente padre
       this.emitPersona.emit(this.persona);
     }
+  }
+
+  ngOnDestroy(): void {
+    console.log('Form Persona destruido');    
   }
 }

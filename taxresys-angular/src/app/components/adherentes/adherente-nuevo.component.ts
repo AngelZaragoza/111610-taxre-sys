@@ -1,13 +1,9 @@
 import { Component, ViewChild, TemplateRef } from '@angular/core';
 import { AdherentesService } from '../../services/adherentes.service';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import {
-  ModalDismissReasons,
-  NgbActiveModal,
-  NgbModal,
-} from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 // import { confirmaPassword } from '../../classes/custom.validator';
-// import { DTODetalleUsuario } from '../../classes/detalle-usuario';
+
 import { Persona } from '../../classes/persona';
 import { Adherente } from '../../classes/adherente';
 import { Router } from '@angular/router';
@@ -19,8 +15,7 @@ import { HttpErrorResponse } from '@angular/common/http';
   styles: [],
 })
 export class AdherenteNuevoComponent {
-  //Crea una referencia ...
-  // @ViewChild('extraInfo', { read: ElementRef }) extraInfo: ElementRef;
+  //Crea una referencia ...  
   @ViewChild('extraInfo', { read: TemplateRef }) extraModal: TemplateRef<any>;
 
   //Clases modelo para los objetos
@@ -29,8 +24,7 @@ export class AdherenteNuevoComponent {
   adherente: Adherente = new Adherente();
 
   //Formulario
-  newAdherente: FormGroup;
-  modal: any;
+  newAdherente: FormGroup;  
 
   //Listo para guardar nuevo Adherente
   ready: boolean;
@@ -46,12 +40,9 @@ export class AdherenteNuevoComponent {
       observaciones: new FormControl(null),
     });
 
-    //Listo para guardar nuevo adherente: false
+    //Listo para guardar nuevo Adherente: false
     this.ready = false;
 
-    // this.modalService.activeInstances.subscribe((modal) => {
-    //   this.modal = modal;
-    // })
   }
 
   listenNuevo(persona: Persona) {
@@ -61,7 +52,7 @@ export class AdherenteNuevoComponent {
     //Listo para guardar nuevo usuario: true
     this.ready = true;
     console.log('Nueva Persona =>');
-    console.table(this.persona);    
+    console.table(this.persona);
     this.triggerModal(this.extraModal);
   }
 
@@ -79,7 +70,6 @@ export class AdherenteNuevoComponent {
         (res) => {
           console.log(`Cerrado: ${res}`);
           //Recibe el objeto con los datos de "usuario" del form
-
           console.log('Formulario =>', this.newAdherente.value);
 
           // this.adherente = { ...this.newAdherente.value };
@@ -92,15 +82,7 @@ export class AdherenteNuevoComponent {
   }
 
   async saveAdherente() {
-    //Recorre los campos del form y asigna los valores al objeto Persona
-    // for (const key in this.newAdherente.value) {
-    //   let value = this.newAdherente.value[key];
-    //   if (value === '' || value === null) {
-    //     this.adherente[key] = null;
-    //   } else {
-    //     this.adherente[key] = value;
-    //   }
-    // }
+    
     this.adherente = { ...this.newAdherente.value };
     this.detalle = { ...this.persona, ...this.adherente };
 
@@ -115,7 +97,8 @@ export class AdherenteNuevoComponent {
       alert(
         `Adherente guardado: ${result['adher']['apellido']} ${result['adher']['nombre']}!`
       );
+
       this.route.navigateByUrl('/home');
-    }    
+    }
   }
 }

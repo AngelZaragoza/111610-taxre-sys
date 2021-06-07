@@ -13,49 +13,86 @@
   </button>
   <div class="collapse navbar-collapse" id="navbarNavDropdown">
     <ul class="navbar-nav justify-content-start ml-4">
-      
-        <li *ngIf="logged" class="nav-item" routerLinkActive="active">
-          <a class="nav-link" [routerLink]="['viajes']">Viajes</a>
-        </li>
-        <li class="nav-item" routerLinkActive="active">
-          <a class="nav-link" [routerLink]="['tarifas']">Tarifas</a>
-        </li>
-        <li *ngIf="logged" class="nav-item dropdown justify-content-end">
+      <li *ngIf="logged" class="nav-item" routerLinkActive="active">
+        <a class="nav-link" [routerLink]="['viajes']">Viajes</a>
+      </li>
+      <li class="nav-item" routerLinkActive="active">
+        <a class="nav-link" [routerLink]="['tarifas']">Tarifas</a>
+      </li>
+      <li *ngIf="logged" class="nav-item dropdown justify-content-end">
+        <a
+          class="nav-link dropdown-toggle"
+          href="#"
+          id="navbarDropdown"
+          role="button"
+          data-toggle="dropdown"
+          aria-haspopup="true"
+          aria-expanded="false"
+          >Listados</a
+        >
+        <div
+          class="dropdown-menu"
+          routerLinkActive="active"
+          aria-labelledby="navbarDropdown"
+        >
           <a
-            class="nav-link dropdown-toggle"
-            href="#"
-            id="navbarDropdown"
-            role="button"
-            data-toggle="dropdown"
-            aria-haspopup="true"
-            aria-expanded="false"
-            >Listados</a
+            class="dropdown-item"
+            routerLinkActive="active"
+            [routerLink]="['usuarios']"
+            >Usuarios</a
           >
-          <div class="dropdown-menu" routerLinkActive="active" aria-labelledby="navbarDropdown">
-            <a class="dropdown-item" routerLinkActive="active" [routerLink]="['usuarios']">Usuarios</a>
-            <a class="dropdown-item" routerLinkActive="active" [routerLink]="['adherentes']">Adherentes</a>
-            <a class="dropdown-item" routerLinkActive="active" [routerLink]="['choferes']">Choferes</a>
-            <a class="dropdown-item" href="#">Drop Down 4</a>
-          </div>
-        </li>
-        <li *ngIf="logged" class="nav-item dropdown justify-content-end">
           <a
-            class="nav-link dropdown-toggle"
-            href="#"
-            id="navbarDropdown"
-            role="button"
-            data-toggle="dropdown"
-            aria-haspopup="true"
-            aria-expanded="false"
-            >Administración</a
+            class="dropdown-item"
+            routerLinkActive="active"
+            [routerLink]="['adherentes']"
+            >Adherentes</a
           >
-          <div class="dropdown-menu" routerLinkActive="active" aria-labelledby="navbarDropdown">
-            <a class="dropdown-item" routerLinkActive="active" [routerLink]="['usuarios', 'nuevo']">Nuevo Usuario</a>
-            <a class="dropdown-item" routerLinkActive="active" [routerLink]="['adherentes', 'nuevo']">Nuevo Adherente</a>
-            <a class="dropdown-item" routerLinkActive="active" [routerLink]="['choferes', 'nuevo']">Nuevo Chofer</a>
-            <a class="dropdown-item" href="#">Drop Down 4</a>
-          </div>
-        </li>
+          <a
+            class="dropdown-item"
+            routerLinkActive="active"
+            [routerLink]="['choferes']"
+            >Choferes</a
+          >
+          <a class="dropdown-item" href="#">Drop Down 4</a>
+        </div>
+      </li>
+      <li *ngIf="logged" class="nav-item dropdown justify-content-end">
+        <a
+          class="nav-link dropdown-toggle"
+          href="#"
+          id="navbarDropdown"
+          role="button"
+          data-toggle="dropdown"
+          aria-haspopup="true"
+          aria-expanded="false"
+          >Administración</a
+        >
+        <div
+          class="dropdown-menu"
+          routerLinkActive="active"
+          aria-labelledby="navbarDropdown"
+        >
+          <a
+            class="dropdown-item"
+            routerLinkActive="active"
+            [routerLink]="['usuarios', 'nuevo']"
+            >Nuevo Usuario</a
+          >
+          <a
+            class="dropdown-item"
+            routerLinkActive="active"
+            [routerLink]="['adherentes', 'nuevo']"
+            >Nuevo Adherente</a
+          >
+          <a
+            class="dropdown-item"
+            routerLinkActive="active"
+            [routerLink]="['choferes', 'nuevo']"
+            >Nuevo Chofer</a
+          >
+          <a class="dropdown-item" href="#">Drop Down 4</a>
+        </div>
+      </li>
       
     </ul>
   </div>
@@ -69,8 +106,9 @@
     <button
       *ngIf="logged"
       class="nav-link btn btn-outline-light justify-content-end"
-      (click)="logout()"      
-      >LogOut {{ user.alias }}</button
+      (click)="logout()"
     >
+      LogOut {{ user.alias }}
+    </button>
   </div>
 </nav>

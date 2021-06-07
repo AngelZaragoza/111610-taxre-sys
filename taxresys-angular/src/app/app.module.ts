@@ -7,6 +7,8 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 //Servicios
 import { UsuariosService } from './services/usuarios.service';
 import { AdherentesService } from './services/adherentes.service';
+import { ChoferesService } from './services/choferes.service';
+import { RequestService } from './services/request.service';
 
 //Rutas
 import { AppRoutingModule } from './app.routes';
@@ -59,7 +61,9 @@ import { ChoferNuevoComponent } from './components/choferes/chofer-nuevo.compone
   ],
   providers: [
     UsuariosService,
-    AdherentesService
+    AdherentesService,
+    ChoferesService,
+    RequestService
   ],
   bootstrap: [AppComponent]
 })

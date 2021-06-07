@@ -1,1 +1,181 @@
-<p>chofer-nuevo works!</p>
+<div
+  class="container-fluid shadow-sm p-2 mb-2 fondo-titulo rounded"
+  data-aos="fade-in"
+>
+  <div class="row text-center align-middle">
+    <div class="col col-md-2">
+      <a class="btn btn-outline-danger" [routerLink]="['/home']"
+        >Volver al Inicio</a
+      >
+    </div>
+    <div class="col col-md-8">
+      <h2 id="saludo"></h2>
+      <h4>Alta de Nuevo Chofer</h4>
+    </div>
+  </div>
+</div>
+
+<div class="container-fluid shadow-sm">
+  <div class="row justify-content-around p-3 my-4">
+    <button
+      (click)="nuevoDesdeCero()"
+      class="btn btn-outline-success"
+      [ngClass]="{ active: nuevo && eleccion }"
+    >
+      Cargar todos los Datos
+    </button>
+    <button
+      (click)="nuevoDesdeAdh()"
+      class="btn btn-outline-dark"
+      [ngClass]="{ active: !nuevo && eleccion }"
+    >
+      Cargar desde un Adherente
+    </button>
+  </div>
+</div>
+
+<div *ngIf="nuevo && eleccion" class="container m-3">
+  <div class="row justify-content-center">
+    <div class="col-lg-9">
+      <app-form-persona
+        [nuevo]="true"
+        (emitPersona)="listenNuevo($event)"
+      ></app-form-persona>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="!nuevo && eleccion" class="container m-3">
+  <div class="row justify-content-center">
+    <div class="col-lg-9">
+      <form>
+        <div class="form-group row">
+          <label for="rol_id" class="col-sm-3 col-form-label"
+            >Adherentes:
+          </label>
+          <div class="col-sm-9">
+            <select #comboAdh class="form-control">
+              <option value="" selected>-- Seleccione un Adherente --</option>
+              <option *ngFor="let adh of lista" [value]="adh.persona_id">
+                {{ adh.apellido }}, {{ adh.nombre }} - Móviles:
+                {{ adh.moviles_activos }}
+              </option>
+            </select>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="eleccion" class="container m-3">
+  <div class="row justify-content-center">
+    <div class="col-lg-9">
+      <button
+        (click)="modalCarnet($event)"
+        #carnet
+        type="button"
+        data-toggle="modal"
+        data-target="#datosCarnet"
+        class="btn btn-info btn-block"
+        [ngClass]="{ 'd-none': nuevo && eleccion }"
+      >
+        Confirmar y cargar datos Carnet
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="datosCarnet"
+  data-backdrop="static"
+  data-keyboard="false"
+  tabindex="-1"
+  aria-labelledby="staticBackdropLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">
+          Datos Adicionales del Chofer
+        </h5>
+        <button
+          id="cerrar"
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="container justify-content-between">
+          <form [formGroup]="newChofer">
+            <div class="form-group row">
+              <label for="carnet_nro" class="col-sm-5 col-form-label"
+                >Tipo Carnet - Nro.:
+              </label>
+              <div class="col-sm-7">
+                <input
+                  type="text"
+                  formControlName="carnet_nro"
+                  class="form-control"
+                  aria-describedby="helpId"
+                  [ngClass]="{
+                    'border-danger':
+                      newChofer.get('carnet_nro').invalid &&
+                      newChofer.get('carnet_nro').touched
+                  }"
+                />
+                <small id="helpId" class="text-muted"
+                  >Ejemplo: "D1-25666666" (Sin comillas)</small
+                >
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="carnet_vence" class="col-md-5 col-form-label"
+                >Fecha Vencimiento:</label
+              >
+              <div class="col-md-7">
+                <input
+                  type="date"
+                  class="form-control"
+                  formControlName="carnet_vence"
+                  [ngClass]="{
+                    'border-danger':
+                      newChofer.get('carnet_vence').invalid &&
+                      newChofer.get('carnet_vence').touched
+                  }"
+                />
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="" class="col-md-5 col-form-label"
+                >Estado Form: {{ newChofer.valid }}</label
+              >
+              <pre class="col-md-7"> {{ newChofer.value | json }} </pre>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+          Cancelar
+        </button>
+        <button
+          type="button"
+          (click)="saveChofer()"
+          class="btn btn-primary"
+          [disabled]="newChofer.invalid"
+        >
+          Guardar cambios
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

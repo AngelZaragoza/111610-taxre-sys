@@ -15,6 +15,7 @@
     <div class="col-md-3">
       <button
         type="button"
+        id="toggleModal"
         data-toggle="modal"
         data-target="#editUsuario"
         class="btn btn-info btn-block"
@@ -90,8 +91,9 @@
           class="btn btn-primary"
           [disabled]="loading"
         >
-          <i [ngClass]="loading ? 'fas fa-sync-alt' : 'far fa-save'"></i>
-          Guardar Cambios
+          <i [ngClass]="loading ? 'fas fa-sync-alt fa-spin' : 'far fa-save'"></i>
+          <span *ngIf="!loading">  Guardar Cambios</span>
+          <span *ngIf="loading">  Guardando...</span>          
         </button>
       </div>
     </div>
