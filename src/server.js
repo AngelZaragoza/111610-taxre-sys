@@ -5,6 +5,7 @@ const cors = require("cors");
 const usuarios = require("../routes/usuarios.route");
 const adherentes = require("../routes/adherentes.route");
 const choferes = require("../routes/choferes.route");
+const moviles = require("../routes/moviles.route");
 
 const session = require("express-session");
 const MySQLStore = require("express-mysql-session")(session);
@@ -71,6 +72,7 @@ const port = Number(process.env.PORT || 3400);
 app.use("/usuarios", usuarios);
 app.use("/adherentes", adherentes);
 app.use("/choferes", choferes);
+app.use("/moviles", moviles);
 
 //*****************************************
 //Levanta el servidor e informa el puerto

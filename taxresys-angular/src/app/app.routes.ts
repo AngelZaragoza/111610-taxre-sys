@@ -16,6 +16,9 @@ import { ChoferListaComponent } from './components/choferes/chofer-lista.compone
 import { ChoferNuevoComponent } from './components/choferes/chofer-nuevo.component';
 import { ChoferEditarComponent } from './components/choferes/chofer-editar.component';
 
+import { MovilListaComponent } from './components/moviles/movil-lista.component';
+import { MovilDetalleComponent } from './components/moviles/movil-detalle.component';
+
 const routes: Routes = [
   { path: 'home', component: HomeComponent },
   { path: 'usuarios/login', component: LoginComponent },
@@ -36,12 +39,21 @@ const routes: Routes = [
     ],
   },
   {
-    path: 'choferes', component: ChoferListaComponent,
+    path: 'choferes',
+    component: ChoferListaComponent,
     children: [
       { path: 'detalle/:chofer_id', component: ChoferEditarComponent },
     ],
   },
   { path: 'choferes/nuevo', component: ChoferNuevoComponent },
+  {
+    path: 'moviles',
+    component: MovilListaComponent,
+    children: [
+      { path: 'moviles/detalle/:movil_id', component: MovilDetalleComponent },
+    ],
+  },
+  { path: 'moviles/nuevo', component: MovilDetalleComponent },
 
   { path: '**', redirectTo: 'home' },
 ];

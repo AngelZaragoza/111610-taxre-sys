@@ -15,7 +15,7 @@ class Adherente {
     if (!lista.length) {
       res
         .status(404)
-        .json({ success: false, message: "No se encontraron adherentes" });
+        .json({ success: false, message: "No hay Adherentes cargados" });
     } else {
       res.status(200).json(lista);
     }
@@ -34,7 +34,7 @@ class Adherente {
     if (results.length > 0) {
       res.status(200).json(results);
     } else {
-      res.status(404).json({ success: false, message: "No existe adherente" });
+      res.status(404).json({ success: false, message: "No existe Adherente" });
     }
   };
 
@@ -68,7 +68,7 @@ class Adherente {
           observaciones,
         ])
         .then((resp) => {
-          console.log(resp);
+          console.log("CALL =>", resp);
           return res
             .status(201)
             .json({ success: true, action: "added", adher, resp });
@@ -78,7 +78,7 @@ class Adherente {
           return res.status(500).json({ success: false, err });
         });      
     } catch (err) {
-      console.log("Error en procedure", err);
+      console.log("Error interno", err);
       return res.status(500).json({ success: false, err });
     }
   };
@@ -99,7 +99,7 @@ class Adherente {
           id
         ])
         .then((resp) => {
-          console.log(resp);
+          console.log("UPDATE =>", resp);
           return res
             .status(200)
             .json({ success: "true", action: "updated", resp });

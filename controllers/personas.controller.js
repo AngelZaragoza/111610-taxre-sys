@@ -28,7 +28,7 @@ class Persona {
           id,
         ])
         .then((resp) => {
-          console.log(resp);
+          console.log("UPDATE =>", resp);
           return res
             .status(200)
             .json({ success: "true", action: "updated", resp });

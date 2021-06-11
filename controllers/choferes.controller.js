@@ -15,7 +15,7 @@ class Chofer {
     if (!lista.length) {
       res
         .status(404)
-        .json({ success: false, message: "No se encontraron choferes" });
+        .json({ success: false, message: "No hay Choferes cargados" });
     } else {
       res.status(200).json(lista);
     }
@@ -34,7 +34,7 @@ class Chofer {
     if (results.length > 0) {
       res.status(200).json(results);
     } else {
-      res.status(404).json({ success: false, message: "No existe chofer" });
+      res.status(404).json({ success: false, message: "No existe Chofer" });
     }
   };
 
@@ -55,7 +55,7 @@ class Chofer {
       let chofer = { apellido, nombre, habilitado };
       console.log(chofer);
 
-      //Llama el stored procedure que inserta la persona y el adherente al mismo tiempo
+      //Llama el stored procedure que inserta la persona y el chofer al mismo tiempo
       let sql = "CALL nuevo_chofer(?,?,?,?,?,?,?,?,?)";
       const results = await conexion
         .query(sql, [
@@ -80,7 +80,7 @@ class Chofer {
           return res.status(500).json({ success: false, err });
         });
     } catch (err) {
-      console.log("Error en procedure", err);
+      console.log("Error interno", err);
       return res.status(500).json({ success: false, err });
     }
   };

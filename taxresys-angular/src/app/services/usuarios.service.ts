@@ -45,7 +45,7 @@ export class UsuariosService {
       return false;
     }
   }
-  
+
   //Método principal para manejar los requests
   //******************************************
   private request(method: string, url: string, data?: any) {
@@ -168,7 +168,6 @@ export class UsuariosService {
         console.log(err);
       });
 
-    console.log('Lista roles:', lista);
     return lista;
   }
 }

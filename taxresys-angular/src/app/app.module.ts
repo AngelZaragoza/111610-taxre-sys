@@ -8,6 +8,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { UsuariosService } from './services/usuarios.service';
 import { AdherentesService } from './services/adherentes.service';
 import { ChoferesService } from './services/choferes.service';
+import { MovilesService } from './services/moviles.service';
 import { RequestService } from './services/request.service';
 
 //Rutas
@@ -28,6 +29,8 @@ import { AdherenteEditarComponent } from './components/adherentes/adherente-edit
 import { ChoferListaComponent } from './components/choferes/chofer-lista.component';
 import { ChoferEditarComponent } from './components/choferes/chofer-editar.component';
 import { ChoferNuevoComponent } from './components/choferes/chofer-nuevo.component';
+import { MovilListaComponent } from './components/moviles/movil-lista.component';
+import { MovilDetalleComponent } from './components/moviles/movil-detalle.component';
 
 
 
@@ -46,7 +49,9 @@ import { ChoferNuevoComponent } from './components/choferes/chofer-nuevo.compone
     AdherenteEditarComponent,
     ChoferListaComponent,
     ChoferEditarComponent,
-    ChoferNuevoComponent
+    ChoferNuevoComponent,
+    MovilListaComponent,
+    MovilDetalleComponent
   ],
   imports: [
     BrowserModule,
@@ -63,6 +68,7 @@ import { ChoferNuevoComponent } from './components/choferes/chofer-nuevo.compone
     UsuariosService,
     AdherentesService,
     ChoferesService,
+    MovilesService,
     RequestService
   ],
   bootstrap: [AppComponent]

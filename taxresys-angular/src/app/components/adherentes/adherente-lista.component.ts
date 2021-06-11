@@ -16,7 +16,7 @@ export class AdherenteListaComponent implements OnInit {
 
   ngOnInit(): void {
     //Controlar usuario que realiza solicitud
-    this.getAdherentes();    
+    this.getAdherentes();
   }
 
   async getAdherentes() {

@@ -53,7 +53,12 @@
             [routerLink]="['choferes']"
             >Choferes</a
           >
-          <a class="dropdown-item" href="#">Drop Down 4</a>
+          <a
+            class="dropdown-item"
+            routerLinkActive="active"
+            [routerLink]="['moviles']"
+            >Móviles</a
+          >
         </div>
       </li>
       <li *ngIf="logged" class="nav-item dropdown justify-content-end">
@@ -90,10 +95,14 @@
             [routerLink]="['choferes', 'nuevo']"
             >Nuevo Chofer</a
           >
-          <a class="dropdown-item" href="#">Drop Down 4</a>
+          <a
+            class="dropdown-item"
+            routerLinkActive="active"
+            [routerLink]="['moviles', 'nuevo']"
+            >Nuevo Móvil</a
+          >
         </div>
       </li>
-      
     </ul>
   </div>
   <div class="nav-item justify-content-end">

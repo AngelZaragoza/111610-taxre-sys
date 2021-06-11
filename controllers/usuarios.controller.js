@@ -50,7 +50,7 @@ class Usuario {
     if (results.length > 0) {
       res.status(200).json(results);
     } else {
-      res.status(404).json({ success: false, message: "No existe usuario" });
+      res.status(404).json({ success: false, message: "No existe Usuario" });
     }
   };
 
@@ -89,7 +89,7 @@ class Usuario {
           rol_id,
         ])
         .then((resp) => {
-          console.log(resp);
+          console.log("CALL =>", resp);
           return res
             .status(201)
             .json({ success: "true", action: "added", user, resp });
@@ -97,10 +97,9 @@ class Usuario {
         .catch((err) => {
           console.log("Error en procedure", err);
           return res.status(500).json(err);
-        });
-      // console.log(results);
+        });      
     } catch (err) {
-      console.log("Error en procedure", err);
+      console.log("Error interno", err);
       return res.status(500).json(err);
     }
   };
