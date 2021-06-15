@@ -1,0 +1,32 @@
+<div
+  class="container-fluid shadow-sm p-2 mb-2 fondo-titulo rounded"
+  data-aos="fade-in"
+>
+  <div class="row justify-content-center text-center">
+    <div class="col col-md-9">
+      <!-- <h2 id="saludo"></h2> -->
+      <h4 class="align-middle">Datos del Móvil</h4>
+    </div>
+    <div class="col-md-3">
+      <button
+        (click)="activarEdicion()"
+        class="btn btn-info btn-block align-middle"
+      >
+        Editar Datos
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Aquí se renderiza el componente con el form datosMovil -->
+<div class="container-fluid">
+  <div class="row justify-content-center">
+    <app-form-movil
+      [movil]="movil"
+      [editar]="editar"
+      [nuevo]="false"
+      (emitEstado)="editar = $event"
+      (emitMovil)="listenMovil($event)"
+    ></app-form-movil>
+  </div>
+</div>

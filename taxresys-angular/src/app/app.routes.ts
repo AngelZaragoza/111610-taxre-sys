@@ -17,7 +17,8 @@ import { ChoferNuevoComponent } from './components/choferes/chofer-nuevo.compone
 import { ChoferEditarComponent } from './components/choferes/chofer-editar.component';
 
 import { MovilListaComponent } from './components/moviles/movil-lista.component';
-import { MovilDetalleComponent } from './components/moviles/movil-detalle.component';
+import { MovilNuevoComponent } from './components/moviles/movil-nuevo.component';
+import { MovilEditarComponent } from './components/moviles/movil-editar.component';
 
 const routes: Routes = [
   { path: 'home', component: HomeComponent },
@@ -50,12 +51,12 @@ const routes: Routes = [
     path: 'moviles',
     component: MovilListaComponent,
     children: [
-      { path: 'moviles/detalle/:movil_id', component: MovilDetalleComponent },
+      { path: 'detalle/:movil_id', component: MovilEditarComponent },
     ],
   },
-  { path: 'moviles/nuevo', component: MovilDetalleComponent },
+  { path: 'moviles/nuevo', component: MovilNuevoComponent },
 
-  { path: '**', redirectTo: 'home' },
+  { path: '**', pathMatch: 'full', redirectTo: 'home' },
 ];
 
 @NgModule({

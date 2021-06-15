@@ -1,0 +1,30 @@
+<div
+  class="container-fluid shadow-sm p-2 mb-2 fondo-titulo rounded"
+  data-aos="fade-in"
+>
+  <div class="row text-center align-middle">
+    <div class="col col-md-2">
+      <a class="btn btn-outline-danger" [routerLink]="['/home']"
+        >Volver al Inicio</a
+      >
+    </div>
+    <div class="col col-md-8">
+      <h2 id="saludo"></h2>
+      <h4>Alta de Nuevo Móvil</h4>
+    </div>
+  </div>
+</div>
+
+<div class="container-fluid">
+  <div class="row justify-content-center">
+    <div class="col-md-5">
+      <br>
+    </div>
+    <div class="col-md-7">
+      <app-form-movil
+        [nuevo]="true"
+        (emitMovil)="listenMovil($event)"
+      ></app-form-movil>
+    </div>
+  </div>
+</div>

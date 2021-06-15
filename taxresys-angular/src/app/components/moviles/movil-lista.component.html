@@ -1,0 +1,52 @@
+<div class="container-fluid shadow-sm py-2 mb-2 rounded">
+  <div class="row align-middle">
+    <div class="col-md-5 text-center">
+      <div class="shadow-sm p-2 mb-2 fondo-titulo text-center align-middle rounded">
+        <h4 *ngIf="loading">
+          <i class="fas fa-spinner fa-pulse"></i> Cargando...
+        </h4>
+        <h4 *ngIf="!loading && errorMessage !== ''">{{ errorMessage }}</h4>
+        <h4 *ngIf="!loading && errorMessage === ''">Móviles registrados</h4>
+      </div>
+      <div class="table-responsive">
+        <table
+          *ngIf="!loading && lista[0]['persona_id']"
+          class="table table-hover"
+        >
+          <thead class="thead-light">
+            <tr>
+              <th scope="col">Tipo</th>
+              <th scope="col">Móvil</th>
+              <!-- <th scope="col">Marca</th> -->
+              <!-- <th scope="col">Modelo</th> -->
+              <th scope="col">Chapa</th>
+              <th scope="col">Adherente</th>
+              <th scope="col">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let movil of lista">
+              <td scope="row">{{ movil.tipo }}</td>
+              <td>{{ movil.nro_interno }}</td>
+              <!-- <td>{{ movil.marca }}</td> -->
+              <!-- <td>{{ movil.modelo }}</td> -->
+              <td>{{ movil.nro_habilitacion }}</td>
+              <td>{{ movil.adherente }}</td>
+              <td>
+                <a
+                  class="btn btn-sm btn-warning"
+                  [routerLink]="['detalle', movil.movil_id]"
+                  >Detalles</a
+                >
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="col-md-7 ">
+      <!-- Aquí se renderiza la ruta hija -->
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</div>

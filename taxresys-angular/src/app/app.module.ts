@@ -29,8 +29,10 @@ import { AdherenteEditarComponent } from './components/adherentes/adherente-edit
 import { ChoferListaComponent } from './components/choferes/chofer-lista.component';
 import { ChoferEditarComponent } from './components/choferes/chofer-editar.component';
 import { ChoferNuevoComponent } from './components/choferes/chofer-nuevo.component';
+import { FormMovilComponent } from './components/shared/form-movil/form-movil.component';
 import { MovilListaComponent } from './components/moviles/movil-lista.component';
-import { MovilDetalleComponent } from './components/moviles/movil-detalle.component';
+import { MovilNuevoComponent } from './components/moviles/movil-nuevo.component';
+import { MovilEditarComponent } from './components/moviles/movil-editar.component';
 
 
 
@@ -50,8 +52,10 @@ import { MovilDetalleComponent } from './components/moviles/movil-detalle.compon
     ChoferListaComponent,
     ChoferEditarComponent,
     ChoferNuevoComponent,
+    FormMovilComponent,
     MovilListaComponent,
-    MovilDetalleComponent
+    MovilNuevoComponent,
+    MovilEditarComponent
   ],
   imports: [
     BrowserModule,

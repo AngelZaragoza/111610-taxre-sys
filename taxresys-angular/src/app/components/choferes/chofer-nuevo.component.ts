@@ -92,7 +92,7 @@ export class ChoferNuevoComponent implements OnInit {
     //Recibe el objeto "persona" desde el evento del componente hijo
     this.persona = persona;
 
-    //Listo para guardar nuevo usuario: true
+    //Listo para guardar nuevo chofer: true
     this.ready = true;
     console.log('Nueva Persona =>');
     console.table(this.persona);
