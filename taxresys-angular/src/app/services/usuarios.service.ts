@@ -32,8 +32,10 @@ export class UsuariosService {
         //Si hay un id en el localStorage, recupera su alias y devuelve true
         if (this.user['usuario_id']) {
           console.log(this.user.alias, this.user.rol_id);
+          this.logged = true;
           return true;
         } else {
+          this.logged = false;
           return false;
         }
       } else {

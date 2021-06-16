@@ -13,13 +13,16 @@
   </button>
   <div class="collapse navbar-collapse" id="navbarNavDropdown">
     <ul class="navbar-nav justify-content-start ml-4">
-      <li *ngIf="logged" class="nav-item" routerLinkActive="active">
+      <!-- <li *ngIf="logged" class="nav-item" routerLinkActive="active">
+        <a class="nav-link" [routerLink]="['viajes']">Viajes</a>
+      </li> -->
+      <li *ngIf="isLogged" class="nav-item" routerLinkActive="active">
         <a class="nav-link" [routerLink]="['viajes']">Viajes</a>
       </li>
       <li class="nav-item" routerLinkActive="active">
         <a class="nav-link" [routerLink]="['tarifas']">Tarifas</a>
       </li>
-      <li *ngIf="logged" class="nav-item dropdown justify-content-end">
+      <li *ngIf="isLogged" class="nav-item dropdown justify-content-end">
         <a
           class="nav-link dropdown-toggle"
           href="#"
@@ -61,7 +64,7 @@
           >
         </div>
       </li>
-      <li *ngIf="logged" class="nav-item dropdown justify-content-end">
+      <li *ngIf="isLogged" class="nav-item dropdown justify-content-end">
         <a
           class="nav-link dropdown-toggle"
           href="#"
@@ -107,17 +110,17 @@
   </div>
   <div class="nav-item justify-content-end">
     <a
-      *ngIf="!logged"
+      *ngIf="!isLogged"
       class="nav-link btn btn-outline-light justify-content-end"
       [routerLink]="['usuarios', 'login']"
       >Login</a
     >
     <button
-      *ngIf="logged"
+      *ngIf="isLogged"
       class="nav-link btn btn-outline-light justify-content-end"
       (click)="logout()"
     >
-      LogOut {{ user.alias }}
+      LogOut {{ userLogged.alias}}
     </button>
   </div>
 </nav>
