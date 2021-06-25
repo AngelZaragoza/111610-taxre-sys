@@ -6,6 +6,8 @@ const usuarios = require("../routes/usuarios.route");
 const adherentes = require("../routes/adherentes.route");
 const choferes = require("../routes/choferes.route");
 const moviles = require("../routes/moviles.route");
+const jornadas = require("../routes/jornadas.route");
+const turnos = require("../routes/turnos.route");
 
 const session = require("express-session");
 const MySQLStore = require("express-mysql-session")(session);
@@ -19,7 +21,12 @@ require('../lib/passport');
 //*****************************************
 
 const app = express();
-app.use(cors());
+const corsOptions = {
+  origin: 'http://localhost:4200',
+  credentials: true
+}
+
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
@@ -73,6 +80,8 @@ app.use("/usuarios", usuarios);
 app.use("/adherentes", adherentes);
 app.use("/choferes", choferes);
 app.use("/moviles", moviles);
+app.use("/jornadas", jornadas);
+app.use("/turnos", turnos);
 
 //*****************************************
 //Levanta el servidor e informa el puerto

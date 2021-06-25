@@ -19,6 +19,7 @@ export class RequestService {
       body: data,
       responseType: 'json',
       observe: 'body',
+      withCredentials: true,
       // headers: {
       //   Authorization: `Bearer ${token}`,
       // },

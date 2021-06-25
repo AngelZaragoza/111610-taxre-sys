@@ -20,6 +20,9 @@ import { MovilListaComponent } from './components/moviles/movil-lista.component'
 import { MovilNuevoComponent } from './components/moviles/movil-nuevo.component';
 import { MovilEditarComponent } from './components/moviles/movil-editar.component';
 
+//Temporal, hasta que implemente el modal
+import { FormTurnoComponent } from './components/shared/form-turno/form-turno.component';
+
 const routes: Routes = [
   { path: 'home', component: HomeComponent },
   { path: 'usuarios/login', component: LoginComponent },
@@ -55,6 +58,7 @@ const routes: Routes = [
     ],
   },
   { path: 'moviles/nuevo', component: MovilNuevoComponent },
+  { path: 'turnos/:operacion', component: FormTurnoComponent },
 
   { path: '**', pathMatch: 'full', redirectTo: 'home' },
 ];

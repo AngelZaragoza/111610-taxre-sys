@@ -1,4 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
+@import "~ng-pick-datetime/assets/style/picker.min.css";
+
 body {
   background-color: hsl(59 92% 71%) !important;
   /* background-color: #fbee5d !important; */

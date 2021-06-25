@@ -1,0 +1,96 @@
+<div class="container-fluid shadow p-3 mb-3 rounded">
+  <div class="row justify-content-center">
+    <div class="col-md-4">
+      <p>Datos Formulario:</p>
+      <pre> {{ datosTurno.value | json }} </pre>
+      <hr />
+      <p>Datos Turno:</p>
+      <pre> {{ turno | json }} </pre>
+      <hr />
+      <p>Respuesta servicio:</p>
+      <pre> {{ respuesta | json }} </pre>
+    </div>
+    <div class="col-md-8">
+      <form [formGroup]="datosTurno" (ngSubmit)="saveTurno()">
+        <fieldset>
+          <div class="container">
+            <div class="row">
+              <div *ngIf="abreTurno" class="form-group col-sm-6">
+                <label for="inicio" class="col-form-label"
+                  >Fecha y Hora del Nuevo Turno:</label
+                >
+                <input
+                  [owlDateTime]="inicio"
+                  [owlDateTimeTrigger]="inicio"
+                  [min]="turno.hora_cierre"
+                  formControlName="hora_inicio"
+                  class="form-control"
+                  placeholder="Fecha y Hora Inicio"
+                />
+                <owl-date-time #inicio></owl-date-time>
+              </div>
+              <div *ngIf="!abreTurno" class="form-group col-sm-6">
+                <label for="inicio" class="col-form-label"
+                  >Fecha y Hora de Cierre del Turno:</label
+                >
+                <input
+                  [owlDateTime]="cierre"
+                  [owlDateTimeTrigger]="cierre"
+                  [min]="turno.hora_inicio"
+                  formControlName="hora_cierre"
+                  class="form-control"
+                  placeholder="Fecha y Hora Cierre"
+                />
+                <owl-date-time #cierre></owl-date-time>
+              </div>
+              <div class="col-sm-6">
+                <h3 class="text-center">Usuario actual:</h3>
+                <h3 class="font-weight-bold text-center">{{ userLogged.alias }}</h3>
+                <hr />
+              </div>
+            </div>
+            <div class="row">
+              <div class="form-group col-sm-6">
+                <label for="observaciones" class="col-form-label"
+                  >Observaciones:
+                </label>
+                <textarea
+                  class="form-control"
+                  formControlName="observaciones"
+                  maxlength="300"
+                  rows="3"
+                ></textarea>
+              </div>
+              <div class="col-sm-6">
+                <br>
+                <div *ngIf="abreTurno">
+                  <h4 class="text-center">Cierre Turno anterior:</h4>
+                  <h5 class="text-center">
+                    {{ turno.hora_cierre | date: "short" }}
+                  </h5>
+                </div>
+                <div *ngIf="!abreTurno">
+                  <h4 class="text-center">Turno abierto en:</h4>
+                  <h5 class="text-center">
+                    {{ turno.hora_inicio | date: "short" }}
+                  </h5>
+                </div>
+              </div>
+            </div>
+            <div class="row mt-4">
+              <div class="col">
+                <button type="submit" class="btn btn-block btn-primary">
+                  {{ textoBoton }}
+                </button>
+              </div>
+              <div class="col-sm-2"></div>
+              <div class="col">
+                <button class="btn btn-block btn-secondary">Cancelar</button>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+      </form>
+    </div>
+  </div>
+</div>

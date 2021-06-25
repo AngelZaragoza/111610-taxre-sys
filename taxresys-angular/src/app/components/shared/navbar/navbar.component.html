@@ -31,6 +31,37 @@
           data-toggle="dropdown"
           aria-haspopup="true"
           aria-expanded="false"
+          >Turnos</a
+        >
+        <div
+          class="dropdown-menu"
+          routerLinkActive="active"
+          aria-labelledby="navbarDropdown"
+        >
+          <a
+            class="dropdown-item"
+            routerLinkActive="active"
+            [routerLink]="['turnos', 'inicio']"
+            >Abrir Turno</a
+          >
+          <a
+            class="dropdown-item"
+            routerLinkActive="active"
+            [routerLink]="['turnos', 'cierre']"
+            >Cerrar Turno</a
+          >
+        </div>
+      </li>
+
+      <li *ngIf="isLogged" class="nav-item dropdown justify-content-end">
+        <a
+          class="nav-link dropdown-toggle"
+          href="#"
+          id="navbarDropdown"
+          role="button"
+          data-toggle="dropdown"
+          aria-haspopup="true"
+          aria-expanded="false"
           >Listados</a
         >
         <div
@@ -120,7 +151,7 @@
       class="nav-link btn btn-outline-light justify-content-end"
       (click)="logout()"
     >
-      LogOut {{ userLogged.alias}}
+      LogOut {{ userLogged.alias }}
     </button>
   </div>
 </nav>

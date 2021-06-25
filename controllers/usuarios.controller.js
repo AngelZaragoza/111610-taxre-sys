@@ -163,7 +163,7 @@ class Usuario {
   logoutUsuario = (req, res, next) => {
     req.logout();
     console.log(req.session);
-    res.status(200).json({ logged: false });
+    res.status(200).json({ logged: false, message: "Sesión cerrada" });
   };
 
   //**********************************

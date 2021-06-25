@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpXsrfTokenExtractor } from '@angular/common/http';
 import { environment } from '../../environments/environment';
+import { RequestService } from './request.service';
 
 @Injectable({
   providedIn: 'root',
@@ -11,7 +11,7 @@ export class UsuariosService {
   logged: boolean;
   cookie: string;
 
-  constructor(private http: HttpClient) {
+  constructor(private _conexion: RequestService) {
     console.log('Usuarios listo');
     this.getRoles().then((res) => {
       this.roles = res;
@@ -47,31 +47,14 @@ export class UsuariosService {
       return false;
     }
   }
-
-  //Método principal para manejar los requests
-  //******************************************
-  private request(method: string, url: string, data?: any) {
-    const result = this.http.request(method, url, {
-      body: data,
-      responseType: 'json',
-      observe: 'body',
-      // headers: {
-      //   Authorization: `Bearer ${token}`,
-      // },
-    });
-
-    return new Promise((resolve, reject) => {
-      result.subscribe(resolve, reject);
-    });
-  }
-
+  
   //Métodos de Autenticación
   //************************
   async passportLogin(user: any) {
     console.log(user);
     let result: any;
 
-    await this.request(
+    await this._conexion.request(
       'POST',
       `${environment.serverUrl}/usuarios/passportLogin`,
       user
@@ -95,7 +78,7 @@ export class UsuariosService {
   }
 
   async passportLogout() {
-    await this.request(
+    await this._conexion.request(
       'GET',
       `${environment.serverUrl}/usuarios/passportLogout`
     )
@@ -116,7 +99,7 @@ export class UsuariosService {
   //*****************************
   async getUsuarios() {
     let lista: any[] = [];
-    await this.request('GET', `${environment.serverUrl}/usuarios`)
+    await this._conexion.request('GET', `${environment.serverUrl}/usuarios`)
       .then((res: any[]) => {
         lista = res.map((u) => u);
       })
@@ -130,7 +113,7 @@ export class UsuariosService {
 
   async detalleUsuario(id: Number) {
     let usuario: any;
-    await this.request(
+    await this._conexion.request(
       'GET',
       `${environment.serverUrl}/usuarios/detalle/${id}`
     ).then((res: any) => {
@@ -142,7 +125,7 @@ export class UsuariosService {
 
   async nuevoUsuarioFull(nuevo: any) {
     let user: any;
-    await this.request('POST', `${environment.serverUrl}/usuarios/nuevo`, nuevo)
+    await this._conexion.request('POST', `${environment.serverUrl}/usuarios/nuevo`, nuevo)
       .then((res) => (user = res))
       .catch((err) => (user = err));
     return user;
@@ -150,7 +133,7 @@ export class UsuariosService {
 
   async updatePersona(persona: any, id: Number) {
     let pers: any;
-    await this.request(
+    await this._conexion.request(
       'PUT',
       `${environment.serverUrl}/usuarios/detalle/${id}`,
       persona
@@ -162,7 +145,7 @@ export class UsuariosService {
   //*****************************
   async getRoles() {
     let lista: any[] = [];
-    await this.request('GET', `${environment.serverUrl}/usuarios/roles`)
+    await this._conexion.request('GET', `${environment.serverUrl}/usuarios/roles`)
       .then((res: any[]) => {
         lista = res.map((rol) => rol);
       })

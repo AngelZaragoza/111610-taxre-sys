@@ -26,12 +26,11 @@ export class NavbarComponent implements OnInit {
     if (this.logged) {
       this.user = this._usuariosService.user;
       // console.log('Logueado: ', this.logged);
-    }
-    
+    }    
   }
   */
 
-  
+  //Recupera datos del servicio de Usuarios
   get isLogged(): boolean {
     return this._usuariosService.logged;
   }

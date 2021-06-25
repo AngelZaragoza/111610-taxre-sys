@@ -1,24 +1,33 @@
 const express = require("express");
 const router = express.Router();
 const passport = require("passport");
+const authGuard = require("../lib/authguard"); //Chequeo antes de cada peticion
 
 const usuariosController = require("../controllers/usuarios.controller");
 const personasController = require("../controllers/personas.controller");
 
-function checkAuth(req, res, next) {
-  console.log("Desde la prueba de auth:");
+//Realiza un chequeo especial al momento de intentar un login
+function checkUser(req, res, next) {
+  console.log("Desde la prueba de login:");
   let logged = req.isAuthenticated();
   if (logged) {
-    res.redirect("login-success");
+    if(req.user.alias == req.body.usuario) {
+      //Si está logueado Y el nombre de usuario es el mismo, redirige devolviendo usuario logueado
+      res.redirect("login-success");
+    } else {
+      //Si está logueado PERO el nombre de usuario es distinto, redirige a intentar un nuevo login
+      console.log("Intentando nueva sesión... next");
+      next();
+    }
   } else {
-    console.log("Debe Loguear... next");
-    // res.status(200).json({ status: "logged out" });
+    //Si no está logueado, redirige a intentar un nuevo login
+    console.log("Debe Loguear... next");    
     next();
   }
 }
 
 //Rutas con passport implementado
-router.route("/").get(usuariosController.listaUsuarios);
+router.route("/").get(authGuard, usuariosController.listaUsuarios);
 router
   .route("/detalle/:id")
   .get(usuariosController.detalleUsuario)
@@ -27,10 +36,10 @@ router.route("/roles").get(usuariosController.listaRoles);
 
 router.route("/nuevo").post(usuariosController.nuevoUsuarioFull);
 
-router.route("/login").get(checkAuth);
+router.route("/login").get(checkUser);
 
 router.route("/passportLogin").post(
-  checkAuth,
+  checkUser,
   passport.authenticate("local", {
     failureRedirect: "login-failed",
   }),

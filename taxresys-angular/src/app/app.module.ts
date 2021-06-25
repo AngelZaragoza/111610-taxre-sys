@@ -1,14 +1,23 @@
-import { NgModule } from '@angular/core';
+//Módulos
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule, HttpClientXsrfModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import {
+  OwlDateTimeModule,
+  OwlNativeDateTimeModule,
+  OWL_DATE_TIME_LOCALE,
+} from 'ng-pick-datetime';
+import { NgxSpinnerModule } from 'ngx-spinner';
 
 //Servicios
 import { UsuariosService } from './services/usuarios.service';
 import { AdherentesService } from './services/adherentes.service';
 import { ChoferesService } from './services/choferes.service';
 import { MovilesService } from './services/moviles.service';
+import { TurnosService } from './services/turnos.service';
 import { RequestService } from './services/request.service';
 
 //Rutas
@@ -33,15 +42,14 @@ import { FormMovilComponent } from './components/shared/form-movil/form-movil.co
 import { MovilListaComponent } from './components/moviles/movil-lista.component';
 import { MovilNuevoComponent } from './components/moviles/movil-nuevo.component';
 import { MovilEditarComponent } from './components/moviles/movil-editar.component';
-
-
+import { FormTurnoComponent } from './components/shared/form-turno/form-turno.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     NavbarComponent,
     HomeComponent,
-    LoginComponent,    
+    LoginComponent,
     UsuarioNuevoComponent,
     UsuarioEditarComponent,
     UsuarioListaComponent,
@@ -55,26 +63,34 @@ import { MovilEditarComponent } from './components/moviles/movil-editar.componen
     FormMovilComponent,
     MovilListaComponent,
     MovilNuevoComponent,
-    MovilEditarComponent
+    MovilEditarComponent,
+    FormTurnoComponent,
   ],
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
     AppRoutingModule,
     NgbModule,
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
-    HttpClientXsrfModule.withOptions({
-      cookieName: 'connect.sid'
-    })
+    OwlDateTimeModule,
+    OwlNativeDateTimeModule,
+    NgxSpinnerModule
+    // HttpClientXsrfModule.withOptions({
+    //   cookieName: 'connect.sid',
+    // }),
   ],
   providers: [
     UsuariosService,
     AdherentesService,
     ChoferesService,
     MovilesService,
-    RequestService
+    TurnosService,
+    RequestService,
+    { provide: OWL_DATE_TIME_LOCALE, useValue: 'es-ar' },
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class AppModule { }
+export class AppModule {}
