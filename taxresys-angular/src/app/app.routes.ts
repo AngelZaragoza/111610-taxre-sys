@@ -23,15 +23,19 @@ import { MovilEditarComponent } from './components/moviles/movil-editar.componen
 //Temporal, hasta que implemente el modal
 import { FormTurnoComponent } from './components/shared/form-turno/form-turno.component';
 
+//Guardianes de rutas
+import { AuthGuard } from './auth/auth.guard';
+
 const routes: Routes = [
   { path: 'home', component: HomeComponent },
   { path: 'usuarios/login', component: LoginComponent },
-  { path: 'usuarios/nuevo', component: UsuarioNuevoComponent },
+  // { path: 'usuarios/nuevo', component: UsuarioNuevoComponent },
   {
     path: 'usuarios',
     component: UsuarioListaComponent,
     children: [
       { path: 'detalle/:usuario_id', component: UsuarioEditarComponent },
+      { path: 'nuevo', component: UsuarioNuevoComponent },
     ],
   },
   { path: 'adherentes/nuevo', component: AdherenteNuevoComponent },
@@ -47,9 +51,11 @@ const routes: Routes = [
     component: ChoferListaComponent,
     children: [
       { path: 'detalle/:chofer_id', component: ChoferEditarComponent },
+      { path: 'nuevo', component: ChoferNuevoComponent }
     ],
+    canActivate: [ AuthGuard ]
   },
-  { path: 'choferes/nuevo', component: ChoferNuevoComponent },
+  // { path: 'choferes/nuevo', component: ChoferNuevoComponent },
   {
     path: 'moviles',
     component: MovilListaComponent,
@@ -66,5 +72,6 @@ const routes: Routes = [
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule],
+  providers: [AuthGuard]
 })
 export class AppRoutingModule {}

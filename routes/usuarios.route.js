@@ -32,11 +32,12 @@ router
   .route("/detalle/:id")
   .get(usuariosController.detalleUsuario)
   .put(personasController.updatePersona);
-router.route("/roles").get(usuariosController.listaRoles);
+router.route("/roles").get(authGuard, usuariosController.listaRoles);
 
 router.route("/nuevo").post(usuariosController.nuevoUsuarioFull);
 
-router.route("/login").get(checkUser);
+// router.route("/login").get(checkUser);
+router.route("/isauth").get(authGuard, usuariosController.loginSuccess);
 
 router.route("/passportLogin").post(
   checkUser,
@@ -52,7 +53,6 @@ router.route("/passportLogin").post(
   }
 );
 
-router.route("/login-success").get(usuariosController.loginSuccess);
 router.route("/login-failed").get(usuariosController.loginFailed);
 router.route("/passportLogout").get(usuariosController.logoutUsuario);
 

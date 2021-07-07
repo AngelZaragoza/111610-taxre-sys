@@ -9,31 +9,36 @@ class ConexionDB {
       port: process.env.DB_PORT,
       user: process.env.DB_USER,
       password: process.env.DB_PASS,
-      database: process.env.DB_DATABASE//,
+      database: process.env.DB_DATABASE, //,
     });
 
-    this.checkConnection();
+    this.checkConnection().catch((err) => {
+      console.log("BD Error:", err.code, err);
+    });
   }
 
-  checkConnection = () => {
+  checkConnection = async () => {
     console.log("Chequeando...");
-    return new Promise((resolve, reject) => {
-      this.db.getConnection((error, connection) => {
-        if (error) {
-          console.log("Error de BD", error.code);
-          reject(error.code);
-        }
-        if (connection) {
-          console.log("Conexión establecida");
-          // connection.release();
-          resolve(connection);
-        }
+    try {
+      return new Promise((resolve, reject) => {
+        this.db.getConnection((error, connection) => {
+          if (error) {
+            // console.log("Error de BD", error.code);
+            reject(error);
+          }
+          if (connection) {
+            console.log("Conexión establecida");
+            connection.release();
+            resolve(connection);
+          }
+        });
       });
-    }).catch(err => {
-      throw err;
-    });
+    } catch (err) {
+      console.log("Code:", err.code, "Status:", err.status);
+    }
   };
 
+  /*
   getConnection = async () => {
     console.log("Obteniendo...");
     return new Promise((resolve, reject) => {
@@ -52,6 +57,7 @@ class ConexionDB {
       throw err;
     });
   };
+  */
 
   //Para ejecutar todas las consultas y procedimientos almacenados
   query = async (sql, values) => {

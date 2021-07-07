@@ -2,8 +2,9 @@
 @import "~ng-pick-datetime/assets/style/picker.min.css";
 
 body {
-  background-color: hsl(59 92% 71%) !important;
+  /* background-color: hsl(59 92% 71%) !important; */
   /* background-color: #fbee5d !important; */
+  background-color: #dfdddd !important;
   padding-bottom: 50px;
 }
 
@@ -18,7 +19,31 @@ textarea {
 
 .fondo-titulo {
   /* background-color: #f4f123 !important; */
-  background-color: #fbee5d !important;
+  /* background-color: #fbee5d !important; */
+  background-color: #f9ee72b0 !important;
+}
+
+.card-header-form {
+  box-shadow: 1px 7px 15px #a2a2a2;
+  margin: -15px -10px 0px -10px;
+  height: 60px;
+  background: linear-gradient(-90deg, #8e2de2, #4a00e0);
+}
+
+.back-form {  
+  background-color: #e9ecef !important;
+}
+
+.card-header-list {
+  box-shadow: 1px 7px 15px #a2a2a2;
+  margin: -15px -10px 0px -10px;
+  height: 60px;
+  background: linear-gradient(-90deg, #A60E2B, #F0A032);
+}
+
+/*Efecto de sombra para todas las tarjetas*/
+.shadow-effect {
+  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
 }
 
 /* Animaciones */

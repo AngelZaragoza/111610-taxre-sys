@@ -9,7 +9,9 @@ import {
   OwlDateTimeModule,
   OwlNativeDateTimeModule,
   OWL_DATE_TIME_LOCALE,
+  OwlDateTimeIntl
 } from 'ng-pick-datetime';
+import { DefaultIntl } from './classes/default-intl';
 import { NgxSpinnerModule } from 'ngx-spinner';
 
 //Servicios
@@ -89,6 +91,7 @@ import { FormTurnoComponent } from './components/shared/form-turno/form-turno.co
     TurnosService,
     RequestService,
     { provide: OWL_DATE_TIME_LOCALE, useValue: 'es-ar' },
+    { provide: OwlDateTimeIntl, useClass: DefaultIntl }
   ],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

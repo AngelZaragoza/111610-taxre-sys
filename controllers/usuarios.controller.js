@@ -147,8 +147,6 @@ class Usuario {
   loginSuccess = (req, res, next) => {
     console.log("Desde login Success");
     console.log("Session:", req.session);
-    console.log("Usuario:", req.user);
-
     let { password, ...userSinPass } = req.user;
     console.log(userSinPass);
     res.status(200).json({ logged: true, ...userSinPass });

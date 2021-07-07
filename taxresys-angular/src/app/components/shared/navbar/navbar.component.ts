@@ -1,4 +1,4 @@
-import { Component, DoCheck, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { UsuariosService } from 'src/app/services/usuarios.service';
 
@@ -7,18 +7,21 @@ import { UsuariosService } from 'src/app/services/usuarios.service';
   templateUrl: './navbar.component.html',
   styles: [],
 })
-export class NavbarComponent implements OnInit {  
+export class NavbarComponent implements OnInit {
+  userLogged: any = {};
 
   constructor(
     private _usuariosService: UsuariosService,
     private route: Router
-  ) {    
+  ) {}
+
+  ngOnInit(): void {
+    this._usuariosService.userObs$.subscribe((userLogged) => {
+      console.log('navbar', userLogged);
+      this.userLogged = userLogged;
+    });    
   }
 
-  ngOnInit(): void {    
-    this._usuariosService.checkAuth();
-  }
-  
   /*  Código anterior
   ++++++++++++++++++++++
   ngDoCheck(): void {
@@ -32,16 +35,11 @@ export class NavbarComponent implements OnInit {
 
   //Recupera datos del servicio de Usuarios
   get isLogged(): boolean {
-    return this._usuariosService.logged;
-  }
-  
-  get userLogged(): any {
-    return this._usuariosService.user;
+    return this.userLogged.logged;
   }
 
   logout(): void {
     this._usuariosService.passportLogout();
     this.route.navigateByUrl('/home');
   }
-  
 }
