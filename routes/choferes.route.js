@@ -12,4 +12,10 @@ router
   .post(authGuard, choferesController.nuevoChoferFull)
   .put(authGuard, choferesController.nuevoChoferDesdeAdh);
 
+router
+  .route("/detalle/:id")
+  .get(authGuard, choferesController.detalleChofer)
+  .put(authGuard, personasController.updatePersona)
+  .patch(authGuard, choferesController.updateChofer);
+
 module.exports = router;

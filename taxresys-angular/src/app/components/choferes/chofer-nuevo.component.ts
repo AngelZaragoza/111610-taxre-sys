@@ -36,6 +36,7 @@ export class ChoferNuevoComponent implements OnInit {
   //Listo para guardar nuevo Chofer
   ready: boolean;
   nuevo: boolean;
+  loading: boolean;
   eleccion: boolean;
 
   constructor(
@@ -128,6 +129,7 @@ export class ChoferNuevoComponent implements OnInit {
   }
 
   async saveChofer() {
+    this.loading = true;
     this.chofer = { ...this.newChofer.value };
 
     //Pide confirmación para el guardado (a mejorar aspecto...)
@@ -157,9 +159,11 @@ export class ChoferNuevoComponent implements OnInit {
         alert(`Nuevo Chofer guardado!`);
         let cerrar = document.querySelector('#cerrar');
         cerrar.dispatchEvent(new Event( 'click', { bubbles: true } ));
-        this.route.navigateByUrl('/home');
+        this.route.navigateByUrl('/choferes');
       }
     }
+
+    this.loading = false;
   }
 
   logDetalleNuevo() {}

@@ -31,7 +31,8 @@ export class UsuarioNuevoComponent implements AfterViewInit {
   usuario: Usuario = new Usuario();
 
   //Listo para guardar nuevo Usuario
-  ready: boolean;  
+  ready: boolean; 
+  loading: boolean; 
 
   constructor(
     private _usuariosService: UsuariosService,
@@ -84,6 +85,8 @@ export class UsuarioNuevoComponent implements AfterViewInit {
   }
 
   async saveUsuario() {
+    this.loading = true;
+
     //Recibe el objeto con los datos de "usuario" del form
     this.usuario = { ...this.newUsuario.value };
     console.table(this.usuario);
@@ -104,5 +107,7 @@ export class UsuarioNuevoComponent implements AfterViewInit {
         alert(`Algo falló`);
       }
     }
+    
+    this.loading = false;
   }
 }

@@ -25,7 +25,8 @@ class Chofer {
     let { id } = req.params; //Recupera el id enviado por parámetro
     let sql = `SELECT p.persona_id, p.apellido, p.nombre, p.direccion,
                       p.telefono, p.email, DATE_FORMAT(p.fecha_nac, '%Y-%m-%d') AS fecha_nac,
-                      a.adherente_id, a.moviles_activos, a.observaciones
+                      c.chofer_id, c.carnet_nro, c.habilitado, 
+                      DATE_FORMAT(c.carnet_vence, '%Y-%m-%d') AS carnet_vence  
                 FROM personas p JOIN choferes c
                   ON p.persona_id = c.persona_id
                WHERE c.chofer_id = ?`;
@@ -109,6 +110,32 @@ class Chofer {
     } catch (err) {
       console.log("Error en insert", err);
       return res.status(500).json({ success: false, err });
+    }
+  };
+
+  updateChofer = async (req, res) => {
+    try {
+      let { id } = req.params; //Recupera el id enviado por parámetro
+      let { carnet_nro, carnet_vence } = req.body; //Recupera los campos enviados desde el form
+      
+      let sql = `UPDATE choferes SET 
+                        carnet_nro=?, carnet_vence=?
+                  WHERE chofer_id=?`;
+      const results = await conexion
+        .query(sql, [carnet_nro, carnet_vence, id])
+        .then((resp) => {
+          console.log("UPDATE =>", resp);
+          return res
+            .status(200)
+            .json({ success: "true", action: "updated", resp });
+        })
+        .catch((err) => {
+          console.log("Error en update", err);
+          return res.status(500).json(err);
+        });
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json(err);
     }
   };
 }

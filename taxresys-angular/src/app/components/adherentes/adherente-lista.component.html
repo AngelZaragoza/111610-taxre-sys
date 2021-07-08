@@ -1,41 +1,49 @@
-<div class="container-fluid">
+<!-- Spinner -->
+<ngx-spinner
+  bdColor="rgba(0, 0, 0, 0.9)"
+  size="medium"
+  color="#f5627c"
+  type="ball-atom"
+  [fullScreen]="true"
+  name="adh_lista"
+  ><p style="color: white">Cargando...</p></ngx-spinner
+>
+
+<!-- Contenido -->
+<div *ngIf="lista.length > 0" class="container-fluid p-3 mb-3 rounded">
   <div class="row">
     <div class="col-md-5">
-      <div class="shadow-sm p-2 mb-2 fondo-titulo text-center rounded">
-        <h4 *ngIf="loading">
-          <i class="fas fa-spinner fa-pulse"></i> Cargando...
-        </h4>
-        <h4 *ngIf="!loading && errorMessage !== ''">{{ errorMessage }}</h4>
-        <h4 *ngIf="!loading && errorMessage === ''">Adherentes registrados</h4>
+      <div class="card">
+        <div class="card-header-list">
+          <div class="h4 m-3 text-center text-white">Adherentes Registrados</div>
+        </div>
+        <div class="card-body back-form shadow-effect">
+          <table class="table table-hover table-responsive">
+            <thead class="thead-light">
+              <tr>
+                <th scope="col">Apellido</th>
+                <th scope="col">Nombre</th>
+                <th scope="col">Cant. Móviles</th>
+                <th scope="col">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let adh of lista">
+                <th scope="row">{{ adh.apellido }}</th>
+                <td>{{ adh.nombre }}</td>
+                <td>{{ adh.moviles_activos }}</td>
+                <td>
+                  <a
+                    class="btn btn-sm btn-warning"
+                    [routerLink]="['detalle', adh.adherente_id]"
+                    ><i class="fas fa-info-circle"></i>Detalles</a
+                  >
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
-
-      <table
-        *ngIf="!loading && lista[0]['persona_id']"
-        class="table table-hover table-responsive"
-      >
-        <thead class="thead-light">
-          <tr>
-            <th scope="col">Apellido</th>
-            <th scope="col">Nombre</th>
-            <th scope="col">Cant. Móviles</th>
-            <th scope="col">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let adh of lista">
-            <th scope="row">{{ adh.apellido }}</th>
-            <td>{{ adh.nombre }}</td>
-            <td>{{ adh.moviles_activos }}</td>
-            <td>
-              <a
-                class="btn btn-sm btn-warning"
-                [routerLink]="['detalle', adh.adherente_id]"
-                >Detalles</a
-              >
-            </td>
-          </tr>
-        </tbody>
-      </table>
     </div>
     <div class="col-md-7">
       <!-- Aquí se renderiza la ruta hija -->

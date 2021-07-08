@@ -1,21 +1,18 @@
-<div
-  class="container-fluid shadow-sm p-2 mb-2 fondo-titulo rounded"
-  data-aos="fade-in"
->
-  <div class="row text-center align-middle">
-    <div class="col col-md-2">
-      <a class="btn btn-outline-danger" [routerLink]="['/home']">Volver al Inicio</a>
+<div class="container-fluid mb-3 rounded">
+  <div class="card">
+    <div class="card-header-form">
+      <div class="row">
+        <div class="col-md-2 offset-md-1 mt-2">
+          <a class="btn btn-outline-warning" [routerLink]="['/usuarios']"
+            >Cancelar</a
+          >
+        </div>
+        <div class="col-md-8 h4 mt-3 text-center text-white">
+          Datos del Nuevo Usuario
+        </div>
+      </div>
     </div>
-    <div class="col col-md-8">
-      <h2 id="saludo"></h2>
-      <h4>Datos Nuevo Usuario</h4>
-    </div>
-  </div>
-</div>
-
-<div class="container">
-  <div class="row justify-content-center">
-    <div class="col-lg-9">
+    <div class="card-body back-form shadow-effect">
       <div
         id="datosUsuario"
         class="carousel slide"
@@ -32,9 +29,7 @@
           <div class="carousel-item">
             <div class="container shadow p-3 mb-3 rounded">
               <div class="row justify-content-center">
-                <div class="col-md-11">
-                  <h3>Form Invalid: {{ newUsuario.invalid }}</h3>
-                  <h3>Estado Persona: {{ ready }}</h3>
+                <div class="col-md-11">                  
                   <form [formGroup]="newUsuario" (ngSubmit)="saveUsuario()">
                     <div class="form-group row">
                       <label for="rol_id" class="col-sm-3 col-form-label"
@@ -129,9 +124,11 @@
                         <button
                           type="submit"
                           class="btn btn-primary btn-block"
-                          [disabled]="!newUsuario.valid || !ready"
+                          [disabled]="!newUsuario.valid || !ready || loading"
                         >
-                          Guardar cambios...
+                        <i [ngClass]="loading ? 'fas fa-sync-alt fa-spin' : 'far fa-save'"></i>
+                          <span *ngIf="!loading">  Guardar Cambios</span>
+                          <span *ngIf="loading">  Guardando...</span>
                         </button>
                       </div>
                     </div>
@@ -147,7 +144,11 @@
         <div class="col-md-4">
           <button
             #prevSlide
-            [ngClass]="ready ? 'btn btn-info btn-block' : 'btn btn-outline-info btn-sm btn-block'" 
+            [ngClass]="
+              ready
+                ? 'btn btn-info btn-block'
+                : 'btn btn-outline-info btn-sm btn-block'
+            "
             href="#datosUsuario"
             data-slide="prev"
             aria-hidden="true"
@@ -157,11 +158,15 @@
         </div>
         <div class="col-md-4">
           <button
-            #nextSlide            
-            [ngClass]="ready ? 'btn btn-info btn-block' : 'btn btn-outline-info btn-sm btn-block'"
+            #nextSlide
+            [ngClass]="
+              ready
+                ? 'btn btn-info btn-block'
+                : 'btn btn-outline-info btn-sm btn-block'
+            "
             href="#datosUsuario"
             data-slide="next"
-            aria-hidden="false"            
+            aria-hidden="false"
           >
             Siguiente
           </button>

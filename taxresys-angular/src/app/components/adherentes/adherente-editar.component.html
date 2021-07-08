@@ -1,100 +1,118 @@
-<div
-  class="container-fluid shadow-sm p-2 mb-2 fondo-titulo rounded"
-  data-aos="fade-in"
+<!-- Spinner -->
+<ngx-spinner
+  bdColor="rgba(233, 236, 239, 0.1)"
+  size="medium"
+  color="#f5627c"
+  type="ball-circus"
+  [fullScreen]="false"
+  name="adh_detalle"
+  ><p style="color:black; font-weight: bold;">Cargando...</p></ngx-spinner
 >
-  <div class="row justify-content-center text-center">
-    <div class="col col-md-6">
-      <h2 id="saludo"></h2>
-      <h4>Datos personales</h4>
-    </div>
-    <div class="col-md-3">
-      <button (click)="activarEdicion()" class="btn btn-info btn-block">
-        Editar Datos
-      </button>
-    </div>
-    <div class="col-md-3">
-      <button
-        type="button"
-        id="toggleModal"
-        data-toggle="modal"
-        data-target="#editUsuario"
-        class="btn btn-info btn-block"
-      >
-        Editar Extra
-      </button>
-    </div>
-  </div>
-</div>
 
-<!-- Aquí se renderiza el componente con el form datosPersona -->
-<app-form-persona
-  [persona]="persona"
-  [editar]="editar"
-  [nuevo]="false"
-  (emitEstado)="editar = $event"
-  (emitPersona)="listenPersona($event)"
-></app-form-persona>
-
-<!-- Modal -->
-<div
-  class="modal fade"
-  id="editUsuario"
-  data-backdrop="static"
-  data-keyboard="false"
-  tabindex="-1"
-  aria-labelledby="staticBackdropLabel"
-  aria-hidden="true"
->
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="staticBackdropLabel">
-          Editar Información Extra
-        </h5>
-        <button
-          type="button"
-          class="close"
-          data-dismiss="modal"
-          aria-label="Close"
-        >
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <div class="container justify-content-between">
-          <form [formGroup]="editAdherente">
-            <div class="form-group row">
-              <label for="alias" class="col-form-label">Observaciones: </label>
-
-              <textarea
-                class="form-control"
-                formControlName="observaciones"
-                maxlength="300"
-                rows="3"
-              ></textarea>
-              <small id="helpId" class="text-muted"
-                >Información extra que considere pertinente</small
-              >
-            </div>
-          </form>
+<!-- Contenido -->
+<div class="container-fluid mb-3 rounded">
+  <div class="card">
+    <div class="card-header-form">
+      <div class="row">
+        <div class="col-md-5 h4 mt-3 text-center text-white">Detalles</div>
+        <div class="col-md-3 mt-2">
+          <button (click)="activarEdicion()" class="btn btn-info btn-block">
+            <i class="fas fa-id-card"> </i>
+            Editar
+          </button>
+        </div>
+        <div class="col-md-3 mt-2">
+          <button
+            type="button"
+            id="toggleModal"
+            data-toggle="modal"
+            data-target="#editExtra"
+            class="btn btn-info btn-block"
+          >
+            <i class="fas fa-id-card-alt"></i>
+            Extra
+          </button>
         </div>
       </div>
+    </div>
+    <div class="card-body back-form shadow-effect">
+      <!-- Aquí se renderiza el componente con el form datosPersona -->
+      <app-form-persona
+        [persona]="persona"
+        [editar]="editar"
+        [nuevo]="false"
+        (emitEstado)="editar = $event"
+        (emitPersona)="listenPersona($event)"
+      ></app-form-persona>
+    </div>
+  </div>
 
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">
-          Cancelar
-        </button>
-        <button
-          type="button"
-          #updateAdh          
-          (click)="updateAdherente()"
-          class="btn btn-primary"
-          [disabled]="loading"
-        >
-          <i [ngClass]="loading ? 'fas fa-sync-alt fa-spin' : 'far fa-save'"></i>
-          <span *ngIf="!loading">  Guardar Cambios</span>
-          <span *ngIf="loading">  Guardando...</span>          
-        </button>
+  <!-- Modal -->
+  <div
+    class="modal fade"
+    id="editExtra"
+    #editExtra
+    data-backdrop="static"
+    data-keyboard="false"
+    tabindex="-1"
+    aria-labelledby="staticBackdropLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="staticBackdropLabel">
+            Editar Información Extra
+          </h5>
+          <button
+            type="button"
+            class="close"
+            data-dismiss="modal"
+            aria-label="Close"
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="container justify-content-between">
+            <form [formGroup]="editAdherente">
+              <div class="form-group row">
+                <label for="alias" class="col-form-label"
+                  >Observaciones:
+                </label>
+
+                <textarea
+                  class="form-control"
+                  formControlName="observaciones"
+                  maxlength="300"
+                  rows="3"
+                ></textarea>
+                <small id="helpId" class="text-muted"
+                  >Información extra que considere pertinente</small
+                >
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            Cancelar
+          </button>
+          <button
+            type="button"
+            #updateAdh
+            (click)="updateAdherente()"
+            class="btn btn-primary"
+            [disabled]="loading"
+          >
+            <i
+              [ngClass]="loading ? 'fas fa-sync-alt fa-spin' : 'far fa-save'"
+            ></i>
+            <span *ngIf="!loading"> Guardar Cambios</span>
+            <span *ngIf="loading"> Guardando...</span>
+          </button>
+        </div>
       </div>
     </div>
   </div>

@@ -1,9 +1,10 @@
-import { Component, DoCheck } from '@angular/core';
+import { Component, DoCheck, ElementRef, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AdherentesService } from '../../services/adherentes.service';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Persona } from '../../classes/persona';
 import { Adherente } from '../../classes/adherente';
+import { UsuariosService } from 'src/app/services/usuarios.service';
 
 @Component({
   selector: 'app-adherente-editar',
@@ -11,9 +12,11 @@ import { Adherente } from '../../classes/adherente';
   styles: [],
 })
 export class AdherenteEditarComponent {
+  @ViewChild('editExtra', { read: ElementRef }) llamaModal: ElementRef;
+
   idParam: any;
   editar: boolean;
-  loading: boolean = false;
+  loading: boolean = true;
 
   //Clases modelo para los objetos
   detalle: any = {};
@@ -25,7 +28,8 @@ export class AdherenteEditarComponent {
 
   constructor(
     public _adherentesService: AdherentesService,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private _usuariosService: UsuariosService
   ) {
     this.editAdherente = new FormGroup({
       persona_id: new FormControl(0),
@@ -53,6 +57,7 @@ export class AdherenteEditarComponent {
 
   async detalleAdherente(id) {
     this.loading = true;
+    this._usuariosService.mostrarSpinner(this.loading, 'adh_detalle');
     this.detalle = await this._adherentesService.detalleAdherente(id);
 
     for (let field in this.detalle) {
@@ -64,6 +69,7 @@ export class AdherenteEditarComponent {
     }
 
     this.loading = false;
+    this._usuariosService.mostrarSpinner(this.loading, 'adh_detalle');
   }
 
   activarEdicion() {
@@ -97,6 +103,7 @@ export class AdherenteEditarComponent {
     this.adherente = this.editAdherente.value;
     let cierraModal = document.querySelector('#toggleModal');
     console.log(cierraModal);
+    console.log(this.llamaModal);
 
     //Pide confirmación para el guardado (a mejorar aspecto...)
     if (confirm(`¿Guardar cambios?`)) {
@@ -108,6 +115,7 @@ export class AdherenteEditarComponent {
       if (result['success']) {
         //Envía un evento 'click' al botón que abre y cierra el modal
         cierraModal.dispatchEvent(new Event('click', { bubbles: true }));
+        // this.llamaModal.nativeElement['modal']('toggle');
         alert(`Datos Actualizados!: ${result['resp']['info']}`);
       } else {
         alert(`Algo falló`);

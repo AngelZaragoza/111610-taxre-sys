@@ -57,8 +57,12 @@
             </div>
           </div>
         </div>
-        <div *ngIf="result['error']" class="form-group alert alert-danger" role="alert">
-          <small> {{ result["error"]["message"] }} </small> 
+        <div
+          *ngIf="result['error']"
+          class="form-group alert alert-danger"
+          role="alert"
+        >
+          <small> {{ result["error"]["message"] }} </small>
         </div>
 
         <div class="form-group row">
@@ -68,7 +72,13 @@
               class="btn btn-primary btn-block"
               [disabled]="forma.invalid"
             >
-              Verificar
+              <i
+                [ngClass]="
+                  loading ? 'fas fa-sync-alt fa-spin' : 'fas fa-sign-in-alt'
+                "
+              ></i>
+              <span *ngIf="!loading"> Verificar</span>
+              <span *ngIf="loading"> Verificando...</span>
             </button>
           </div>
         </div>

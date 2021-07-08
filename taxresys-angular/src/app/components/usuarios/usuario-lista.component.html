@@ -1,33 +1,50 @@
-<div class="container-fluid">
+<!-- Spinner -->
+<ngx-spinner
+  bdColor="rgba(0, 0, 0, 0.9)"
+  size="medium"
+  color="#f5627c"
+  type="ball-atom"
+  [fullScreen]="true"
+  name="usuario_lista"
+  ><p style="color: white">Cargando...</p></ngx-spinner
+>
+
+<!-- Contenido -->
+
+<div *ngIf="lista.length > 0" class="container-fluid p-3 mb-3 rounded">
   <div class="row">
     <div class="col-md-5">
-      <table
-        *ngIf="lista.length > 0"
-        class="table table-hover table-responsive"
-      >
-        <thead class="thead-light">
-          <tr>
-            <th scope="col">Usuario</th>
-            <th scope="col">Nombre</th>
-            <th scope="col">Rol</th>
-            <th scope="col">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let user of lista">
-            <th scope="row">{{ user.alias }}</th>
-            <td>{{ user.nombre }}</td>
-            <td>{{ user.rol }}</td>
-            <td>
-              <a
-                class="btn btn-sm btn-warning"
-                [routerLink]="['detalle', user.usuario_id]"
-                >Detalles</a
-              >
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="card">
+        <div class="card-header-list">
+          <div class="h4 m-3 text-center text-white">Usuarios Registrados</div>
+        </div>
+        <div class="card-body back-form shadow-effect">
+          <table class="table table-hover table-responsive">
+            <thead class="thead-light">
+              <tr>
+                <th scope="col">Usuario</th>
+                <th scope="col">Nombre</th>
+                <th scope="col">Rol</th>
+                <th scope="col">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let user of lista">
+                <th scope="row">{{ user.alias }}</th>
+                <td>{{ user.nombre }}</td>
+                <td>{{ user.rol }}</td>
+                <td>
+                  <a
+                    class="btn btn-sm btn-warning"
+                    [routerLink]="['detalle', user.usuario_id]"
+                    ><i class="fas fa-info-circle"></i>Detalles</a
+                  >
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
     <div class="col-md-7">
       <!-- Aquí se renderiza la ruta hija -->

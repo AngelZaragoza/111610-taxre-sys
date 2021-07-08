@@ -38,6 +38,10 @@ export class NavbarComponent implements OnInit {
     return this.userLogged.logged;
   }
 
+  get isOpen(): boolean {
+    return this.userLogged.open;
+  }
+
   logout(): void {
     this._usuariosService.passportLogout();
     this.route.navigateByUrl('/home');

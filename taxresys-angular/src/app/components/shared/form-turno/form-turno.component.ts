@@ -134,6 +134,7 @@ export class FormTurnoComponent implements OnInit {
           alert(
             `Turno iniciado: ${this.userLogged.alias} => ${result['resp']['info']}`
           );          
+          this._usuariosService.checkAuth(true);
           this.route.navigateByUrl('/home');
         } else {
           alert(
@@ -147,6 +148,7 @@ export class FormTurnoComponent implements OnInit {
           alert(
             `Turno cerrado: ${this.userLogged.alias} => ${result['resp']['info']}`
           );
+          this._usuariosService.checkAuth(true);
           this.route.navigateByUrl('/home');
         } else {
           alert(

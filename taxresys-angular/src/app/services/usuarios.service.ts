@@ -10,12 +10,16 @@ import { RequestService } from './request.service';
 export class UsuariosService {
   user: any = {};
   userObs$: Subject<any>;
+  turno: any;
   roles: any[] = [];
 
-  constructor(private _conexion: RequestService, private _spinner: NgxSpinnerService) {
+  constructor(
+    private _conexion: RequestService,
+    private _spinner: NgxSpinnerService
+  ) {
     console.log('Usuarios listo');
     console.log('Roles => ', this.roles, this.roles.length);
-    
+
     //Instancia el objeto que será retornado como Observable
     this.userObs$ = new Subject();
     //Chequea contra el servidor que haya un usuario logueado
@@ -56,22 +60,29 @@ export class UsuariosService {
       if (passportResult) {
         //Si se recibe un objeto, la llamada vino desde el LogIn o el LogOut:
         //Se escribe en localStorage y se recuperan los roles de usuario
-        localStorage.setItem('user', JSON.stringify(passportResult));
-        this.user = passportResult;
-        this.getRoles();        
+
+        await this.getTurnoAbierto();
+        this.user = { ...passportResult, ...this.turno }
+        localStorage.setItem(
+          'user',
+          JSON.stringify( this.user )
+        );
+        this.getRoles();
         return this.user;
       }
 
       if (chkServer) {
         //Se chequea desde la sesión almacenada en server
         //y se recuperan los roles de usuario
-        let result = await this._conexion.request(
+        let result:Object = await this._conexion.request(
           'GET',
           `${environment.serverUrl}/usuarios/isauth`
         );
-        localStorage.setItem('user', JSON.stringify(result));
-        this.user = result;
-        this.getRoles();        
+        await this.getTurnoAbierto();
+        
+        this.user = {...result, ...this.turno };
+        localStorage.setItem('user', JSON.stringify( this.user ));
+        this.getRoles();
         return this.user;
       }
 
@@ -84,7 +95,7 @@ export class UsuariosService {
       this.user = JSON.parse(localStorage.getItem('user'));
       return this.user;
     } finally {
-      this.userObs$.next(this.user) ;
+      this.userObs$.next(this.user);
     }
   }
 
@@ -202,7 +213,32 @@ export class UsuariosService {
     return lista;
   }
 
-  mostrarSpinner(loading: boolean, name: string ): void {
+  async getTurnoAbierto() {
+    let turno: any;
+    await this._conexion
+      .request('GET', `${environment.serverUrl}/turnos/inout`)
+      .then((res: any) => {
+        console.log('Desde chequeo ultimo turno =>', res);
+        console.log('cierre =>', res['turno'].hora_cierre);
+        if (res['turno'].hora_cierre) {
+          turno['open'] = false;
+        } else {
+          turno = {
+            open: true,
+            turno_id: res['turno'].turno_id,
+            owner: res['turno'].usuario_id,
+          };
+        }
+        this.turno = turno;
+      })
+      .catch((err) => {
+        this.turno = { open: false };
+        turno = err;
+      });
+    return turno;
+  }
+
+  mostrarSpinner(loading: boolean, name: string): void {
     if (loading) {
       this._spinner.show(name);
     } else {

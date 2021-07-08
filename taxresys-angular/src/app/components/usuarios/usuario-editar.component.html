@@ -1,45 +1,40 @@
-<div
-  class="container-fluid shadow-sm p-2 mb-2 fondo-titulo rounded"
-  data-aos="fade-in"
->
-  <div class="row justify-content-center text-center">
-    <div class="col col-md-6">
-      <h2 id="saludo"></h2>
-      <h4>Datos personales</h4>
+<div class="container-fluid mb-3 rounded">
+  <div class="card">
+    <div class="card-header-form">
+      <div class="row">
+        <div class="col-md-5 h4 mt-3 text-center text-white">
+          Detalles
+        </div>
+        <div class="col-md-3 mt-2">
+          <button (click)="activarEdicion()" class="btn btn-info btn-block">
+            <i class="fas fa-id-card"></i>
+            Editar
+          </button>
+        </div>
+        <div class="col-md-3 mt-2">
+          <button
+            type="button"
+            data-toggle="modal"
+            data-target="#editUsuario"
+            class="btn btn-success btn-block"
+          >
+            <i class="fas fa-user-edit"></i>Usuario
+          </button>
+        </div>
+      </div>
     </div>
-    <div class="col-md-3">
-      <button (click)="activarEdicion()" class="btn btn-info btn-block">
-        Editar Datos
-      </button>
-    </div>
-    <div class="col-md-3">
-      <button
-        type="button"
-        data-toggle="modal"
-        data-target="#editUsuario"
-        class="btn btn-info btn-block"
-      >
-        Editar Usuario
-      </button>
+    <div class="card-body back-form shadow-effect">
+      <!-- Aquí se renderiza el componente con el form datosPersona -->
+      <app-form-persona
+        [persona]="persona"
+        [editar]="editar"
+        [nuevo]="false"
+        (emitEstado)="editar = $event"
+        (emitPersona)="listenPersona($event)"
+      ></app-form-persona>
     </div>
   </div>
 </div>
-
-<!-- Aquí se renderiza el componente con el form datosPersona -->
-<app-form-persona
-  [persona]="persona"
-  [editar]="editar"
-  [nuevo]="false"
-  (emitEstado)="editar = $event"
-  (emitPersona)="listenPersona($event)"
-></app-form-persona>
-
-<!-- <p>Usuario-Recibido! {{ idPer | json }}</p>
-<p><b>Editar: </b> {{ editar }} --- <b>DoCheck: </b> {{ testCheck }}</p>
-
-<div *ngIf="detalle">
-  <p>{{ detalle | json }}</p>
-</div> -->
 
 <pre> Usuario logueado es Admin: {{ isAdmin }}</pre>
 

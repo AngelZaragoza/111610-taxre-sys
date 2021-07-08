@@ -4,10 +4,10 @@
         <form [formGroup]="datosPersona" (ngSubmit)="savePersona()">
           <fieldset [disabled]="!editar">
             <div class="form-group row">
-              <label for="apellido" class="col-md-2 col-form-label"
-                >Apellido *</label
+              <label for="apellido" class="col-md-3 col-form-label"
+                >Apellido</label
               >
-              <div class="col-md-10">
+              <div class="col-md-9">
                 <input
                   type="text"
                   class="form-control"
@@ -32,8 +32,8 @@
             </div>
   
             <div class="form-group row">
-              <label for="nombre" class="col-md-2 col-form-label">Nombre *</label>
-              <div class="col-md-10">
+              <label for="nombre" class="col-md-3 col-form-label">Nombre</label>
+              <div class="col-md-9">
                 <input
                   type="text"                  
                   formControlName="nombre"
@@ -59,10 +59,10 @@
             </div>
   
             <div class="form-group row">
-              <label for="direccion" class="col-md-2 col-form-label"
-                >Dirección *</label
+              <label for="direccion" class="col-md-3 col-form-label"
+                >Dirección</label
               >
-              <div class="col-md-10">
+              <div class="col-md-9">
                 <input
                   type="text"
                   formControlName="direccion"
@@ -87,8 +87,8 @@
             </div>
   
             <div class="form-group row">
-              <label for="email" class="col-md-2 col-form-label">E-mail:</label>
-              <div class="col-md-10">
+              <label for="email" class="col-md-3 col-form-label">E-mail:</label>
+              <div class="col-md-9">
                 <input
                   type="text"
                   class="form-control"
@@ -113,10 +113,10 @@
             </div>
   
             <div class="form-group row">
-              <label for="telefono" class="col-md-2 col-form-label"
-                >Teléfono *</label
+              <label for="telefono" class="col-md-3 col-form-label"
+                >Teléfono</label
               >
-              <div class="col-md-4">
+              <div class="col-md-3">
                 <input
                   type="text"
                   class="form-control"
@@ -139,7 +139,7 @@
                 </div>
               </div>
               <label for="fecha_nac" class="col-md-2 col-form-label"
-                >Nacimiento</label
+                >F. Nac.</label
               >
               <div class="col-md-4">
                 <input

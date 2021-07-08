@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-dark fondo-navbar">
+<nav class="navbar navbar-expand-lg sticky-top navbar-dark fondo-navbar">
   <a class="navbar-brand" [routerLink]="['home']">Inicio</a>
   <button
     class="navbar-toggler"
@@ -38,17 +38,48 @@
           routerLinkActive="active"
           aria-labelledby="navbarDropdown"
         >
-          <a
+          <a *ngIf="!isOpen"
             class="dropdown-item"
             routerLinkActive="active"
             [routerLink]="['turnos', 'inicio']"
             >Abrir Turno</a
           >
-          <a
+          <a *ngIf="isOpen"
             class="dropdown-item"
             routerLinkActive="active"
             [routerLink]="['turnos', 'cierre']"
             >Cerrar Turno</a
+          >
+        </div>
+      </li>
+      <li *ngIf="isLogged" class="nav-item dropdown justify-content-end">
+        <a
+          class="nav-link dropdown-toggle"
+          href="#"
+          id="navbarDropdown"
+          role="button"
+          data-toggle="dropdown"
+          aria-haspopup="true"
+          aria-expanded="false"
+          >Jornadas</a
+        >
+        <div
+          class="dropdown-menu"
+          routerLinkActive="active"
+          aria-labelledby="navbarDropdown"
+        >
+          <a
+            class="dropdown-item"
+            routerLinkActive="active"
+            [routerLink]="['jornadas']"
+            >Abrir Jornada / Planilla</a
+          >
+          <hr class="dropdown-divider">
+          <a
+            class="dropdown-item"
+            routerLinkActive="active"
+            [routerLink]="['turnos', 'cierre']"
+            >Otros items...</a
           >
         </div>
       </li>

@@ -19,6 +19,7 @@ export class MovilNuevoComponent implements OnInit {
   //Listo para guardar nuevo Movil
   ready: boolean;
   nuevo: boolean;
+  loading: boolean;
 
   constructor(private _movilesService: MovilesService, private route: Router) {
     //Listo para guardar nuevo Movil: false
@@ -38,6 +39,7 @@ export class MovilNuevoComponent implements OnInit {
   }
 
   async saveMovil() {
+    this.loading = true;
     let result = await this._movilesService.nuevoMovilFull(this.movil);
 
     if (result instanceof HttpErrorResponse) {
@@ -45,8 +47,10 @@ export class MovilNuevoComponent implements OnInit {
         `Algo falló:\n${result.error.err?.code} \n ${result.statusText}\nNo se guardaron datos.`
       );
     } else {
-      alert(`Nuevo Móvil guardado!`);      
+      alert(`Nuevo Móvil guardado!`);
       this.route.navigateByUrl('/home');
     }
+
+    this.loading = false;
   }
 }

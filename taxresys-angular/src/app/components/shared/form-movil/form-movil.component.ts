@@ -82,7 +82,7 @@ export class FormMovilComponent implements OnInit, DoCheck, OnDestroy {
 
   initForm() {
     this.datosMovil = this.formBuilder.group({
-      movil_id: new FormControl('', Validators.required),
+      movil_id: new FormControl(''),
       adherente_id: new FormControl('', Validators.required),
       tipo_movil_id: new FormControl('', Validators.required),
       // tipo_movil_id: new FormGroup({

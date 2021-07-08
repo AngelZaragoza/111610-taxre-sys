@@ -1,7 +1,7 @@
 import { Component, ViewChild, TemplateRef } from '@angular/core';
 import { AdherentesService } from '../../services/adherentes.service';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 // import { confirmaPassword } from '../../classes/custom.validator';
 
 import { Persona } from '../../classes/persona';
@@ -17,6 +17,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 export class AdherenteNuevoComponent {
   //Crea una referencia ...  
   @ViewChild('extraInfo', { read: TemplateRef }) extraModal: TemplateRef<any>;
+  modalRef: NgbModalRef;
 
   //Clases modelo para los objetos
   detalle: any = {};
@@ -28,6 +29,7 @@ export class AdherenteNuevoComponent {
 
   //Listo para guardar nuevo Adherente
   ready: boolean;
+  loading: boolean;
 
   constructor(
     private _adherentesService: AdherentesService,
@@ -56,8 +58,8 @@ export class AdherenteNuevoComponent {
     this.triggerModal(this.extraModal);
   }
 
-  triggerModal(content) {
-    this.modalService
+  triggerModal(content: TemplateRef<any>) {
+    this.modalRef = this.modalService
       .open(content, {
         ariaLabelledBy: 'staticBackdropLabel',
         backdrop: 'static',
@@ -65,40 +67,44 @@ export class AdherenteNuevoComponent {
         keyboard: false,
         modalDialogClass: 'modal-dialog',
         windowClass: 'modal fade',
-      })
-      .result.then(
-        (res) => {
-          console.log(`Cerrado: ${res}`);
-          //Recibe el objeto con los datos de "usuario" del form
-          console.log('Formulario =>', this.newAdherente.value);
+      });
+      // .result.then(
+      //   (res) => {
+      //     console.log(`Cerrado: ${res}`);
+      //     //Recibe el objeto con los datos de "usuario" del form
+      //     console.log('Formulario =>', this.newAdherente.value);
 
-          // this.adherente = { ...this.newAdherente.value };
-          this.saveAdherente();
-        },
-        (rej) => {
-          console.log(`Dismissed: ${rej}`);
-        }
-      );
+      //     // this.adherente = { ...this.newAdherente.value };
+      //     this.saveAdherente();
+      //   },
+      //   (rej) => {
+      //     console.log(`Dismissed: ${rej}`);
+      //   }
+      // );
   }
 
   async saveAdherente() {
-    
+    this.loading = true;
     this.adherente = { ...this.newAdherente.value };
     this.detalle = { ...this.persona, ...this.adherente };
 
     console.table(this.detalle);
-    let result = await this._adherentesService.nuevoAdherenteFull(this.detalle);
-
-    if (result instanceof HttpErrorResponse) {
-      alert(
-        `Algo falló:\n${result.error.err?.code} \n ${result.statusText}\nNo se guardaron datos.`
-      );
-    } else {
-      alert(
-        `Adherente guardado: ${result['adher']['apellido']} ${result['adher']['nombre']}!`
-      );
-
-      this.route.navigateByUrl('/home');
+    //Pide confirmación para el guardado (a mejorar aspecto...)
+    if(confirm(`Guardar nuevo Adherente?`)) {
+      let result = await this._adherentesService.nuevoAdherenteFull(this.detalle);
+  
+      if (result instanceof HttpErrorResponse) {
+        alert(
+          `Algo falló:\n${result.error.err?.code} \n ${result.statusText}\nNo se guardaron datos.`
+        );
+      } else {
+        alert(
+          `Adherente guardado: ${result['adher']['apellido']} ${result['adher']['nombre']}!`
+        );
+        this.modalRef.close();
+        this.route.navigateByUrl('/home');
+      }
     }
+    this.loading = false;
   }
 }

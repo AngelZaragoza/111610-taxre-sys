@@ -12,6 +12,7 @@ export class LoginComponent implements OnInit {
   forma: FormGroup;
   minChar = 5;
   result: any = {};
+  loading: boolean;
 
   constructor(
     private _usuariosService: UsuariosService,
@@ -36,17 +37,16 @@ export class LoginComponent implements OnInit {
   }
 
   async logIn() {
-    
+    this.loading = true;
     this.result = await this._usuariosService.passportLogin(this.forma.value);
-    
-    if( this.result['error'] ) console.log(this.result['error']);   
-    
-    console.log(this._usuariosService.user);
 
-    if (this._usuariosService.user.logged) {
+    if (this.result['error']) {
+      console.log('Login Error =>', this.result['error']);
+    } else {
+      console.log('User en service =>', this._usuariosService.user);
       this.route.navigateByUrl('/home');
     }
-
+    this.loading = false;
     //Agregar lógica de respuesta en caso de falla de login
   }
 }

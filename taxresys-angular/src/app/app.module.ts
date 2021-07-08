@@ -45,6 +45,8 @@ import { MovilListaComponent } from './components/moviles/movil-lista.component'
 import { MovilNuevoComponent } from './components/moviles/movil-nuevo.component';
 import { MovilEditarComponent } from './components/moviles/movil-editar.component';
 import { FormTurnoComponent } from './components/shared/form-turno/form-turno.component';
+import { JornadaPlanillaComponent } from './components/jornadas/jornada-planilla.component';
+import { FormJornadaComponent } from './components/shared/form-jornada/form-jornada.component';
 
 @NgModule({
   declarations: [
@@ -67,6 +69,8 @@ import { FormTurnoComponent } from './components/shared/form-turno/form-turno.co
     MovilNuevoComponent,
     MovilEditarComponent,
     FormTurnoComponent,
+    JornadaPlanillaComponent,
+    FormJornadaComponent,
   ],
   imports: [
     BrowserModule,

@@ -3,6 +3,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 // import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Movil } from '../../classes/movil';
 import { MovilesService } from 'src/app/services/moviles.service';
+import { UsuariosService } from 'src/app/services/usuarios.service';
 // import { Adherente } from '../../classes/adherente';
 // import { AdherentesService } from '../../services/adherentes.service';
 
@@ -14,10 +15,14 @@ import { MovilesService } from 'src/app/services/moviles.service';
 export class MovilEditarComponent implements OnInit {
   idParam: any;
   editar: boolean;
+  loading: boolean;
+  
+  //Clases modelo para los objetos
   movil: Movil = new Movil();
 
   constructor(
     private _movilesService: MovilesService,
+    private _usuariosService: UsuariosService,
     private activatedRoute: ActivatedRoute,
     private route: Router
   ) {
@@ -35,6 +40,9 @@ export class MovilEditarComponent implements OnInit {
   ngOnInit(): void {}
 
   async detalleMovil(id) {
+    this.loading = true;
+    this._usuariosService.mostrarSpinner(this.loading, 'movil_detalle');
+
     this.movil = await this._movilesService.detalleMovil(id);
 
     // for (let field in this.detalle) {
@@ -44,6 +52,8 @@ export class MovilEditarComponent implements OnInit {
     //   if (this.persona[field] !== undefined)
     //     this.persona[field] = this.detalle[field];
     // }
+    this.loading = false;
+    this._usuariosService.mostrarSpinner(this.loading, 'movil_detalle');
   }
 
   activarEdicion(): void {
@@ -66,7 +76,7 @@ export class MovilEditarComponent implements OnInit {
       this.movil.movil_id
     );
     if (result['success']) {
-      alert(`Cambios guardados!: ${result['resp']['info']}`);
+      alert(`Cambios guardados! Móvil: ${result['nro_interno']}`);
       this.route.navigateByUrl('/moviles');
     } else {
       alert(`Algo falló`);

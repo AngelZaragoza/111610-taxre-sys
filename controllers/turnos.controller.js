@@ -119,7 +119,7 @@ class Turno {
       //Si el turno anterior está cerrado...
       if (req.turno.hora_cierre) {
         //Verifica que la hora_inicio sea mayor a la hora_cierre
-        let valido = hora_inicio > req.turno.hora_cierre;
+        let valido = hora_inicio >= req.turno.hora_cierre;
         console.log("Hora_inicio correcta? =>", valido);
 
         //Si el valor es válido, se inserta el nuevo turno

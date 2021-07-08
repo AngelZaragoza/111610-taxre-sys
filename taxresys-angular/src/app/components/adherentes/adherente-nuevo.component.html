@@ -1,92 +1,97 @@
-<div
-  class="container-fluid shadow-sm p-2 mb-2 fondo-titulo rounded"
-  data-aos="fade-in"
->
-  <div class="row text-center align-middle">
-    <div class="col col-md-2">
-      <a class="btn btn-outline-danger" [routerLink]="['/home']"
-        >Volver al Inicio</a
-      >
+<div class="container-fluid mb-3 rounded">
+  <div class="card">
+    <div class="card-header-form">
+      <div class="row">
+        <div class="col-md-2 offset-md-1 mt-2">
+          <a class="btn btn-outline-warning" [routerLink]="['/adherentes']"
+            >Cancelar</a
+          >
+        </div>
+        <div class="col-md-8 h4 mt-3 text-center text-white">
+          Alta de Nuevo Adherente
+        </div>
+      </div>
     </div>
-    <div class="col col-md-8">
-      <h2 id="saludo"></h2>
-      <h4>Datos Nuevo Adherente</h4>
-    </div>
-  </div>
-</div>
-
-<div class="container">
-  <div class="row justify-content-center">
-    <div class="col-lg-9">
+    <div class="card-body back-form shadow-effect">
       <app-form-persona
         [nuevo]="true"
         (emitPersona)="listenNuevo($event)"
       ></app-form-persona>
     </div>
+
+    <!-- Modal -->
+    <div
+      class="modal fade"
+      id="anterior"
+      data-backdrop="static"
+      data-keyboard="false"
+      tabindex="-1"
+      aria-labelledby="staticBackdropLabel"
+      aria-hidden="true"
+    ></div>
+
+    <ng-template id="extraInfo" #extraInfo let-modal>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="staticBackdropLabel">
+            Datos Adicionales de {{ persona.apellido }} {{ persona.nombre }}
+          </h5>
+          <button
+            type="button"
+            class="close"
+            data-dismiss="modal"
+            aria-label="Close"
+            (click)="modal.dismiss('Cross')"
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="container justify-content-between">
+            <form [formGroup]="newAdherente">
+              <div class="form-group row">
+                <label for="alias" class="col-form-label"
+                  >Observaciones:
+                </label>
+
+                <textarea
+                  class="form-control"
+                  formControlName="observaciones"
+                  maxlength="300"
+                  rows="3"
+                ></textarea>
+                <small id="helpId" class="text-muted"
+                  >Información extra que considere pertinente</small
+                >
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-dismiss="modal"
+            (click)="modal.dismiss('Cancelado')"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            (click)="saveAdherente()"
+            class="btn btn-primary"
+          >
+            <!-- <button type="button" (click)=" modal.close('Guardado')" class="btn btn-primary"> -->
+            <i
+              [ngClass]="loading ? 'fas fa-sync-alt fa-spin' : 'far fa-save'"
+            ></i>
+            <span *ngIf="!loading"> Guardar Adherente</span>
+            <span *ngIf="loading"> Guardando...</span>
+          </button>
+        </div>
+      </div>
+    </ng-template>
+    <!-- </div> -->
   </div>
 </div>
-
-<!-- Modal -->
-<div
-  class="modal fade"
-  id="anterior"
-  data-backdrop="static"
-  data-keyboard="false"
-  tabindex="-1"
-  aria-labelledby="staticBackdropLabel"
-  aria-hidden="true"
-></div>
-
-<ng-template id="extraInfo" #extraInfo let-modal>
-  <div class="modal-content">
-    <div class="modal-header">
-      <h5 class="modal-title" id="staticBackdropLabel">
-        Datos Adicionales de {{ persona.apellido }} {{ persona.nombre }}
-      </h5>
-      <button
-        type="button"
-        class="close"
-        data-dismiss="modal"
-        aria-label="Close"
-        (click)="modal.dismiss('Cross')"
-      >
-        <span aria-hidden="true">&times;</span>
-      </button>
-    </div>
-    <div class="modal-body">
-      <div class="container justify-content-between">
-        <form [formGroup]="newAdherente">
-          <div class="form-group row">
-            <label for="alias" class="col-form-label">Observaciones: </label>
-
-            <textarea
-              class="form-control"
-              formControlName="observaciones"
-              maxlength="300"
-              rows="3"
-            ></textarea>
-            <small id="helpId" class="text-muted"
-              >Información extra que considere pertinente</small
-            >
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <div class="modal-footer">
-      <button
-        type="button"
-        class="btn btn-secondary"
-        data-dismiss="modal"
-        (click)="modal.dismiss('Cancelado')"
-      >
-        Cancelar
-      </button>
-      <!-- <button type="button" (click)="saveAdherente()" class="btn btn-primary"> -->
-      <button type="button" (click)=" modal.close('Guardado')" class="btn btn-primary">
-        Guardar Adherente
-      </button>
-    </div>
-  </div>
-</ng-template>
-<!-- </div> -->

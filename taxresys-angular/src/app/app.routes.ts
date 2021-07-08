@@ -23,8 +23,11 @@ import { MovilEditarComponent } from './components/moviles/movil-editar.componen
 //Temporal, hasta que implemente el modal
 import { FormTurnoComponent } from './components/shared/form-turno/form-turno.component';
 
+import { JornadaPlanillaComponent } from './components/jornadas/jornada-planilla.component';
+
 //Guardianes de rutas
 import { AuthGuard } from './auth/auth.guard';
+import { FormJornadaComponent } from './components/shared/form-jornada/form-jornada.component';
 
 const routes: Routes = [
   { path: 'home', component: HomeComponent },
@@ -38,33 +41,48 @@ const routes: Routes = [
       { path: 'nuevo', component: UsuarioNuevoComponent },
     ],
   },
-  { path: 'adherentes/nuevo', component: AdherenteNuevoComponent },
+
   {
     path: 'adherentes',
     component: AdherenteListaComponent,
     children: [
       { path: 'detalle/:adherente_id', component: AdherenteEditarComponent },
+      { path: 'nuevo', component: AdherenteNuevoComponent },
     ],
+    canActivate: [AuthGuard],
   },
   {
     path: 'choferes',
     component: ChoferListaComponent,
     children: [
       { path: 'detalle/:chofer_id', component: ChoferEditarComponent },
-      { path: 'nuevo', component: ChoferNuevoComponent }
+      { path: 'nuevo', component: ChoferNuevoComponent },
     ],
-    canActivate: [ AuthGuard ]
+    canActivate: [AuthGuard],
   },
-  // { path: 'choferes/nuevo', component: ChoferNuevoComponent },
   {
     path: 'moviles',
     component: MovilListaComponent,
     children: [
       { path: 'detalle/:movil_id', component: MovilEditarComponent },
+      { path: 'nuevo', component: MovilNuevoComponent },
     ],
   },
-  { path: 'moviles/nuevo', component: MovilNuevoComponent },
-  { path: 'turnos/:operacion', component: FormTurnoComponent },
+
+  {
+    path: 'turnos/:operacion',
+    component: FormTurnoComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'jornadas',
+    component: JornadaPlanillaComponent,
+    children: [
+      { path: 'cierre/:jornada_id', component: FormJornadaComponent },
+      { path: 'inicio/:movil_id', component: FormJornadaComponent },
+    ],
+    canActivate: [AuthGuard],    
+  },
 
   { path: '**', pathMatch: 'full', redirectTo: 'home' },
 ];
@@ -72,6 +90,6 @@ const routes: Routes = [
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule],
-  providers: [AuthGuard]
+  providers: [AuthGuard],
 })
 export class AppRoutingModule {}
