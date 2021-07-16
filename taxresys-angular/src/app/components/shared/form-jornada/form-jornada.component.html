@@ -1,0 +1,143 @@
+<!-- Spinner -->
+<ngx-spinner
+  bdColor="rgba(233, 236, 239, 0.1)"
+  size="medium"
+  color="#f5627c"
+  type="ball-circus"
+  [fullScreen]="false"
+  name="abre_cierra_jornada"
+  ><p style="color: black; font-weight: bold">Espere...</p></ngx-spinner
+>
+
+<!-- Contenido -->
+
+<div *ngIf="!loading && !ready" class="container-fluid mb-3 rounded">
+  <div class="card">
+    <div class="card-header-form">
+      <div class="row justify-content-center">
+        <div class="col-md-2 offset-md-1 mt-2">
+          <a class="btn btn-outline-warning" [routerLink]="['/jornadas']"
+            >Cancelar</a
+          >
+        </div>
+        <div class="col-md-8 h4 m-3 text-center text-white">
+          {{ textoBoton }}
+        </div>
+      </div>
+    </div>
+    <div class="card-body back-form shadow-effect">
+      <form [formGroup]="datosJornada">
+        <fieldset>
+          <div class="container">
+            <ng-container
+              *ngIf="abreJornada; then inicioJornada; else cierraJornada"
+            ></ng-container>
+            <ng-template #inicioJornada>
+              <!-- <div class="form-group col-md-5"> -->
+              <div class="form-group">
+                <label for="chofer_pref" class="col-form-label">Chofer:</label>
+                <select
+                  class="form-control"
+                  [ngClass]="{
+                    'border-danger': datosJornada.get('chofer_id').invalid
+                  }"
+                  formControlName="chofer_id"
+                >
+                  <option value="">-- Seleccione uno --</option>
+                  <option
+                    *ngFor="let chofer of listaChoferes"
+                    [value]="chofer.chofer_id"
+                    [selected]="chofer.chofer_id == chfParam"
+                  >
+                    {{ chofer.apellido }} {{ chofer.nombre }}
+                  </option>
+                </select>
+              </div>
+              <!-- <div class="form-group col-sm-6"> -->
+              <div class="form-group">
+                <label for="inicio" class="col-form-label"
+                  >Fecha y Hora de Inicio:</label
+                >
+                <input
+                  [owlDateTime]="inicio"
+                  [owlDateTimeTrigger]="inicio"
+                  [min]="jornada.hora_cierre || jornada.hora_inicio"
+                  formControlName="hora_inicio"
+                  class="form-control"
+                  placeholder="Fecha y Hora Inicio"
+                />
+                <owl-date-time
+                  [startAt]="jornada.hora_cierre || jornada.hora_inicio"
+                  #inicio
+                ></owl-date-time>
+              </div>
+            </ng-template>
+            <ng-template #cierraJornada>
+              <div class="form-group">
+                <label for="chofer_pref" class="col-form-label">Chofer:</label>
+                <span class="form-control">
+                  {{
+                    jornada.chofer_id
+                      | nombreCompleto: "chofer_id":listaChoferes
+                  }}
+                </span>
+              </div>
+
+              <div class="form-group">
+                <label for="cierre" class="col-form-label"
+                  >Fecha y Hora de Cierre:</label
+                >
+                <input
+                  [owlDateTime]="cierre"
+                  [owlDateTimeTrigger]="cierre"
+                  [min]="jornada.hora_inicio"
+                  formControlName="hora_cierre"
+                  class="form-control"
+                  placeholder="Fecha y Hora Cierre"
+                />
+                <owl-date-time
+                  [startAt]="jornada.hora_inicio"
+                  #cierre
+                ></owl-date-time>
+              </div>
+            </ng-template>
+
+            <div class="form-row mt-4">
+              <div class="col">
+                <button
+                  type="button"
+                  (click)="datosJornada.valid && saveJornada(abreJornada)"
+                  class="btn btn-block btn-primary"
+                  [disabled]="datosJornada.invalid || loading"
+                >
+                  <i
+                    [ngClass]="
+                      loading
+                        ? 'fas fa-sync-alt fa-spin'
+                        : 'fas fa-business-time'
+                    "
+                  ></i
+                  >&nbsp;
+                  {{ loading ? "Espere..." : textoBoton }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-6">
+      <p>Jornada recuperada / creada</p>
+      <pre *ngIf="!loading"> {{ jornada | json }}  </pre>
+    </div>
+    <div class="col-6">
+      <p>Valor del Form</p>
+      <pre *ngIf="!loading"> {{ datosJornada.value | json }}  </pre>
+    </div>
+  </div>
+</div>

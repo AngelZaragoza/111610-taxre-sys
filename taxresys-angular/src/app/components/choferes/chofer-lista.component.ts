@@ -32,7 +32,10 @@ export class ChoferListaComponent implements OnInit {
   }
 
   desdeOutlet(event?: any) {
-    console.log('Evento recibido:', event)
+    console.log('Evento recibido:', event);
+    if(event.ready) {
+      this.getChoferes();
+    }
   }
 
 }

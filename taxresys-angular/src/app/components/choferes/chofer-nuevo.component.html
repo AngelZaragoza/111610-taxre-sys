@@ -3,7 +3,7 @@
     <div class="card-header-form">
       <div class="row">
         <div class="col-md-2 offset-md-1 mt-2">
-          <a class="btn btn-outline-warning" [routerLink]="['/adherentes']"
+          <a class="btn btn-outline-warning" [routerLink]="['/choferes']"
             >Cancelar</a
           >
         </div>
@@ -154,12 +154,6 @@
                   />
                 </div>
               </div>
-              <!-- <div class="form-group row">
-              <label for="" class="col-md-5 col-form-label"
-                >Estado Form: {{ newChofer.valid }}</label
-              >
-              <pre class="col-md-7"> {{ newChofer.value | json }} </pre>
-            </div> -->
             </form>
           </div>
         </div>
@@ -172,12 +166,12 @@
             type="button"
             (click)="saveChofer()"
             class="btn btn-primary"
-            [disabled]="newChofer.invalid"
+            [disabled]="newChofer.invalid || loading"
           >
           <i
               [ngClass]="loading ? 'fas fa-sync-alt fa-spin' : 'far fa-save'"
             ></i>
-            <span *ngIf="!loading"> Guardar Adherente</span>
+            <span *ngIf="!loading"> Guardar Chofer</span>
             <span *ngIf="loading"> Guardando...</span>           
           </button>
         </div>

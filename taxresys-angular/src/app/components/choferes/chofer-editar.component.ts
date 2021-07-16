@@ -1,6 +1,11 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import {
+  FormGroup,
+  FormControl,
+  Validators,
+  FormBuilder,
+} from '@angular/forms';
+import { Router, ActivatedRoute } from '@angular/router';
 import { Chofer } from 'src/app/classes/chofer';
 import { Persona } from 'src/app/classes/persona';
 import { ChoferesService } from 'src/app/services/choferes.service';
@@ -12,12 +17,13 @@ import { UsuariosService } from 'src/app/services/usuarios.service';
   styles: [],
 })
 export class ChoferEditarComponent implements OnInit {
-  //Crea una referencia a un elemento del DOM  
-  @ViewChild('editCarnet', { read: ElementRef }) modalCarnet: ElementRef;
-  
+  //Crea una referencia a un elemento del DOM
+  // @ViewChild('toggleModal', { read: ElementRef }) modalCarnet: HTMLElement;
+
   idParam: any;
   editar: boolean;
   loading: boolean = true;
+  ready: boolean;
 
   //Clases modelo para los objetos
   detalle: any = {};
@@ -26,14 +32,15 @@ export class ChoferEditarComponent implements OnInit {
 
   //Formulario de edición
   editChofer: FormGroup;
-  
+
   constructor(
     private _choferesService: ChoferesService,
     private _usuariosService: UsuariosService,
     private formBuilder: FormBuilder,
+    private route: Router,
     private activatedRoute: ActivatedRoute
   ) {
-    
+    this.ready = false;
     this.initForm();
     //Se ejecuta con cada llamada a la ruta que renderiza este componente
     //excepto cuando el parámetro que viene con la ruta no cambia.
@@ -112,21 +119,25 @@ export class ChoferEditarComponent implements OnInit {
     this.loading = true;
 
     this.chofer = this.editChofer.value;
-    let cierraModal = document.querySelector('#toggleModal');
-    console.log(cierraModal);    
+    let cierraModal = document.querySelector('#cerrar');
 
     //Pide confirmación para el guardado (a mejorar aspecto...)
-    if (confirm(`¿Guardar cambios?`)) {
+    let confirmacion = confirm(`¿Guardar cambios?`);
+    if (confirmacion) {
       let result = await this._choferesService.updateChofer(
         this.chofer,
         this.chofer.chofer_id
       );
 
       if (result['success']) {
-        //Envía un evento 'click' al botón que abre y cierra el modal
-        cierraModal.dispatchEvent(new Event('click', { bubbles: true }));
-        // this.llamaModal.nativeElement['modal']('toggle');
+        
         alert(`Datos Actualizados!: ${result['resp']['info']}`);
+
+        //Envía un evento 'click' al botón que cierra el modal
+        cierraModal.dispatchEvent(new Event('click', { bubbles: true }));
+        this.ready = true;
+        this.route.navigateByUrl('/choferes');
+        
       } else {
         alert(`Algo falló`);
       }
@@ -134,5 +145,4 @@ export class ChoferEditarComponent implements OnInit {
 
     this.loading = false;
   }
-
 }

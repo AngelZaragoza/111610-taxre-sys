@@ -226,6 +226,7 @@ export class UsuariosService {
           turno = {
             open: true,
             turno_id: res['turno'].turno_id,
+            hora_inicio: res['turno'].hora_inicio,
             owner: res['turno'].usuario_id,
           };
         }

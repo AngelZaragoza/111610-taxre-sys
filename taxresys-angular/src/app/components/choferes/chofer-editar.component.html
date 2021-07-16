@@ -1,12 +1,12 @@
 <!-- Spinner -->
 <ngx-spinner
-bdColor="rgba(233, 236, 239, 0.1)"
+  bdColor="rgba(233, 236, 239, 0.1)"
   size="medium"
   color="#f5627c"
   type="ball-circus"
   [fullScreen]="false"
   name="chofer_detalle"
-  ><p style="color:black; font-weight: bold;">Cargando...</p></ngx-spinner
+  ><p style="color: black; font-weight: bold">Cargando...</p></ngx-spinner
 >
 
 <!-- Contenido -->
@@ -65,6 +65,7 @@ bdColor="rgba(233, 236, 239, 0.1)"
             Editar Datos Adicionales del Chofer
           </h5>
           <button
+            id="cerrar"
             type="button"
             class="close"
             data-dismiss="modal"
@@ -114,12 +115,6 @@ bdColor="rgba(233, 236, 239, 0.1)"
                   />
                 </div>
               </div>
-              <!-- <div class="form-group row">
-                <label for="" class="col-md-5 col-form-label"
-                  >Estado Form: {{ editChofer.valid }}</label
-                >
-                <pre class="col-md-7"> {{ editChofer.value | json }} </pre>
-              </div> -->
             </form>
           </div>
         </div>
@@ -133,7 +128,7 @@ bdColor="rgba(233, 236, 239, 0.1)"
             #updateCho
             (click)="updateChofer()"
             class="btn btn-primary"
-            [disabled]="loading"
+            [disabled]="editChofer.invalid || loading"
           >
             <i
               [ngClass]="loading ? 'fas fa-sync-alt fa-spin' : 'far fa-save'"

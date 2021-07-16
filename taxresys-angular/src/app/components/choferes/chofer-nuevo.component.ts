@@ -93,8 +93,6 @@ export class ChoferNuevoComponent implements OnInit {
     //Recibe el objeto "persona" desde el evento del componente hijo
     this.persona = persona;
 
-    //Listo para guardar nuevo chofer: true
-    this.ready = true;
     console.log('Nueva Persona =>');
     console.table(this.persona);
 
@@ -158,13 +156,14 @@ export class ChoferNuevoComponent implements OnInit {
       } else {
         alert(`Nuevo Chofer guardado!`);
         let cerrar = document.querySelector('#cerrar');
-        cerrar.dispatchEvent(new Event( 'click', { bubbles: true } ));
+        cerrar.dispatchEvent(new Event('click', { bubbles: true }));
+
+        //Flag para indicar al elemento padre que debe recargar lista
+        this.ready = true;
         this.route.navigateByUrl('/choferes');
       }
     }
 
     this.loading = false;
   }
-
-  logDetalleNuevo() {}
 }

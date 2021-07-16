@@ -48,6 +48,9 @@ import { FormTurnoComponent } from './components/shared/form-turno/form-turno.co
 import { JornadaPlanillaComponent } from './components/jornadas/jornada-planilla.component';
 import { FormJornadaComponent } from './components/shared/form-jornada/form-jornada.component';
 
+//Pipes personalizados
+import { NombreCompletoPipe } from './pipes/nombre-completo.pipe';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -71,6 +74,7 @@ import { FormJornadaComponent } from './components/shared/form-jornada/form-jorn
     FormTurnoComponent,
     JornadaPlanillaComponent,
     FormJornadaComponent,
+    NombreCompletoPipe
   ],
   imports: [
     BrowserModule,

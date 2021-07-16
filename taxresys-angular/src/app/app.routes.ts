@@ -78,13 +78,13 @@ const routes: Routes = [
     path: 'jornadas',
     component: JornadaPlanillaComponent,
     children: [
-      { path: 'cierre/:jornada_id', component: FormJornadaComponent },
-      { path: 'inicio/:movil_id', component: FormJornadaComponent },
+      { path: 'cierre', component: FormJornadaComponent },
+      { path: 'inicio', component: FormJornadaComponent },
     ],
     canActivate: [AuthGuard],    
   },
 
-  { path: '**', pathMatch: 'full', redirectTo: 'home' },
+  { path: '**', pathMatch: 'full', redirectTo: '/home' },
 ];
 
 @NgModule({

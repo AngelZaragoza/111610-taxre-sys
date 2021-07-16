@@ -14,7 +14,8 @@ class Movil {
                      JOIN adherentes a
                        ON m.adherente_id = a.adherente_id
                      JOIN personas p
-                       ON a.persona_id = p.persona_id`;
+                       ON a.persona_id = p.persona_id
+                    ORDER BY m.nro_interno`;
 
       const lista = await conexion.query(sql);
       if (!lista.length) {

@@ -56,6 +56,9 @@ export class MovilesService {
         lista[0] = err;
       });
 
+    if (listaUrl === '/choferes') {
+      this.listaChoferes = lista;
+    }
     console.log(`Lista ${listaUrl} => `, lista);
     return lista;
   }
@@ -73,7 +76,8 @@ export class MovilesService {
 
   async nuevoMovilFull(nuevo: any) {
     let movil: any;
-    await this._conexion.request('POST', `${environment.serverUrl}/moviles/nuevo`, nuevo)
+    await this._conexion
+      .request('POST', `${environment.serverUrl}/moviles/nuevo`, nuevo)
       .then((res) => (movil = res))
       .catch((err) => (movil = err));
     return movil;
@@ -81,14 +85,10 @@ export class MovilesService {
 
   async updateMovil(movil: any, id: Number) {
     let mov: any;
-    await this._conexion.request(
-      'PATCH',
-      `${environment.serverUrl}/moviles/detalle/${id}`,
-      movil
-    )
+    await this._conexion
+      .request('PATCH', `${environment.serverUrl}/moviles/detalle/${id}`, movil)
       .then((res) => (mov = res))
       .catch((err) => (mov = err));
     return mov;
   }
-  
 }
