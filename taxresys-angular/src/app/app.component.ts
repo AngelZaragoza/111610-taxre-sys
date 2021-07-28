@@ -8,9 +8,23 @@ import { UsuariosService } from './services/usuarios.service';
 })
 export class AppComponent implements OnInit {
   title = 'taxresys-angular';
+  loading: boolean;
+  userLogged: any;
 
-  constructor ( public _usuariosService:UsuariosService ) { }  
+  constructor ( public _usuariosService:UsuariosService ) { 
+    this.loading = true;    
+  }  
+  
+  ngOnInit(): void { 
+    this.primeraCarga();
+  }  
 
-  ngOnInit(): void { }  
+  async primeraCarga() {    
+    this._usuariosService.mostrarSpinner(this.loading, 'inicio');
+    await this._usuariosService.checkAuth(true);
+    this.userLogged = this._usuariosService.user;
+    this.loading = false;
+    this._usuariosService.mostrarSpinner(this.loading, 'inicio');
+  }
 
 }

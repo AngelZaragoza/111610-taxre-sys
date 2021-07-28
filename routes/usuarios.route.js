@@ -13,7 +13,7 @@ function checkUser(req, res, next) {
   if (logged) {
     if(req.user.alias == req.body.usuario) {
       //Si está logueado Y el nombre de usuario es el mismo, redirige devolviendo usuario logueado
-      res.redirect("login-success");
+      res.redirect("isauth");
     } else {
       //Si está logueado PERO el nombre de usuario es distinto, redirige a intentar un nuevo login
       console.log("Intentando nueva sesión... next");

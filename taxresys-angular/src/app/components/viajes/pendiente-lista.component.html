@@ -1,0 +1,128 @@
+<!-- Spinner -->
+<ngx-spinner
+  bdColor="rgba(0, 0, 0, 0.9)"
+  size="medium"
+  color="#f5627c"
+  type="ball-atom"
+  [fullScreen]="true"
+  name="pendiente_lista"
+  ><p style="color: white">Cargando...</p></ngx-spinner
+>
+
+<!-- Contenido -->
+<div
+  *ngIf="listaPendientesActivos.length > 0 && getTurno > 0 && !loading"
+  class="container p-3 mb-3 rounded"
+>
+  <div class="row">
+    <div class="col">
+      <div class="card">
+        <div class="card-header-list">
+          <div class="h4 m-3 text-center text-white">
+            Lista de Pendientes (por Asignar)
+          </div>
+        </div>
+        <div class="card-body back-form shadow-effect">
+          <!-- Form de Alta de Viajes, Se pasan los datos mediante @Input -->
+          <div class="row">
+            <div class="col">
+              <app-form-viaje
+                *ngIf="editar"
+                class="animate__animated animate__fadeInDown animate__faster"
+                [userLogged]="userLogged"
+                [tiposViaje]="tiposViaje"
+                [asignaPendiente]="asignaPendiente"
+                [estadosViaje]="estadosViaje"
+                [tipo]="tipo"
+                [estado]="estado"
+                [listaMovilesJornadas]="listaMovilesJornadas"
+                [listaChoferes]="listaChoferes"
+                (emitCerrar)="mostrarForm($event)"
+                (emitViajeGuardado)="pendienteAsignado($event)"
+              ></app-form-viaje>
+            </div>
+          </div>
+
+          <!-- Fin Form de Alta de Viajes -->
+          <div class="row mb-3 justify-content-center">
+            <table
+              *ngIf="errorMessage == '' && !editar"
+              class="
+                table table-hover table-responsive
+                animate__animated animate__fadeInDown animate__faster
+              "
+            >
+              <thead class="thead-light">
+                <tr>
+                  <th scope="col" class="align-middle">#</th>
+                  <th scope="col" class="align-middle">Usuario</th>
+                  <th scope="col" class="align-middle" style="width: 170px">
+                    Registrado
+                  </th>
+                  <th scope="col" class="align-middle">Calle/Lugar</th>
+                  <th scope="col" class="align-middle">Alt.</th>
+                  <th scope="col" class="align-middle" style="width: 190px">
+                    Hora a Enviar
+                  </th>
+                  <th scope="col" class="align-middle text-center">
+                    Observaciones
+                  </th>
+                  <th scope="col" colspan="2" class="align-middle text-center">
+                    Acciones
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let viaje of listaPendientesActivos; let i = index">
+                  <th
+                    scope="row"
+                    class="align-middle list-group-item-secondary"
+                  >
+                    {{ i + 1 }}
+                  </th>
+                  <td scope="row" class="align-middle text-center">
+                    {{ viaje.alias }}
+                  </td>
+                  <td class="align-middle">
+                    {{ viaje.registrado | date: "dd/MM/YYYY HH:mm'hs.'" }}
+                  </td>
+                  <td class="align-middle">{{ viaje.origen_nombre }}</td>
+                  <td class="align-middle">{{ viaje.origen_altura }}</td>
+                  <th scope="row" class="align-middle">
+                    {{ viaje.fecha_hora | date: "dd/MM/YYYY HH:mm'hs.'" }}
+                  </th>
+                  <td class="align-middle">{{ viaje.observaciones }}</td>
+                  <td>
+                    <a
+                      class="btn btn-sm btn-success"
+                      (click)="asignarPendiente(viaje)"
+                      ><i class="fas fa-taxi"></i>&nbsp; Asignar</a
+                    >
+                  </td>
+                  <td>
+                    <a class="btn btn-sm btn-danger"
+                      ><i class="far fa-calendar-times"></i>&nbsp; Anular</a
+                    >
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Mensajes de Error -->
+<div *ngIf="getTurno < 0" class="form-group alert alert-danger" role="alert">
+  <h5>No hay un Turno de Operador iniciado</h5>
+</div>
+<div
+  *ngIf="errorMessage != ''"
+  class="form-group alert alert-danger"
+  role="alert"
+>
+  <h5 class="text-center">{{ errorMessage }}</h5>
+</div>
+<!-- Fin Mensajes de Error -->

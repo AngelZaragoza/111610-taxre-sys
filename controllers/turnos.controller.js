@@ -4,34 +4,46 @@ class Turno {
   //**********************************
   //* Métodos llamados por el router *
   //**********************************
-  turnosOperadores = async (req, res) => {
+
+  //**********************************
+  //* Listados *
+  //**********************************
+
+  estadoTurnosFechas = async (req, res) => {
     try {
-      let {        
-        hora_inicio = "2015-01-01",
-        hora_cierre = "2035-12-31",
-      } = req.query; //Recupera los datos desde la query, o asigna valores por default
-      
       let {
+        hora_inicio = "2015-01-01 00:00",
+        hora_cierre = "2035-12-31 23:59",
+      } = req.query; //Recupera los datos desde la query, o asigna valores por default
+
+      hora_inicio = new Date(hora_inicio);
+      hora_cierre = new Date(hora_cierre);
+
+      let { usuario_id, rol_id } = req.user; //Recupera los datos del usuario logueado actualmente
+
+      console.log("User de Passport:", req.user);
+      console.log(
+        "User:",
         usuario_id,
-        rol_id
-      } = req.user; //Recupera los datos del usuario logueado actualmente
-      
-      console.log('User de Passport:', req.user );
-      console.log('User:', usuario_id, 'Rol:', rol_id, 'Start:', hora_inicio, 'End:', hora_cierre);
-      
+        "Rol:",
+        rol_id,
+        "Start:",
+        hora_inicio,
+        "End:",
+        hora_cierre
+      );
+
       let isAdmin;
       //Si el usuario es Admin o Encargado, cambia el usuario_id para recuperar todos los registros
-      if(rol_id < 3) {
-        isAdmin='>=?';
+      if (rol_id < 3) {
+        isAdmin = ">=?";
         usuario_id = 1;
       } else {
-          isAdmin = '=?'
+        isAdmin = " =?";
       }
 
-      let fechaDesde = 't.hora_inicio >= CAST(? AS DATETIME)';
-      let fechaHasta = 't.hora_cierre <= CAST(? AS DATETIME)';
-      // let fechaDesde = hora_inicio ? "t.hora_inicio >= CAST(? AS DATE)" : "true";
-      // let fechaHasta = hora_cierre ? "t.hora_cierre <= CAST(? AS DATE)" : "true";
+      let fechaDesde = "t.hora_inicio >= CAST(? AS DATETIME)";
+      let fechaHasta = "t.hora_cierre <= CAST(? AS DATETIME)";
 
       let sql = `SELECT t.turno_id, t.usuario_id, u.alias,
                         t.estado_pago_id, ep.estado,
@@ -43,7 +55,6 @@ class Turno {
                      ON t.estado_pago_id = ep.estado_pago_id
                   WHERE t.usuario_id${isAdmin} AND (${fechaDesde} AND ${fechaHasta})`;
 
-      console.log(sql);
       const lista = await conexion.query(sql, [
         usuario_id,
         hora_inicio,
@@ -55,6 +66,32 @@ class Turno {
           .json({ success: false, message: "No se encontraron turnos" });
       } else {
         res.status(200).json(lista);
+      }
+    } catch (err) {
+      console.log("Error interno", err);
+      return res.status(500).json(err);
+    }
+  };
+
+  ultimosNTurnos = async (req, res) => {
+    try {
+      //Cantidad de registros a recuperar por query
+      //Default: 5
+      let { cant = 5 } = req.query; 
+
+      let sql = `SELECT t.turno_id, t.usuario_id, u.alias,
+                          t.hora_inicio, t.hora_cierre, 
+                          t.observaciones 
+                     FROM turnos_operadores t JOIN usuarios u
+                       ON t.usuario_id = u.usuario_id
+                    ORDER BY t.turno_id DESC LIMIT ?`;
+      const result = await conexion.query(sql, [cant]);
+      if (!result.length) {
+        res
+          .status(404)
+          .json({ success: false, message: "No se encontraron turnos" });
+      } else {
+        res.status(200).json(result);
       }
     } catch (err) {
       console.log("Error interno", err);
@@ -96,6 +133,10 @@ class Turno {
       }
     }
   };
+
+  //**********************************
+  //* Operaciones con los Turnos *
+  //**********************************
 
   inicioTurno = async (req, res) => {
     try {
@@ -175,7 +216,7 @@ class Turno {
       } = req.body;
 
       hora_cierre = new Date(hora_cierre);
-      
+
       let sql = `UPDATE turnos_operadores 
                   SET hora_cierre=?, 
                       horas_extra=?, 
@@ -205,21 +246,7 @@ class Turno {
       return res.status(500).json(err);
     }
   };
-
-  pruebaConsultaFecha = async (req, res) => {
-    let { fecha_prueba } = req.body;
-    let sql = `select * from personas where fecha_nac >= ?;`;
-
-    const results = await conexion.query(sql, [fecha_prueba]);
-
-    if (results.length > 0) {
-      res.status(200).json(results);
-    } else {
-      res
-        .status(404)
-        .json({ success: false, message: "Rango Fecha inexistente" });
-    }
-  };
+  
 }
 
 module.exports = new Turno();

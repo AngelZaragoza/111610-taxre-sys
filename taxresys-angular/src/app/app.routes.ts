@@ -24,10 +24,15 @@ import { MovilEditarComponent } from './components/moviles/movil-editar.componen
 import { FormTurnoComponent } from './components/shared/form-turno/form-turno.component';
 
 import { JornadaPlanillaComponent } from './components/jornadas/jornada-planilla.component';
+import { FormJornadaComponent } from './components/shared/form-jornada/form-jornada.component';
+
+import { ViajePlanillaComponent } from './components/viajes/viaje-planilla.component';
+import { PendienteListaComponent }  from './components/viajes/pendiente-lista.component';
 
 //Guardianes de rutas
 import { AuthGuard } from './auth/auth.guard';
-import { FormJornadaComponent } from './components/shared/form-jornada/form-jornada.component';
+import { OwnerGuard } from './auth/owner.guard';
+import { ErrorComponent } from './components/shared/error/error.component';
 
 const routes: Routes = [
   { path: 'home', component: HomeComponent },
@@ -83,13 +88,16 @@ const routes: Routes = [
     ],
     canActivate: [AuthGuard],    
   },
+  { path: 'viajes', component: ViajePlanillaComponent, canActivate: [AuthGuard, OwnerGuard] },
+  { path: 'pendientes', component: PendienteListaComponent, canActivate: [AuthGuard] },
 
+  { path: 'error',component: ErrorComponent },
   { path: '**', pathMatch: 'full', redirectTo: '/home' },
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule],
-  providers: [AuthGuard],
+  providers: [AuthGuard, OwnerGuard],
 })
 export class AppRoutingModule {}

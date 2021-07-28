@@ -61,27 +61,26 @@ export class UsuariosService {
         //Si se recibe un objeto, la llamada vino desde el LogIn o el LogOut:
         //Se escribe en localStorage y se recuperan los roles de usuario
 
-        await this.getTurnoAbierto();
-        this.user = { ...passportResult, ...this.turno }
-        localStorage.setItem(
-          'user',
-          JSON.stringify( this.user )
-        );
-        this.getRoles();
+        if (passportResult.logged) {
+          await this.getTurnoAbierto();
+          await this.getRoles();
+        }
+        this.user = { ...passportResult, ...this.turno };
+        localStorage.setItem('user', JSON.stringify(this.user));
         return this.user;
       }
 
       if (chkServer) {
         //Se chequea desde la sesión almacenada en server
         //y se recuperan los roles de usuario
-        let result:Object = await this._conexion.request(
+        let result: Object = await this._conexion.request(
           'GET',
           `${environment.serverUrl}/usuarios/isauth`
         );
         await this.getTurnoAbierto();
-        
-        this.user = {...result, ...this.turno };
-        localStorage.setItem('user', JSON.stringify( this.user ));
+
+        this.user = { ...result, ...this.turno };
+        localStorage.setItem('user', JSON.stringify(this.user));
         this.getRoles();
         return this.user;
       }
@@ -129,7 +128,7 @@ export class UsuariosService {
     await this._conexion
       .request('GET', `${environment.serverUrl}/usuarios/passportLogout`)
       .then((res: any) => {
-        console.log('Resp. Logout => ', res);
+        console.log('Then. Logout => ', res);
         result = res;
         // localStorage.setItem('user', JSON.stringify(res));
       })
@@ -138,8 +137,14 @@ export class UsuariosService {
         console.log(err);
       })
       .finally(() => {
-        this.checkAuth(false, result);
+        console.log('Finally. Logout => ', result);
+        // this.checkAuth(false, result);
       });
+
+    this.turno = {};
+    this.checkAuth(false, result);
+
+    return result;
   }
 
   //Métodos de manejo de Usuarios
@@ -247,5 +252,12 @@ export class UsuariosService {
         this._spinner.hide(name);
       }, 500);
     }
+  }
+
+  calcularFechaMaxima(fechaInicio: Date, horasSumadas: number): Date {
+    let fechaMaxima = new Date(
+      fechaInicio.valueOf() + 1000 * 60 * 60 * horasSumadas
+    );
+    return fechaMaxima;
   }
 }

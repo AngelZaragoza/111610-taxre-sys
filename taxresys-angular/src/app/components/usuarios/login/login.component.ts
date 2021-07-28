@@ -44,7 +44,9 @@ export class LoginComponent implements OnInit {
       console.log('Login Error =>', this.result['error']);
     } else {
       console.log('User en service =>', this._usuariosService.user);
-      this.route.navigateByUrl('/home');
+      setTimeout(() => {
+        this.route.navigateByUrl('/home');        
+      }, 1500);
     }
     this.loading = false;
     //Agregar lógica de respuesta en caso de falla de login

@@ -8,6 +8,7 @@ const choferes = require("../routes/choferes.route");
 const moviles = require("../routes/moviles.route");
 const jornadas = require("../routes/jornadas.route");
 const turnos = require("../routes/turnos.route");
+const viajes = require("../routes/viajes.route");
 
 const session = require("express-session");
 const MySQLStore = require("express-mysql-session")(session);
@@ -82,6 +83,7 @@ app.use("/choferes", choferes);
 app.use("/moviles", moviles);
 app.use("/jornadas", jornadas);
 app.use("/turnos", turnos);
+app.use("/viajes", viajes);
 
 //*****************************************
 //Levanta el servidor e informa el puerto

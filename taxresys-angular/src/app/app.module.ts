@@ -2,9 +2,9 @@
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { HttpClientModule, HttpClientXsrfModule } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModalModule } from '@ng-bootstrap/ng-bootstrap';
 import {
   OwlDateTimeModule,
   OwlNativeDateTimeModule,
@@ -29,6 +29,7 @@ import { AppRoutingModule } from './app.routes';
 import { AppComponent } from './app.component';
 import { NavbarComponent } from './components/shared/navbar/navbar.component';
 import { HomeComponent } from './components/home/home.component';
+import { ErrorComponent } from './components/shared/error/error.component';
 import { LoginComponent } from './components/usuarios/login/login.component';
 import { UsuarioNuevoComponent } from './components/usuarios/usuario-nuevo.component';
 import { UsuarioEditarComponent } from './components/usuarios/usuario-editar.component';
@@ -48,13 +49,20 @@ import { FormTurnoComponent } from './components/shared/form-turno/form-turno.co
 import { JornadaPlanillaComponent } from './components/jornadas/jornada-planilla.component';
 import { FormJornadaComponent } from './components/shared/form-jornada/form-jornada.component';
 
+import { FormViajeComponent } from './components/shared/form-viaje/form-viaje.component';
+import { ViajePlanillaComponent } from './components/viajes/viaje-planilla.component';
+import { PendienteListaComponent } from './components/viajes/pendiente-lista.component';
+
 //Pipes personalizados
 import { NombreCompletoPipe } from './pipes/nombre-completo.pipe';
+import { NomElemPipe } from './pipes/nom-elem.pipe';
+import { NroMovilPipe } from './pipes/nro-movil.pipe';
 
 @NgModule({
   declarations: [
     AppComponent,
     NavbarComponent,
+    ErrorComponent,
     HomeComponent,
     LoginComponent,
     UsuarioNuevoComponent,
@@ -74,22 +82,24 @@ import { NombreCompletoPipe } from './pipes/nombre-completo.pipe';
     FormTurnoComponent,
     JornadaPlanillaComponent,
     FormJornadaComponent,
-    NombreCompletoPipe
+    FormViajeComponent,
+    ViajePlanillaComponent,
+    PendienteListaComponent,
+    NombreCompletoPipe,
+    NomElemPipe,
+    NroMovilPipe,
   ],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
     AppRoutingModule,
-    NgbModule,
+    NgbModalModule,
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
     OwlDateTimeModule,
     OwlNativeDateTimeModule,
-    NgxSpinnerModule
-    // HttpClientXsrfModule.withOptions({
-    //   cookieName: 'connect.sid',
-    // }),
+    NgxSpinnerModule,    
   ],
   providers: [
     UsuariosService,

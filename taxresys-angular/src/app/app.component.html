@@ -1,6 +1,19 @@
-<app-navbar></app-navbar>
+<!-- Spinner -->
+<ngx-spinner
+  bdColor="rgba(0, 0, 0, 0.9)"
+  size="medium"
+  color="#f5627c"
+  type="square-jelly-box"
+  [fullScreen]="true"
+  name="inicio"
+  ><p style="color: white">Cargando...</p></ngx-spinner
+>
 
-<div class="container-fluid pb-y" style="padding-top: 10px;" >
+<!-- Contenido -->
+
+<app-navbar *ngIf="!loading" [userLogged]="userLogged"></app-navbar>
+
+<div *ngIf="!loading" class="container-fluid pb-y" style="padding-top: 10px;" >
     <router-outlet></router-outlet>
 </div>
 

@@ -144,7 +144,7 @@ class Usuario {
     }
   }
 
-  loginSuccess = (req, res, next) => {
+  loginSuccess = (req, res) => {
     console.log("Desde login Success");
     console.log("Session:", req.session);
     let { password, ...userSinPass } = req.user;
@@ -152,7 +152,7 @@ class Usuario {
     res.status(200).json({ logged: true, ...userSinPass });
   };
 
-  loginFailed = (req, res, next) => {
+  loginFailed = (req, res) => {
     console.log("Session F:", req.session);
     console.log("Usuario F:", req.user);
     res.status(401).json({ success: false, message: "Usuario o Password incorrectos" });

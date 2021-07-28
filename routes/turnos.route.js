@@ -4,8 +4,12 @@ const authGuard = require("../lib/authguard"); //Chequeo antes de cada peticion
 
 const turnosController = require("../controllers/turnos.controller");
 
-router.route("/fechas").get(turnosController.pruebaConsultaFecha);
-router.route("/").get(authGuard, turnosController.turnosOperadores);
+//Listados
+// router.route("/fechas").get(turnosController.pruebaConsultaFecha);
+router.route("/estado-fechas").get(authGuard, turnosController.estadoTurnosFechas);
+router.route("/ultimos").get(authGuard, turnosController.ultimosNTurnos);
+
+//Operaciones
 router
   .route("/inout")
   .get(authGuard, turnosController.getTurnoActivo)

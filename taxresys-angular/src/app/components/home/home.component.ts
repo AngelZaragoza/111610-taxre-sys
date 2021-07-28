@@ -7,7 +7,7 @@ import { UsuariosService } from 'src/app/services/usuarios.service';
   templateUrl: './home.component.html',
   styles: [],
 })
-export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
+export class HomeComponent implements OnInit, OnDestroy {
   saludo: string;
   userLogged: any;
   userSub: Subscription;
@@ -29,14 +29,9 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     
   }
 
-  ngAfterViewInit(): void {
-    //Called after ngAfterContentInit when the component's view has been initialized. Applies to components only.    
-    console.log('|| Home ViewInit ||');
-  }
   
   ngOnDestroy(): void {
-    //Called once, before the instance is destroyed.    
-    console.log('|| Home Destruido ||');    
+    //Called once, before the instance is destroyed.
     this.userSub.unsubscribe();
   }  
 }

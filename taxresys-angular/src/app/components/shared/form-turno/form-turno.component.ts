@@ -9,21 +9,27 @@ import {
 import { Turno } from 'src/app/classes/turno';
 import { TurnosService } from 'src/app/services/turnos.service';
 import { UsuariosService } from 'src/app/services/usuarios.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-form-turno',
   templateUrl: './form-turno.component.html',
-  styles: [],
+  styles: [
+    '.box-tabla { position: relative; height: 275px; overflow-y: scroll; }',
+    '.cont-tabla { position: absolute; top: 0px; left: 0px; }',
+  ],
 })
 export class FormTurnoComponent implements OnInit {
   abreTurno: boolean = true;
   turno: Turno;
-  turnoPrueba: Turno;
   ready: boolean;
   loading: boolean;
   textoBoton: string = '';
+
+  //Listado de últimos turnos
+  ultTurnos: any[] = [];
+  cantTurnos: number = 5;
   errorMessage: string = '';
-  respuesta: any;
 
   //Formulario
   datosTurno: FormGroup;
@@ -35,22 +41,40 @@ export class FormTurnoComponent implements OnInit {
     private route: Router,
     private activatedRoute: ActivatedRoute
   ) {
-    this.ready = false;    
+    this.ready = false;
     this.activatedRoute.params.subscribe((params) => {
       this.abreTurno = params['operacion'] === 'inicio' ? true : false;
       this.textoBoton = this.abreTurno ? 'Abrir Turno' : 'Cerrar Turno';
+      console.log('|| Form Turno ||');
     });
   }
 
-  ngOnInit(): void {    
+  ngOnInit(): void {
     this._usuariosService.mostrarSpinner(!this.ready, 'form_turno');
     this.turno = new Turno(this.userLogged.usuario_id);
     this.initForm();
-    this.getUltimoTurno();    
+    this.getUltimoTurno();
+    this.getUltimosNTurnos(this.cantTurnos);
   }
 
   get userLogged(): any {
     return this._usuariosService.user;
+  }
+
+  async cambiaCant(cant: any) {
+    //Recibe el valor seleccionado en el combo
+    //y lo usa para actualizar el listado    
+    this.cantTurnos = cant.value;
+    await this.getUltimosNTurnos(this.cantTurnos);
+  }
+  
+  async getUltimosNTurnos(cant: number) {
+    let lista = await this._turnosService.getUltimosNTurnos(cant);
+    if (lista[0] instanceof HttpErrorResponse) {
+      this.errorMessage = lista[0]['error'].message;
+    } else {
+      this.ultTurnos = lista;
+    }
   }
 
   async getUltimoTurno() {
@@ -77,9 +101,13 @@ export class FormTurnoComponent implements OnInit {
       if (this.turno.hora_cierre) {
         //Se carga un nuevo 'turno' en el formulario con el id del usuario logueado
         this.datosTurno.setValue(new Turno(this.userLogged.usuario_id));
-        let sumaHora = new Date(this.turno.hora_inicio)
-        console.log('Inicio:', sumaHora, '+ 4hrs:', sumaHora.setTime(sumaHora.valueOf()+ (1000*60*60*4)))
-        
+        let sumaHora = new Date(this.turno.hora_inicio);
+        console.log(
+          'Inicio:',
+          sumaHora,
+          '+ 4hrs:',
+          sumaHora.setTime(sumaHora.valueOf() + 1000 * 60 * 60 * 4)
+        );
       } else {
         alert('Error: El turno anterior no ha sido cerrado');
         this.route.navigateByUrl('/home');
@@ -89,7 +117,6 @@ export class FormTurnoComponent implements OnInit {
       if (this.turno.hora_cierre === null) {
         //Se cargan los datos del turno abierto en el formulario
         this.datosTurno.setValue(this.turno);
-        
       } else {
         alert('Error: No hay turnos abiertos por cerrar');
         this.route.navigateByUrl('/home');
@@ -97,7 +124,7 @@ export class FormTurnoComponent implements OnInit {
     }
 
     this.ready = true;
-    this._usuariosService.mostrarSpinner(!this.ready, 'form_turno');    
+    this._usuariosService.mostrarSpinner(!this.ready, 'form_turno');
   }
 
   //Inicializa el formulario
@@ -111,8 +138,8 @@ export class FormTurnoComponent implements OnInit {
       horas_extra: new FormControl(''),
       observaciones: new FormControl(''),
     });
-    
-    if(!this.abreTurno) {
+
+    if (!this.abreTurno) {
       this.datosTurno.get('hora_cierre').setValidators(Validators.required);
       this.datosTurno.updateValueAndValidity();
     }
@@ -121,19 +148,19 @@ export class FormTurnoComponent implements OnInit {
   }
 
   async saveTurno(inicioTurno: boolean) {
-    let confirmacion: boolean = confirm(`${this.textoBoton} de ${this.userLogged.alias} ?`);
+    let confirmacion: boolean = confirm(
+      `${this.textoBoton} de ${this.userLogged.alias} ?`
+    );
     let result: any;
-    
+
     if (confirmacion) {
       this.loading = true;
       if (inicioTurno) {
-        result = await this._turnosService.inicioTurno(
-          this.datosTurno.value
-        );
+        result = await this._turnosService.inicioTurno(this.datosTurno.value);
         if (result['success']) {
           alert(
             `Turno iniciado: ${this.userLogged.alias} => ${result['resp']['info']}`
-          );          
+          );
           this._usuariosService.checkAuth(true);
           this.route.navigateByUrl('/home');
         } else {
@@ -154,10 +181,14 @@ export class FormTurnoComponent implements OnInit {
           alert(
             `Algo falló:\n${result.error.code} \n ${result.statusText}\nNo se guardaron datos.`
           );
-        }        
+        }
       }
       this.loading = false;
     }
+  }
+
+  cancelarForm() {
+    this.route.navigateByUrl('/home');
   }
   
 }

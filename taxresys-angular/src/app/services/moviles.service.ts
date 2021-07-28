@@ -18,6 +18,7 @@ export class MovilesService {
     //En Jesús María, la antigüedad máxima es de 10 años
     this.aniosFabr = this.aniosValidos(10);
     this.minMaxITV();
+    this.getLista('/choferes');
   }
 
   aniosValidos(rango: Number): Number[] {
