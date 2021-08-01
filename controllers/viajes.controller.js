@@ -17,13 +17,52 @@ class Viaje {
                           v.origen_nombre, v.origen_altura, v.observaciones
                      FROM viajes v JOIN jornadas_moviles j
                        ON v.jornada_id = j.jornada_id
-                    WHERE v.turno_id=?`;
+                    WHERE v.turno_id=? 
+                    ORDER BY v.viaje_id`;
 
       const lista = await conexion.query(sql, [turno_id]);
       if (!lista.length) {
         res.status(404).json({
           success: false,
           message: "No hay Viajes cargados en el Turno",
+        });
+      } else {
+        res.status(200).json(lista);
+      }
+    } catch (error) {
+      console.log("Error interno", error);
+      return res.status(500).json(error);
+    }
+  };
+
+  viajesEntreFechas = async (req, res) => {
+    try {
+      
+      //Observacion: el offset se setea en '0' como string y no como number debido a que de otra manera,
+      //el driver mysql2 arroja un error de argumento no valido al intentar ejecutar la consulta
+      let { ini, fin, cant, offset = '0' } = req.query; //Recupera los parámetros enviados por query
+      
+      //Convierte los valores recibidos a formato Fecha válido    
+      ini = new Date(ini);
+      fin = new Date(fin);
+      
+      
+      console.log('ini:',ini,'fin:',fin,'cant:',cant, 'offset:', offset);
+      
+      let sql = `SELECT v.viaje_id, v.usuario_id, v.turno_id, j.movil_id, j.chofer_id, 
+                          v.jornada_id, v.tipo_viaje_id, v.estado_viaje_id, v.fecha_hora, 
+                          v.origen_nombre, v.origen_altura, v.observaciones
+                     FROM viajes v JOIN jornadas_moviles j
+                       ON v.jornada_id = j.jornada_id
+                    WHERE v.fecha_hora >= CAST(? AS DATETIME) AND v.fecha_hora <= CAST(? AS DATETIME) 
+                    ORDER BY v.viaje_id LIMIT ? OFFSET ?`;
+
+      const lista = await conexion.query(sql, [ini, fin, cant, offset]);
+      
+      if (!lista.length) {
+        res.status(404).json({
+          success: false,
+          message: "No hay Viajes cargados en el rango de Fechas",
         });
       } else {
         res.status(200).json(lista);

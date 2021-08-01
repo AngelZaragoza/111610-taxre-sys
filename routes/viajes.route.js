@@ -9,6 +9,7 @@ router.route("/tipos").get(authGuard, viajesController.tiposViaje);
 router.route("/estados").get(authGuard, viajesController.estadosViaje);
 router.route("/turno/:turno_id").get(authGuard, viajesController.viajesTurnoActivo);
 router.route("/pendientes/activos").get(authGuard, viajesController.pendientesActivos)
+router.route("/hist-fechas").get(authGuard, viajesController.viajesEntreFechas)
 
 //Creación
 router.route("/normal").post(authGuard, viajesController.nuevoViajeNormal);

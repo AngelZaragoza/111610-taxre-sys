@@ -1,0 +1,220 @@
+<!-- Spinner -->
+<ngx-spinner
+  bdColor="rgba(0, 0, 0, 0.9)"
+  size="medium"
+  color="#f5627c"
+  type="ball-atom"
+  [fullScreen]="true"
+  name="viaje_historico"
+  ><p style="color: white">Cargando...</p></ngx-spinner
+>
+
+<ngx-spinner
+  bdColor="rgba(233, 236, 239, 0.1)"
+  size="medium"
+  color="#9784ed"
+  type="ball-scale-ripple-multiple"
+  [fullScreen]="false"
+  name="historico_detalle"
+  ><p style="color: black; font-weight: bold">Espere...</p></ngx-spinner
+>
+
+<!-- Contenido -->
+<div class="container-fluid p-3 mt-4 rounded">
+  <!-- <div class="container-fluid p-3 mb-3 rounded"> -->
+  <div class="row">
+    <div class="col">
+      <div class="card animate__animated animate__fadeIn">
+        <div class="card-header-list">
+          <div class="h4 m-3 text-center text-white">
+            <p>Listado Histórico de Viajes - por Rango de Fechas</p>
+          </div>
+        </div>
+        <div class="card-body back-form shadow-effect">
+          <p class="h5 text-center" >
+            Mostrando desde:
+            {{ objQuery.fechaIni | date: "dd/MM/YYYY HH:mm" }} hasta:
+            {{ objQuery.fechaFin | date: "dd/MM/YYYY HH:mm" }}
+          </p>
+          <form [formGroup]="fechasViajes">
+            <fieldset>
+              <div class="row">
+                <div class="form-group col-md-3">
+                  <label for="desde" class="col-form-label">Desde Fecha:</label>
+                  <input
+                    [owlDateTime]="desde"
+                    [owlDateTimeTrigger]="desde"
+                    [max]="objQuery.fechaFin"
+                    class="form-control"
+                    formControlName="fechaIni"
+                    placeholder="Mostrar Desde..."
+                  />
+                  <owl-date-time #desde></owl-date-time>
+                </div>
+                <div class="form-group col-md-3">
+                  <label for="hasta" class="col-form-label">Hasta Fecha:</label>
+
+                  <input
+                    [owlDateTime]="hasta"
+                    [owlDateTimeTrigger]="hasta"
+                    [max]="objQuery.fechaFin"
+                    class="form-control"
+                    formControlName="fechaFin"
+                    placeholder="Mostrar Hasta..."
+                  />
+                  <owl-date-time #hasta></owl-date-time>
+                </div>
+                <div class="form-group col-md-3">
+                  <label for="hasta" class="col-form-label"
+                    >Cantidad de Registros:</label
+                  >
+                  <input
+                    type="number"
+                    class="form-control"
+                    formControlName="cant"
+                  />
+                </div>
+                <div class="form-group col-md-3 align-self-end">
+                  <button
+                    type="button"
+                    class="btn btn-primary btn-block"
+                    (click)="actualizarRango()"
+                  >
+                    <i class="fa fa-calendar-check-o" aria-hidden="true"></i>
+                    &nbsp; Buscar...
+                  </button>
+                </div>
+              </div>
+            </fieldset>
+          </form>
+
+          <div
+            *ngIf="!loading && ready && errorMessage == '' && getTurno > 0"
+            class="row justify-content-center box-tabla"
+          >
+            <div class="col">
+              <div
+                *ngIf="errorMessage == '' && !loading"
+                class="cont-tabla animate__animated animate__fadeIn"
+              >
+                <table class="table table-hover table-responsive table-sm">
+                  <thead class="list-group-item-secondary">
+                    <tr>
+                      <th scope="col" class="align-middle">#</th>
+                      <th scope="col" class="align-middle">Usuario</th>
+                      <th scope="col" class="align-middle">Móvil</th>
+                      <th scope="col" class="align-middle">Chofer</th>
+                      <th scope="col" class="align-middle">Calle/Lugar</th>
+                      <th scope="col" class="align-middle">Alt.</th>
+                      <th scope="col" class="align-middle" style="width: 170px">
+                        Fecha/Hora
+                      </th>
+                      <th scope="col" class="align-middle text-center">Tipo</th>
+                      <th scope="col" class="align-middle text-center">
+                        Estado
+                      </th>
+                      <th scope="col" class="align-middle text-center">
+                        Observaciones
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let viaje of listaViajesFechas; let i = index">
+                      <th
+                        scope="row"
+                        class="align-middle list-group-item-secondary"
+                      >
+                        {{ i + 1 }}
+                      </th>
+                      <th scope="row" class="align-middle text-center">
+                        {{
+                          viaje.usuario_id | nomElem: "usuario_id":listaUsuarios
+                        }}
+                      </th>
+                      <th scope="row" class="align-middle text-center">
+                        {{
+                          viaje.movil_id | nroMovil: "nro_interno":listaMoviles
+                        }}
+                      </th>
+                      <td class="align-middle">
+                        {{
+                          viaje.chofer_id
+                            | nombreCompleto: "chofer_id":listaChoferes
+                        }}
+                      </td>
+                      <td class="align-middle">{{ viaje.origen_nombre }}</td>
+                      <td class="align-middle">{{ viaje.origen_altura }}</td>
+                      <td class="align-middle">
+                        {{ viaje.fecha_hora | date: "dd/MM/YYYY HH:mm'hs.'" }}
+                      </td>
+                      <td class="align-middle">
+                        <span
+                          class="badge"
+                          [ngClass]="
+                            viaje.tipo_viaje_id == 2
+                              ? 'badge-warning'
+                              : 'badge-primary'
+                          "
+                        >
+                          {{
+                            viaje.tipo_viaje_id
+                              | nomElem: "tipo_viaje_id":tiposViaje
+                          }}
+                        </span>
+                      </td>
+                      <td class="align-middle">
+                        <span
+                          class="badge"
+                          [ngClass]="{
+                            'badge-success': viaje.estado_viaje_id == 1,
+                            'badge-danger':
+                              viaje.estado_viaje_id == 2 ||
+                              viaje.estado_viaje_id == 3,
+                            'badge-warning': viaje.estado_viaje_id == 4
+                          }"
+                        >
+                          {{
+                            viaje.estado_viaje_id
+                              | nomElem: "estado_viaje_id":estadosViaje
+                          }}
+                        </span>
+                      </td>
+                      <td class="align-middle">{{ viaje.observaciones }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <!-- Mensajes de Error -->
+          <div
+            *ngIf="getTurno < 0"
+            class="
+              form-group
+              alert alert-danger
+              animate__animated animate__fadeIn
+            "
+            role="alert"
+          >
+            <h5>No hay un Turno de Operador iniciado</h5>
+          </div>
+          <div
+            *ngIf="errorMessage != ''"
+            class="
+              form-group
+              alert alert-info
+              animate__animated animate__fadeIn
+            "
+            role="alert"
+          >
+            <h5 class="text-center">
+              {{ errorMessage }}
+            </h5>
+          </div>
+
+          <!-- Fin Mensajes de Error -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

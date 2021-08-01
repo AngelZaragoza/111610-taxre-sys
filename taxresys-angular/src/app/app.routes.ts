@@ -27,12 +27,13 @@ import { JornadaPlanillaComponent } from './components/jornadas/jornada-planilla
 import { FormJornadaComponent } from './components/shared/form-jornada/form-jornada.component';
 
 import { ViajePlanillaComponent } from './components/viajes/viaje-planilla.component';
-import { PendienteListaComponent }  from './components/viajes/pendiente-lista.component';
+import { PendienteListaComponent } from './components/viajes/pendiente-lista.component';
 
 //Guardianes de rutas
 import { AuthGuard } from './auth/auth.guard';
 import { OwnerGuard } from './auth/owner.guard';
 import { ErrorComponent } from './components/shared/error/error.component';
+import { ViajeHistoricoComponent } from './components/viajes/viaje-historico.component';
 
 const routes: Routes = [
   { path: 'home', component: HomeComponent },
@@ -86,12 +87,30 @@ const routes: Routes = [
       { path: 'cierre', component: FormJornadaComponent },
       { path: 'inicio', component: FormJornadaComponent },
     ],
-    canActivate: [AuthGuard],    
+    canActivate: [AuthGuard],
   },
-  { path: 'viajes', component: ViajePlanillaComponent, canActivate: [AuthGuard, OwnerGuard] },
-  { path: 'pendientes', component: PendienteListaComponent, canActivate: [AuthGuard] },
+  {
+    path: 'viajes',
+    children: [
+      {
+        path: 'turno',
+        component: ViajePlanillaComponent,
+        canActivate: [AuthGuard, OwnerGuard],
+      },
+      {
+        path: 'hist-viajes',
+        component: ViajeHistoricoComponent,
+        canActivate: [AuthGuard],
+      },
+      {
+        path: 'pendientes',
+        component: PendienteListaComponent,
+        canActivate: [AuthGuard],
+      },
+    ],
+  },
 
-  { path: 'error',component: ErrorComponent },
+  { path: 'error', component: ErrorComponent },
   { path: '**', pathMatch: 'full', redirectTo: '/home' },
 ];
 

@@ -8,7 +8,10 @@ import { ViajesService } from 'src/app/services/viajes.service';
 @Component({
   selector: 'app-viajes-planilla',
   templateUrl: './viaje-planilla.component.html',
-  styles: [],
+  styles: [
+    '.box-tabla { position: relative; height: 50vh; max-height: 50vh; overflow-y: scroll; }',
+    '.cont-tabla { position: absolute; top: 0px; left: 0px; }',
+  ],
 })
 export class ViajePlanillaComponent implements OnInit, OnDestroy {
   //Listados
@@ -90,10 +93,7 @@ export class ViajePlanillaComponent implements OnInit, OnDestroy {
     this.tiposViaje = this._viajesService.tiposViaje;
     this.estadosViaje = this._viajesService.estadosViaje;
     this.listaChoferes = this._viajesService.listaChoferes;
-
-    // this.tiposViaje = await this._viajesService.getLista('/viajes/tipos');
-    // this.estadosViaje = await this._viajesService.getLista('/viajes/estados');
-    // this.listaChoferes = await this._viajesService.getLista('/choferes');
+    
     this.listaMovilesJornadas = await (
       await this._viajesService.getLista('/jornadas')
     ).filter(

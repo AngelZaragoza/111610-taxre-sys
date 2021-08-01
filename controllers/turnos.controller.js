@@ -16,6 +16,8 @@ class Turno {
         hora_cierre = "2035-12-31 23:59",
       } = req.query; //Recupera los datos desde la query, o asigna valores por default
 
+      console.log("Start:", hora_inicio, "End:", hora_cierre);
+
       hora_inicio = new Date(hora_inicio);
       hora_cierre = new Date(hora_cierre);
 
@@ -77,7 +79,7 @@ class Turno {
     try {
       //Cantidad de registros a recuperar por query
       //Default: 5
-      let { cant = 5 } = req.query; 
+      let { cant = 5 } = req.query;
 
       let sql = `SELECT t.turno_id, t.usuario_id, u.alias,
                           t.hora_inicio, t.hora_cierre, 
@@ -246,7 +248,6 @@ class Turno {
       return res.status(500).json(err);
     }
   };
-  
 }
 
 module.exports = new Turno();

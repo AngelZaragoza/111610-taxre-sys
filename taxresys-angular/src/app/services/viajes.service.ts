@@ -79,6 +79,29 @@ export class ViajesService {
     return lista;
   }
 
+  async getViajesEntreFechas(objQuery: any) {
+    let { fechaIni, fechaFin, cant, pag } = objQuery;
+    //Transformar las fechas en strings
+    // fechaIni = fechaIni.toISOString();
+    // fechaFin = fechaFin.toISOString();
+
+    let lista: Viaje[] = [];
+    //Concatena los diferentes strings para la query
+    let query = `ini=${fechaIni}&fin=${fechaFin}&cant=${cant}&pag=${pag}`
+
+    await this._conexion
+      .request('GET', `${environment.serverUrl}/viajes/hist-fechas?${query}`)
+      .then((res: Viaje[]) => {
+        lista = res.map((item: Viaje) => Viaje.viajeDesdeJson(item));
+      })
+      .catch((err: any) => {
+        lista[0] = err;
+      });
+
+    console.table(lista);
+    return lista;
+  }
+
   async getPendientesActivos() {
     let lista: any[];
     await this._conexion
@@ -97,6 +120,8 @@ export class ViajesService {
     return lista;
   }
 
+  //* Operaciones *
+  //****************
   async nuevoViajeNormal(datos: Viaje) {
     let viaje: any;
     await this._conexion

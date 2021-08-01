@@ -38,7 +38,7 @@
                 (click)="nuevoViaje()"
               >
                 <i class="fas fa-taxi"></i>
-                Nuevo Viaje
+                &nbsp; Nuevo Viaje
               </button>
               <button
                 type="button"
@@ -46,7 +46,7 @@
                 (click)="nuevoPendiente()"
               >
                 <i class="fas fa-clock"></i>
-                Nuevo Pendiente
+                &nbsp; Nuevo Pendiente
               </button>
               <button
                 type="button"
@@ -54,7 +54,7 @@
                 (click)="nuevoPedido()"
               >
                 <i class="fas fa-truck"></i>
-                Nuevo Pedido
+                &nbsp; Nuevo Pedido
               </button>
             </div>
           </div>
@@ -63,8 +63,7 @@
           <div class="row">
             <div class="col">
               <app-form-viaje
-                *ngIf="nuevo"
-                class="animate__animated animate__fadeInDown animate__faster"
+                *ngIf="nuevo"                
                 [userLogged]="userLogged"
                 [tiposViaje]="tiposViaje"
                 [estadosViaje]="estadosViaje"
@@ -78,88 +77,106 @@
             </div>
           </div>
           <!-- Fin Form de Alta de Viajes -->
+
+          <!-- Tabla con Listado de Viajes del Turno Activo -->
           <div class="row justify-content-center">
             <div class="col">
-              <table
-                *ngIf="errorMessage == '' && !nuevo"
-                class="
-                  table table-hover table-responsive 
-                  animate__animated animate__fadeInDown animate__faster
-                "
-              >
-                <thead class="list-group-item-secondary">
-                  <tr>
-                    <th scope="col" class="align-middle">#</th>
-                    <th scope="col" class="align-middle">Móvil</th>
-                    <th scope="col" class="align-middle">Chofer</th>
-                    <th scope="col" class="align-middle">Calle/Lugar</th>
-                    <th scope="col" class="align-middle">Alt.</th>
-                    <th scope="col" class="align-middle" style="width: 170px">
-                      Fecha/Hora
-                    </th>
-                    <th scope="col" class="align-middle text-center">Tipo</th>
-                    <th scope="col" class="align-middle text-center">Estado</th>
-                    <th scope="col" class="align-middle text-center">Observaciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let viaje of listaViajesTurno; let i = index">
-                    <th
-                      scope="row"
-                      class="align-middle list-group-item-secondary"
-                    >
-                      {{ i + 1 }}
-                    </th>
-                    <th scope="row" class="align-middle text-center">
-                      {{ viaje.movil_id | nroMovil:"nro_interno":listaMovilesJornadas }}
-                    </th>
-                    <td class="align-middle">
-                      {{
-                        viaje.chofer_id
-                          | nombreCompleto: "chofer_id":listaChoferes
-                      }}
-                    </td>
-                    <td class="align-middle">{{ viaje.origen_nombre }}</td>
-                    <td class="align-middle">{{ viaje.origen_altura }}</td>
-                    <td class="align-middle">
-                      {{ viaje.fecha_hora | date: "dd/MM/YYYY HH:mm'hs.'" }}
-                    </td>
-                    <td class="align-middle">
-                      <span
-                        class="badge"
-                        [ngClass]="
-                          viaje.tipo_viaje_id == 2
-                            ? 'badge-warning'
-                            : 'badge-primary'
+              <div *ngIf="errorMessage == '' && !nuevo" class="box-tabla">
+                <div class="cont-tabla">
+                  <table class="table table-hover table-responsive">
+                    <thead class="list-group-item-secondary animate__animated animate__fadeIn">
+                      <tr>
+                        <th scope="col" class="align-middle">#</th>
+                        <th scope="col" class="align-middle">Móvil</th>
+                        <th scope="col" class="align-middle">Chofer</th>
+                        <th scope="col" class="align-middle">Calle/Lugar</th>
+                        <th scope="col" class="align-middle">Alt.</th>
+                        <th
+                          scope="col"
+                          class="align-middle"
+                          style="width: 170px"
+                        >
+                          Fecha/Hora
+                        </th>
+                        <th scope="col" class="align-middle text-center">
+                          Tipo
+                        </th>
+                        <th scope="col" class="align-middle text-center">
+                          Estado
+                        </th>
+                        <th scope="col" class="align-middle text-center">
+                          Observaciones
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        *ngFor="let viaje of listaViajesTurno; let i = index"
+                        class="
+                          animate__animated animate__fadeInDown animate__faster
                         "
                       >
-                        {{
-                          viaje.tipo_viaje_id
-                            | nomElem: "tipo_viaje_id":tiposViaje
-                        }}
-                      </span>
-                    </td>
-                    <td class="align-middle">
-                      <span
-                        class="badge"
-                        [ngClass]="{
-                          'badge-success': viaje.estado_viaje_id == 1,
-                          'badge-danger':
-                            viaje.estado_viaje_id == 2 ||
-                            viaje.estado_viaje_id == 3,
-                          'badge-warning': viaje.estado_viaje_id == 4
-                        }"
-                      >
-                        {{
-                          viaje.estado_viaje_id
-                            | nomElem: "estado_viaje_id":estadosViaje
-                        }}
-                      </span>
-                    </td>
-                    <td class="align-middle">{{ viaje.observaciones }}</td>
-                  </tr>
-                </tbody>
-              </table>
+                        <th
+                          scope="row"
+                          class="align-middle list-group-item-secondary"
+                        >
+                          {{ i + 1 }}
+                        </th>
+                        <th scope="row" class="align-middle text-center">
+                          {{
+                            viaje.movil_id
+                              | nroMovil: "nro_interno":listaMovilesJornadas
+                          }}
+                        </th>
+                        <td class="align-middle">
+                          {{
+                            viaje.chofer_id
+                              | nombreCompleto: "chofer_id":listaChoferes
+                          }}
+                        </td>
+                        <td class="align-middle">{{ viaje.origen_nombre }}</td>
+                        <td class="align-middle">{{ viaje.origen_altura }}</td>
+                        <td class="align-middle">
+                          {{ viaje.fecha_hora | date: "dd/MM/YYYY HH:mm'hs.'" }}
+                        </td>
+                        <td class="align-middle">
+                          <span
+                            class="badge"
+                            [ngClass]="
+                              viaje.tipo_viaje_id == 2
+                                ? 'badge-warning'
+                                : 'badge-primary'
+                            "
+                          >
+                            {{
+                              viaje.tipo_viaje_id
+                                | nomElem: "tipo_viaje_id":tiposViaje
+                            }}
+                          </span>
+                        </td>
+                        <td class="align-middle">
+                          <span
+                            class="badge"
+                            [ngClass]="{
+                              'badge-success': viaje.estado_viaje_id == 1,
+                              'badge-danger':
+                                viaje.estado_viaje_id == 2 ||
+                                viaje.estado_viaje_id == 3,
+                              'badge-warning': viaje.estado_viaje_id == 4
+                            }"
+                          >
+                            {{
+                              viaje.estado_viaje_id
+                                | nomElem: "estado_viaje_id":estadosViaje
+                            }}
+                          </span>
+                        </td>
+                        <td class="align-middle">{{ viaje.observaciones }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           </div>
 

@@ -52,6 +52,7 @@ import { FormJornadaComponent } from './components/shared/form-jornada/form-jorn
 import { FormViajeComponent } from './components/shared/form-viaje/form-viaje.component';
 import { ViajePlanillaComponent } from './components/viajes/viaje-planilla.component';
 import { PendienteListaComponent } from './components/viajes/pendiente-lista.component';
+import { ViajeHistoricoComponent } from './components/viajes/viaje-historico.component';
 
 //Pipes personalizados
 import { NombreCompletoPipe } from './pipes/nombre-completo.pipe';
@@ -85,6 +86,7 @@ import { NroMovilPipe } from './pipes/nro-movil.pipe';
     FormViajeComponent,
     ViajePlanillaComponent,
     PendienteListaComponent,
+    ViajeHistoricoComponent,
     NombreCompletoPipe,
     NomElemPipe,
     NroMovilPipe,

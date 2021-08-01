@@ -13,7 +13,7 @@
 
 <div *ngIf="ready" class="container shadow p-3 mt-5 rounded">
   <div class="row justify-content-center">
-    <div class="col-md-5">
+    <div class="col-md-5 animate__animated animate__fadeIn">
       <div class="card">
         <div class="card-header-list">
           <div class="h4 m-3 text-center text-white">
@@ -48,7 +48,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr *ngFor="let turno of ultTurnos">
+                  <tr *ngFor="let turno of ultTurnos" class="animate__animated animate__fadeIn">
                     <td scope="row">{{ turno.alias }}</td>
                     <td>{{ turno.hora_inicio | date: "dd/MM/YYYY HH:mm" }}</td>
                     <td>{{ turno.hora_cierre | date: "dd/MM/YYYY HH:mm" }}</td>
@@ -67,7 +67,7 @@
         </div>
       </div>
     </div>
-    <div class="col-md-7">
+    <div class="col-md-7 animate__animated animate__fadeIn">
       <div class="card">
         <div class="card-header-form">
           <div class="h4 m-3 text-center text-white">Información del Turno</div>
