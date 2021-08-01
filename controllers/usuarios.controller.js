@@ -44,7 +44,7 @@ class Usuario {
                 FROM personas p JOIN usuarios u
                   ON p.persona_id = u.persona_id
                WHERE u.usuario_id = ?`;
-              //  WHERE p.persona_id = ?`;
+    //  WHERE p.persona_id = ?`;
     const results = await conexion.query(sql, [id]);
 
     if (results.length > 0) {
@@ -97,7 +97,7 @@ class Usuario {
         .catch((err) => {
           console.log("Error en procedure", err);
           return res.status(500).json(err);
-        });      
+        });
     } catch (err) {
       console.log("Error interno", err);
       return res.status(500).json(err);
@@ -155,7 +155,9 @@ class Usuario {
   loginFailed = (req, res) => {
     console.log("Session F:", req.session);
     console.log("Usuario F:", req.user);
-    res.status(401).json({ success: false, message: "Usuario o Password incorrectos" });
+    res
+      .status(401)
+      .json({ success: false, message: "Usuario o Password incorrectos" });
   };
 
   logoutUsuario = (req, res, next) => {
@@ -169,7 +171,16 @@ class Usuario {
   //**********************************
 
   getUsuario = async (field, value) => {
-    let sql = `SELECT * FROM usuarios WHERE ${field} = ?`;
+    // Sentencia original: trataba los strings como case insensitive
+    // let sql = `SELECT * FROM usuarios WHERE ${field} = ?`;
+
+    // Si el campo a buscar es "alias", se convierte la comparación a case sensitive,
+    // caso contrario 'Admin' sería igual de válido que 'admin' o 'ADmiN'
+    let sql =
+      field == "alias"
+        ? `SELECT * FROM usuarios WHERE ${field} = CONVERT(? USING utf8mb4) COLLATE utf8mb4_0900_as_cs`
+        : `SELECT * FROM usuarios WHERE ${field} = ?`;
+    
     const user = await conexion.query(sql, [value]);
     if (user.length > 0) {
       return user[0];
@@ -189,27 +200,6 @@ class Usuario {
     }
   };
 
-  /*
-  Método que probablemente sirva para recuperar por urlQuery
-  getUsuarioByAlias = async (req, res) => {
-    let { usuario } = req.query;
-    let sql = `SELECT * FROM usuarios WHERE alias = ?`;
-    conexion.db.query(sql, [usuario], (error, results) => {
-      if (error) {
-        console.log(error);
-        return res.status(400).json(error);
-      }
-      console.log(results);
-      if (results.length > 0) {
-        return res.status(200).json({ success: true, user: results });
-      } else {
-        return res
-          .status(200)
-          .json({ success: false, message: "No existe usuario" });
-      }
-    });
-  };
-  */
 }
 
 module.exports = new Usuario();

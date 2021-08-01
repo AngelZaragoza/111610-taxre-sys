@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import Swal from 'sweetalert2/dist/sweetalert2.all.js';
 
 import { UsuariosService } from '../../../services/usuarios.service';
 
@@ -13,11 +14,16 @@ export class LoginComponent implements OnInit {
   minChar = 5;
   result: any = {};
   loading: boolean;
+  desactivar: boolean;
 
   constructor(
     private _usuariosService: UsuariosService,
     private route: Router
   ) {
+    //Controlar el estado de los controles del formulario
+    this.desactivar = false;
+
+    //Instanciar controles del formulario con validadores
     this.forma = new FormGroup({
       usuario: new FormControl('', [
         Validators.required,
@@ -32,23 +38,47 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {}
 
-  logForma() {
-    console.log(this.forma.controls);
-  }
-
   async logIn() {
     this.loading = true;
     this.result = await this._usuariosService.passportLogin(this.forma.value);
 
+    //Desactivar controles del formulario y mostrar un toast según el resultado
+    this.desactivar = true;
+
     if (this.result['error']) {
       console.log('Login Error =>', this.result['error']);
+
+      Swal.fire({
+        title: this.result['error'].message,
+        icon: 'error',
+        position: 'top',        
+        toast: true,
+        timer: 3000,
+        timerProgressBar: true,
+        showConfirmButton: false,
+        didOpen: () => {
+          //Activar controles si el login falló 
+          this.desactivar = false;
+        },
+      });
     } else {
       console.log('User en service =>', this._usuariosService.user);
-      setTimeout(() => {
-        this.route.navigateByUrl('/home');        
-      }, 1500);
+
+      Swal.fire({
+        title: 'Logueo exitoso !! Espere...',
+        icon: 'success',
+        position: 'top',
+        toast: true,
+        timer: 3000,
+        timerProgressBar: true,
+        showConfirmButton: false,
+        didDestroy: (toast) => {
+          //Redirigir al home si el login fue exitoso
+          this.route.navigateByUrl('/home');
+        },
+      });
     }
+
     this.loading = false;
-    //Agregar lógica de respuesta en caso de falla de login
   }
 }

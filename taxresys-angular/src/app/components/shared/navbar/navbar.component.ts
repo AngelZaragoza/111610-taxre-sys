@@ -2,6 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { UsuariosService } from 'src/app/services/usuarios.service';
 import { ViajesService } from 'src/app/services/viajes.service';
+import Swal from 'sweetalert2/dist/sweetalert2.all.js';
 
 @Component({
   selector: 'app-navbar',
@@ -39,17 +40,6 @@ export class NavbarComponent implements OnInit {
     });
   }
 
-  /*  Código anterior
-  ++++++++++++++++++++++
-  ngDoCheck(): void {
-    this.logged = this._usuariosService.checkAuth();
-    if (this.logged) {
-      this.user = this._usuariosService.user;
-      // console.log('Logueado: ', this.logged);
-    }    
-  }
-  */
-
   //Recupera datos del servicio de Usuarios
   get isLogged(): boolean {
     return this.userLogged.logged;
@@ -60,9 +50,22 @@ export class NavbarComponent implements OnInit {
   }
 
   async logout() {
+    let mensaje = `${this.userLogged.alias}: Sesión Cerrada`;
     await this._usuariosService.passportLogout().then(() => {
-      this.pendientes = 0;
-      this.route.navigateByUrl('/home');
+      this.pendientes = 0;      
+      Swal.fire({        
+          title: mensaje,
+          icon: 'info',
+          position: 'center',        
+          toast: true,
+          timer: 3500,
+          timerProgressBar: true,
+          showConfirmButton: false,
+          didOpen: () => {
+            this.route.navigateByUrl('/home');  
+          }
+        });
     });
+
   }
 }
