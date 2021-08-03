@@ -63,7 +63,7 @@
           <div class="row">
             <div class="col">
               <app-form-viaje
-                *ngIf="nuevo"                
+                *ngIf="nuevo"
                 [userLogged]="userLogged"
                 [tiposViaje]="tiposViaje"
                 [estadosViaje]="estadosViaje"
@@ -84,11 +84,16 @@
               <div *ngIf="errorMessage == '' && !nuevo" class="box-tabla">
                 <div class="cont-tabla">
                   <table class="table table-hover table-responsive">
-                    <thead class="list-group-item-secondary animate__animated animate__fadeIn">
+                    <thead
+                      class="
+                        list-group-item-secondary
+                        animate__animated animate__fadeIn
+                      "
+                    >
                       <tr>
                         <th scope="col" class="align-middle">#</th>
-                        <th scope="col" class="align-middle">Móvil</th>
-                        <th scope="col" class="align-middle">Chofer</th>
+                        <th scope="col" class="align-middle">Móv.</th>
+                        <th scope="col" class="align-middle text-truncate" style="max-width: 130px">Chofer</th>
                         <th scope="col" class="align-middle">Calle/Lugar</th>
                         <th scope="col" class="align-middle">Alt.</th>
                         <th
@@ -128,7 +133,7 @@
                               | nroMovil: "nro_interno":listaMovilesJornadas
                           }}
                         </th>
-                        <td class="align-middle">
+                        <td class="align-middle text-truncate" style="max-width: 130px">
                           {{
                             viaje.chofer_id
                               | nombreCompleto: "chofer_id":listaChoferes
@@ -142,11 +147,11 @@
                         <td class="align-middle">
                           <span
                             class="badge"
-                            [ngClass]="
-                              viaje.tipo_viaje_id == 2
-                                ? 'badge-warning'
-                                : 'badge-primary'
-                            "
+                            [ngClass]="{
+                              'badge-primary': viaje.tipo_viaje_id == 1,
+                              'badge-warning': viaje.tipo_viaje_id == 2,
+                              'badge-info': viaje.tipo_viaje_id == 3
+                            }"
                           >
                             {{
                               viaje.tipo_viaje_id
@@ -194,7 +199,7 @@
             role="alert"
           >
             <h5 class="text-center">
-              {{ errorMessage }} - Usuario: {{ getAlias }}:
+              {{ errorMessage }} - Turno iniciado por: {{ getAlias }}
             </h5>
           </div>
           <!-- Fin Mensajes de Error -->

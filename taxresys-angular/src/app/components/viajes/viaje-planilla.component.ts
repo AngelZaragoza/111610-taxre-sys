@@ -153,10 +153,18 @@ export class ViajePlanillaComponent implements OnInit, OnDestroy {
   }
 
   async viajeAgregado(event: Viaje) {
-    //Si el viaje que llega desde el hijo no es tipo Pendiente,
-    //se lo agrega al arreglo de Viajes registrados del Turno
+    
+    //Si el viaje que llega desde el hijo no es tipo Pendiente, se continúa
     if (event.estado_viaje_id != 4) {
-      this.listaViajesTurno.push(event);
+      
+      //Si el primer elemento del array es error, el viaje recibido 
+      //es el primero del Turno, y se lo guarda en la primera posición
+      if (this.listaViajesTurno[0] instanceof HttpErrorResponse) {
+        this.listaViajesTurno[0] = event;
+      } else {        
+        //Sino, se lo agrega al arreglo de Viajes registrados del Turno
+        this.listaViajesTurno.push(event);
+      }
     }
     this.mostrarForm(false);
   }

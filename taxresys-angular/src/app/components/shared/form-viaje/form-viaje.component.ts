@@ -127,9 +127,7 @@ export class FormViajeComponent implements OnInit, OnDestroy {
       viaje_id: new FormControl(''),
       usuario_id: new FormControl(''),
       turno_id: new FormControl(''),
-      jornada_id: new FormControl('', [Validators.required, Validators.min(1)]),
-      // movil_id: new FormControl(''),
-      // chofer_id: new FormControl(''),
+      jornada_id: new FormControl('', [Validators.required, Validators.min(1)]),      
       tipo_viaje_id: new FormControl(''),
       estado_viaje_id: new FormControl(''),
       registrado: new FormControl('', Validators.required),
@@ -137,9 +135,14 @@ export class FormViajeComponent implements OnInit, OnDestroy {
       origen_nombre: new FormControl('', [
         Validators.required,
         Validators.minLength(3),
+        Validators.maxLength(60),
       ]),
-      origen_altura: new FormControl('', Validators.required),
-      observaciones: new FormControl(''),
+      origen_altura: new FormControl('', [
+        Validators.required,
+        Validators.min(0),
+        Validators.max(9999),
+      ]),
+      observaciones: new FormControl('', Validators.maxLength(250)),
     });
   }
 
@@ -226,7 +229,6 @@ export class FormViajeComponent implements OnInit, OnDestroy {
     }
 
     if (result instanceof HttpErrorResponse) {
-      
       mensaje = `Algo falló:\n${result.error.err?.code} \n ${result.statusText}\nNo se guardaron datos.`;
       alert(mensaje);
     } else {
