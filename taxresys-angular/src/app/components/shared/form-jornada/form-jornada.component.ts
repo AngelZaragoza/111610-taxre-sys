@@ -21,7 +21,7 @@ export class FormJornadaComponent implements OnInit {
 
   abreJornada: boolean;
   movParam: string;
-  jrnParam: string
+  jrnParam: string;
   chfParam: string;
   jornada: Jornada;
   ready: boolean;
@@ -60,7 +60,6 @@ export class FormJornadaComponent implements OnInit {
       this.movParam = params.get('mov');
       this.jrnParam = params.get('jrn');
       this.chfParam = params.get('chp') || '';
-      
 
       console.log(
         'Abre Jornada?',
@@ -92,11 +91,12 @@ export class FormJornadaComponent implements OnInit {
         this.detalleJornada(this.jrnParam).finally(() => {
           console.table(this.jornada);
           this.datosJornada.setValue(this.jornada);
-          this.datosJornada.controls['turno_cierre'].setValue(this._usuariosService.user['turno_id']);
+          this.datosJornada.controls['turno_cierre'].setValue(
+            this._usuariosService.user['turno_id']
+          );
           this.loading = false;
         });
       }
-      
     });
   }
 
@@ -130,7 +130,7 @@ export class FormJornadaComponent implements OnInit {
     if (!this.abreJornada) {
       this.datosJornada.get('hora_cierre').setValidators(Validators.required);
       this.datosJornada.updateValueAndValidity();
-    }     
+    }
     // return new Promise((resolve, reject) => {
     //   resolve(this.datosJornada);
     // });
@@ -141,23 +141,25 @@ export class FormJornadaComponent implements OnInit {
     let confirmacion: boolean = confirm(`${this.textoBoton} ?`);
 
     if (confirmacion) {
+      let mensaje: string;
       this.loading = true;
       result = await this._jornadasService.guardarJornada(
         inicioJornada,
         this.datosJornada.value
       );
       if (result['success']) {
-        alert(`Jornada iniciada => ${result['resp']['info']}`);
+        mensaje = inicioJornada ? 'Jornada Iniciada: ' : 'Jornada Cerrada: ';
+        mensaje += `${result['resp']['info']}`;
+        alert(mensaje);
         this.ready = true;
         this.route.navigateByUrl('/jornadas');
       } else {
-        alert(
-          `Algo falló:\n${result.error.code} \n ${result.statusText}\nNo se guardaron datos.`
-        );
+        
+        mensaje = `Algo falló:\n${result.error.code} \n ${result.statusText}\nNo se guardaron datos.`;
+        alert(mensaje);
       }
 
       this.loading = false;
     }
   }
-
 }

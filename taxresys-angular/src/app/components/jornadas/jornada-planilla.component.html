@@ -44,8 +44,7 @@
                 </th>
                 <td class="align-middle">
                   {{ movil.tipo }} {{ movil.nro_habilitacion }}
-                </td>
-                <!-- <td class="align-middle">{{ movil.marca_modelo }}</td> -->
+                </td>                
                 <td class="align-middle">
                   {{
                     movil.chofer_id | nombreCompleto: "chofer_id":listaChoferes
@@ -66,11 +65,17 @@
                       ><i class="far fa-calendar-check"></i>&nbsp; Iniciar...
                     </a>
                   </td>
-                  <td class="align-middle">
+                  <td class="align-middle list-group-item-warning">
+                    <span class="">
+                      {{ movil.hora_cierre | date: "dd/MM/YYYY HH:mm'hs.'" }}
+                    </span>
+                  </td>
+                  
+                  <!-- <td class="align-middle">
                     <span class="btn btn-outline-info btn-block"
                       >Inicie Jornada</span
                     >
-                  </td>
+                  </td> -->
                 </ng-template>
                 <ng-template #jornadaIniciada>
                   <td class="align-middle list-group-item-info">

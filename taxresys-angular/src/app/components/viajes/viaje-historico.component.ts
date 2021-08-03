@@ -1,5 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import {
   FormBuilder,
   FormControl,
@@ -15,8 +16,8 @@ import { ViajesService } from 'src/app/services/viajes.service';
   selector: 'app-viaje-historico',
   templateUrl: './viaje-historico.component.html',
   styles: [
-    '.box-tabla { position: relative; height: 70vh; max-height: calc(70vh - 15vmax); overflow-y: scroll; margin: 5px 10px 10px 10px; }',
-    '.cont-tabla { position: absolute; margin: 5px 10px 10px 10px;}',
+    '.box-tabla { position: relative; height: 80vh; max-height: calc(80vh - 10vmax); overflow-y: scroll; }',
+    '.cont-tabla { position: absolute; margin: 5px;}',
   ],
 })
 export class ViajeHistoricoComponent implements OnInit {
@@ -30,29 +31,27 @@ export class ViajeHistoricoComponent implements OnInit {
 
   //Información del usuario y turno
   userLogged: any = {};
-  userSub: Subscription;
 
-  //Form y Objeto para consultas
-  fechasViajes: FormGroup;
+  //Objetos para consultas
   objQuery: any = {};
+  desdeHasta: any = [];
+  optFiltro: any = {};
 
-  //Objeto modelo y auxiliares
-  viaje: Viaje;
+  //Auxiliares  
   errorMessage: string;
   loading: boolean;
   ready: boolean;
+  rangoValido: boolean;
+  filtering: boolean;
 
   constructor(
-    private fb: FormBuilder,
     private _usuariosService: UsuariosService,
     private _viajesService: ViajesService
   ) {
     this.ready = false;
+    this.filtering = false;
     this.errorMessage = '';
     this.userLogged = this._usuariosService.user;
-
-    //Inicializar los controles del Form
-    this.initForm();
 
     //Inicializa un objeto con fecha de inicio de un mes atrás
     //(resta 720 hrs a la fecha actual) y fecha actual como final
@@ -63,48 +62,42 @@ export class ViajeHistoricoComponent implements OnInit {
       offset: 0,
     };
 
+    //Array utilizado por el dateTimePicker para el rango de fechas
+    this.desdeHasta = [this.objQuery.fechaIni, this.objQuery.fechaFin];
+    this.rangoValido = false;
+
     console.log('objQuery:', this.objQuery);
   }
 
   ngOnInit(): void {
-    this.getListas(this._viajesService.isIniciado);
-    this.fechasViajes.setValue(this.objQuery);
-  }
-
-  initForm() {
-    this.fechasViajes = this.fb.group({
-      fechaIni: new FormControl('', Validators.required),
-      fechaFin: new FormControl('', Validators.required),
-      cant: new FormControl('', Validators.required),
-      offset: new FormControl(''),
-    });
+    this.getListas(this._viajesService.isIniciado);    
   }
 
   //Métodos accessores
   //*******************
-  get getTurno(): number {
-    return this.userLogged.turno_id;
+  get isOpen(): boolean {
+    return this.userLogged.open;
   }
 
   get getAlias(): string {
     return this.userLogged.alias;
   }
 
-  get getFechaIni() {
-    return this.fechasViajes.get('fechaIni');
-  }
+  // get getFechaIni() {
+  //   return this.fechasViajes.get('fechaIni');
+  // }
 
-  get getFechaFin() {
-    return this.fechasViajes.get('fechaFin');
-  }
+  // get getFechaFin() {
+  //   return this.fechasViajes.get('fechaFin');
+  // }
 
-  get getCant() {
-    return this.fechasViajes.get('cant');
-  }
+  // get getCant() {
+  //   return this.fechasViajes.get('cant');
+  // }
 
-  get getOffset() {
-    return this.fechasViajes.get('offset');
-  }
+  // get getOffset() {
+  //   return this.fechasViajes.get('offset');
+  // }
 
   //Métodos del componente
   //**********************
@@ -127,31 +120,50 @@ export class ViajeHistoricoComponent implements OnInit {
     ).map((mov) => {
       return { movil_id: mov.movil_id, nro_interno: mov.nro_interno };
     });
-    
+
     this.listaUsuarios = await (
       await this._usuariosService.getUsuarios()
     ).map((user) => {
       return { usuario_id: user.usuario_id, nombre: user.alias };
     });
     //--------------------------------------------------------
-    
+
     //Se recuperan los viajes entre las fechas especificadas
     await this.getViajesEntreFechas('desdeInicio');
 
+    this.optFiltro = {
+      chofer: "",
+      estados: this.estadosViaje.map((est) => {return {id: est['estado_viaje_id'], chk: true} })
+    };
+    
     this.loading = false;
     this.ready = true;
     this._usuariosService.mostrarSpinner(this.loading, 'viaje_historico');
   }
-
+  
+  //Recibe el elemento dateTimePicker desde el evento dateTimeChange
+  cambioFecha(rangoFechas: any) {
+    //Si las dos fechas elegidas son válidas, se actualiza "objQuery"
+    if (rangoFechas.value[0] && rangoFechas.value[1]) {
+      console.log('Bien ahi', this.desdeHasta);
+      this.objQuery['fechaIni'] = rangoFechas.value[0];
+      this.objQuery['fechaFin'] = rangoFechas.value[1];
+      this.rangoValido = true;
+    } else {
+      console.log('Nope');
+      console.log('fechas', rangoFechas.value);
+      console.log(this.objQuery);
+      this.rangoValido = false;
+    }    
+  }
+  
+  //Llama la función tomando las fechas actualizadas de "objQuery"
   async actualizarRango() {
     this.loading = true;
     this._usuariosService.mostrarSpinner(this.loading, 'historico_detalle');
 
-    this.objQuery = this.fechasViajes.value;
     await this.getViajesEntreFechas('desdeForm');
-
-    // this.loading = false;
-    // this._usuariosService.mostrarSpinner(this.loading, 'historico_detalle');
+    
   }
 
   async getViajesEntreFechas(origenRequest: string) {
@@ -163,7 +175,7 @@ export class ViajeHistoricoComponent implements OnInit {
     if (this.listaViajesFechas[0] instanceof HttpErrorResponse) {
       this.errorMessage = this.listaViajesFechas[0]['error']['message'];
     } else {
-      this.errorMessage = '';
+      this.errorMessage = '';      
     }
 
     //Si se llama desde el Form, se oculta solamente la tabla al momento de consultar
@@ -172,4 +184,12 @@ export class ViajeHistoricoComponent implements OnInit {
       this._usuariosService.mostrarSpinner(this.loading, 'historico_detalle');
     }
   }
+
+  // Manejo de filtrado
+  //**********************
+
+  mostrarFiltros() {
+    this.filtering = !this.filtering;
+  }  
+  
 }

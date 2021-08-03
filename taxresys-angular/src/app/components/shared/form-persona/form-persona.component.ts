@@ -44,6 +44,7 @@ export class FormPersonaComponent implements DoCheck, OnDestroy {
         Validators.required,
         Validators.minLength(6),
         Validators.maxLength(20),
+        Validators.pattern('^[+0-9-]+$')
       ]),
       email: new FormControl('', [Validators.email, Validators.maxLength(60)]),
       fecha_nac: new FormControl(''),
