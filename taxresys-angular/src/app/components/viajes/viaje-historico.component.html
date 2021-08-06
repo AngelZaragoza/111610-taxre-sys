@@ -66,7 +66,7 @@
                   <button
                     type="button"
                     class="btn btn-primary btn-block"
-                    [disabled]="!rangoValido"
+                    [disabled]="!rangoValido || !formRango.valid"
                     (click)="actualizarRango()"
                   >
                     <i class="far fa-calendar-alt"></i>
@@ -75,7 +75,7 @@
                 </div>
               </form>
               <hr />
-
+              <!-- Inicio controles de filtrado -->
               <div
                 class="
                   form-group
@@ -95,7 +95,7 @@
                         : 'fas fa-angle-double-down'
                     "
                   ></i>
-                  &nbsp; Aplicar Filtros...
+                  &nbsp; Filtrar por...
                 </button>
               </div>
               <form
@@ -104,13 +104,13 @@
                 #formFiltro="ngForm"
               >
                 <div class="form-group">
-                  <label class="col-form-label">Filtrar por...</label>
+                  <!-- <label class="col-form-label">Filtrar por...</label> -->
                   <select
                     class="custom-select"
                     name="chofer"
-                    [(ngModel)]="optFiltro.chofer"
+                    [(ngModel)]="objFiltro.chofer"
                   >
-                    <option value="" selected>-- Chofer --</option>
+                    <option value="" selected>-- Todos los Choferes --</option>
                     <option
                       *ngFor="let chofer of listaChoferes"
                       [value]="chofer.chofer_id"
@@ -119,29 +119,70 @@
                     </option>
                   </select>
                 </div>
-                <div class="col-6">
-                  <div
-                    *ngFor="let estado of estadosViaje; let i = index"
-                    class="form-check"
-                  >
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      [name]="estado.nombre"
-                      [(ngModel)]="optFiltro.estados[i].chk"                      
-                    />
-                    <label class="form-check-label">
-                      {{ estado.nombre }}
-                    </label>
+                <div class="form-group row">
+                  <div class="col-6">
+                    <label class="col-form-label">Tipo</label>
+                    <div
+                      *ngFor="let tipo of tiposViaje; let i = index"
+                      class="form-check"
+                    >
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        [name]="tipo.nombre"
+                        [(ngModel)]="objFiltro.tipos[i].chk"
+                      />
+                      <label class="form-check-label">
+                        {{ tipo.nombre }}
+                      </label>
+                    </div>
+                  </div>
+                  <div class="col-6">
+                    <label class="col-form-label">Estado</label>
+                    <div
+                      *ngFor="let estado of estadosViaje; let i = index"
+                      class="form-check"
+                    >
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        [name]="estado.nombre"
+                        [(ngModel)]="objFiltro.estados[i].chk"
+                      />
+                      <label class="form-check-label">
+                        {{ estado.nombre }}
+                      </label>
+                    </div>
                   </div>
                 </div>
-                <div class="col-6"></div>
+                <div class="form-group">
+                  <button
+                    type="button"
+                    class="btn btn-primary btn-block"
+                    (click)="aplicarFiltros()"                    
+                  >
+                    <i class="fas fa-filter"></i>
+                    &nbsp; Aplicar filtros
+                  </button>
+                </div>
+                <div class="form-group">
+                  <button
+                    type="button"
+                    class="btn btn-secondary btn-block"
+                    (click)="restaurarFiltros(true)"
+                  >
+                    <i class="fas fa-eraser"></i>
+                    &nbsp; Quitar filtros
+                  </button>
+                </div>
               </form>
-              <div>
-                {{ optFiltro | json }}
-              </div>
+              <!-- <div>
+                {{ objFiltro | json }}
+              </div> -->
             </div>
+            <!-- Fin controles de filtrado -->
 
+            <!-- Inicio tabla de resultados -->
             <div
               *ngIf="!loading && ready && errorMessage == ''"
               class="col-md-9 box-tabla"
@@ -172,7 +213,8 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr *ngFor="let viaje of listaViajesFechas; let i = index">
+                    <!-- <tr *ngFor="let viaje of listaViajesFechas | filtroChoferEstado:objFiltro; let i = index"> -->
+                    <tr *ngFor="let viaje of listaFiltrada; let i = index">
                       <th
                         scope="row"
                         class="align-middle list-group-item-secondary"
@@ -203,11 +245,11 @@
                       <td class="align-middle">
                         <span
                           class="badge"
-                          [ngClass]="
-                            viaje.tipo_viaje_id == 2
-                              ? 'badge-warning'
-                              : 'badge-primary'
-                          "
+                          [ngClass]="{
+                            'badge-primary': viaje.tipo_viaje_id == 1,
+                            'badge-warning': viaje.tipo_viaje_id == 2,
+                            'badge-info': viaje.tipo_viaje_id == 3
+                          }"
                         >
                           {{
                             viaje.tipo_viaje_id
@@ -238,6 +280,7 @@
                 </table>
               </div>
             </div>
+            <!-- Fin tabla de resultados -->
 
             <!-- Mensajes de Error -->
             <div class="col-md-9">

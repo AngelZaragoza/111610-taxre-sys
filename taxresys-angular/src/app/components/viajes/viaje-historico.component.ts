@@ -28,6 +28,7 @@ export class ViajeHistoricoComponent implements OnInit {
   listaUsuarios: any[] = [];
   listaMoviles: any[] = [];
   listaViajesFechas: Viaje[] = [];
+  listaFiltrada: Viaje[] = [];
 
   //Información del usuario y turno
   userLogged: any = {};
@@ -35,9 +36,9 @@ export class ViajeHistoricoComponent implements OnInit {
   //Objetos para consultas
   objQuery: any = {};
   desdeHasta: any = [];
-  optFiltro: any = {};
+  objFiltro: any = {};
 
-  //Auxiliares  
+  //Auxiliares
   errorMessage: string;
   loading: boolean;
   ready: boolean;
@@ -70,34 +71,9 @@ export class ViajeHistoricoComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.getListas(this._viajesService.isIniciado);    
+    this.getListas(this._viajesService.isIniciado);
   }
-
-  //Métodos accessores
-  //*******************
-  get isOpen(): boolean {
-    return this.userLogged.open;
-  }
-
-  get getAlias(): string {
-    return this.userLogged.alias;
-  }
-
-  // get getFechaIni() {
-  //   return this.fechasViajes.get('fechaIni');
-  // }
-
-  // get getFechaFin() {
-  //   return this.fechasViajes.get('fechaFin');
-  // }
-
-  // get getCant() {
-  //   return this.fechasViajes.get('cant');
-  // }
-
-  // get getOffset() {
-  //   return this.fechasViajes.get('offset');
-  // }
+  
 
   //Métodos del componente
   //**********************
@@ -131,42 +107,41 @@ export class ViajeHistoricoComponent implements OnInit {
     //Se recuperan los viajes entre las fechas especificadas
     await this.getViajesEntreFechas('desdeInicio');
 
-    this.optFiltro = {
-      chofer: "",
-      estados: this.estadosViaje.map((est) => {return {id: est['estado_viaje_id'], chk: true} })
-    };
-    
+    //Se inicializa el objeto que se usará para el filtrado
+    this.restaurarFiltros(false);
+
     this.loading = false;
     this.ready = true;
     this._usuariosService.mostrarSpinner(this.loading, 'viaje_historico');
   }
-  
+
   //Recibe el elemento dateTimePicker desde el evento dateTimeChange
   cambioFecha(rangoFechas: any) {
     //Si las dos fechas elegidas son válidas, se actualiza "objQuery"
     if (rangoFechas.value[0] && rangoFechas.value[1]) {
-      console.log('Bien ahi', this.desdeHasta);
       this.objQuery['fechaIni'] = rangoFechas.value[0];
       this.objQuery['fechaFin'] = rangoFechas.value[1];
       this.rangoValido = true;
     } else {
-      console.log('Nope');
-      console.log('fechas', rangoFechas.value);
+      console.log('Rango inválido', rangoFechas.value);
       console.log(this.objQuery);
       this.rangoValido = false;
-    }    
+    }
   }
-  
+
   //Llama la función tomando las fechas actualizadas de "objQuery"
   async actualizarRango() {
     this.loading = true;
-    this._usuariosService.mostrarSpinner(this.loading, 'historico_detalle');
-
-    await this.getViajesEntreFechas('desdeForm');
     
+    //Si se llama desde el Form, muestra el spinner de carga que oculta solo la tabla
+    this._usuariosService.mostrarSpinner(this.loading, 'historico_detalle');
+    await this.getViajesEntreFechas('desdeForm');
   }
 
   async getViajesEntreFechas(origenRequest: string) {
+    //Vaciar el mensaje de error, sino no se muestra la lista aunque se encuentren registros
+    this.errorMessage = '';
+    
     this.listaViajesFechas = await this._viajesService.getViajesEntreFechas(
       this.objQuery
     );
@@ -174,11 +149,14 @@ export class ViajeHistoricoComponent implements OnInit {
     //Si no hay viajes cargados, se recupera el mensaje de error
     if (this.listaViajesFechas[0] instanceof HttpErrorResponse) {
       this.errorMessage = this.listaViajesFechas[0]['error']['message'];
-    } else {
-      this.errorMessage = '';      
+    }
+    else {
+      //Se asigna el resultado de la consulta a otro array, sobre el cual se aplican los filtros
+      //De esta manera solo se consulta la DB cuando cambia el rango de fechas
+      this.listaFiltrada = this.listaViajesFechas;
     }
 
-    //Si se llama desde el Form, se oculta solamente la tabla al momento de consultar
+    //Si se llama desde el Form, se oculta el spinner de carga que oculta solo la tabla
     if (origenRequest == 'desdeForm') {
       this.loading = false;
       this._usuariosService.mostrarSpinner(this.loading, 'historico_detalle');
@@ -188,8 +166,83 @@ export class ViajeHistoricoComponent implements OnInit {
   // Manejo de filtrado
   //**********************
 
+  restaurarFiltros(desdeForm: boolean) {
+    //Estado inicial del objeto que se usará para el filtrado
+    this.objFiltro = {
+      chofer: '',
+      estados: this.estadosViaje.map((item) => {
+        return { id: item['estado_viaje_id'], chk: true };
+      }),
+      tipos: this.tiposViaje.map((item) => {
+        return { id: item['tipo_viaje_id'], chk: true };
+      }),
+    };
+    
+    //Si se llamó desdel el Form, se restauran los registros filtrados
+    if(desdeForm) {
+      this.listaFiltrada = this.listaViajesFechas;
+    }
+
+  }
+
   mostrarFiltros() {
+    //Para mostrar u ocultar los controles de filtrado
     this.filtering = !this.filtering;
-  }  
-  
+  }
+
+  aplicarFiltros() {
+    //Vaciar el mensaje de error, sino no se muestra la lista aunque se encuentren registros
+    this.errorMessage = '';
+    
+    let porChofer = [];
+    porChofer = this.listaViajesFechas.filter(
+      (viaje) =>
+        this.objFiltro.chofer == '' || viaje.chofer_id == this.objFiltro.chofer
+    );
+
+    console.log('por chofer', porChofer, 'registros', porChofer.length);
+    this.listaFiltrada = porChofer;
+    
+    //Si el filtro por Choferes no encuentra resultados, se impide la ejecución de los demás
+    if (porChofer.length == 0) {
+      this.errorMessage = 'No hay registros que cumplan los criterios';
+      return;
+    }
+
+    //Crea un array con los id de los Tipos seleccionados con los checkboxes
+    let tiposMarcados: [] = this.objFiltro.tipos
+      .filter((est) => est.chk)
+      .map((filt) => filt.id);
+
+    console.log('Tipos marcados', tiposMarcados);
+
+    //Filtra el array porChofer usando el array de Tipos seleccionados
+      let porTipo = porChofer.filter((viaje) =>
+      tiposMarcados.some((id) => viaje.tipo_viaje_id == id)
+    );
+    
+    //Si el filtro por Tipos no encuentra resultados, se impide la ejecución de los demás
+    if (porTipo.length == 0) {
+      this.errorMessage = 'No hay registros que cumplan los criterios';
+      return;
+    }
+    
+    let estadosMarcados: [] = this.objFiltro.estados
+      .filter((est) => est.chk)
+      .map((filt) => filt.id);
+
+    console.log('Estados marcados', estadosMarcados);
+
+    //Filtra el array porTipo usando el array de Tipos seleccionados
+    let porEstados = porTipo.filter((viaje) =>
+      estadosMarcados.some((id) => viaje.estado_viaje_id == id)
+    );
+
+    this.listaFiltrada = porEstados;
+
+    //Si al final de todos los filtros no hay registros, se setea mensaje de error
+    if (porEstados.length == 0) {
+      this.errorMessage = 'No hay registros que cumplan los criterios';
+    }
+  }
 }

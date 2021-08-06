@@ -15,12 +15,12 @@ import { DefaultIntl } from './classes/default-intl';
 import { NgxSpinnerModule } from 'ngx-spinner';
 
 //Servicios
-import { UsuariosService } from './services/usuarios.service';
-import { AdherentesService } from './services/adherentes.service';
-import { ChoferesService } from './services/choferes.service';
-import { MovilesService } from './services/moviles.service';
-import { TurnosService } from './services/turnos.service';
-import { RequestService } from './services/request.service';
+// import { UsuariosService } from './services/usuarios.service';
+// import { AdherentesService } from './services/adherentes.service';
+// import { ChoferesService } from './services/choferes.service';
+// import { MovilesService } from './services/moviles.service';
+// import { TurnosService } from './services/turnos.service';
+// import { RequestService } from './services/request.service';
 
 //Rutas
 import { AppRoutingModule } from './app.routes';
@@ -58,6 +58,7 @@ import { ViajeHistoricoComponent } from './components/viajes/viaje-historico.com
 import { NombreCompletoPipe } from './pipes/nombre-completo.pipe';
 import { NomElemPipe } from './pipes/nom-elem.pipe';
 import { NroMovilPipe } from './pipes/nro-movil.pipe';
+import { FiltroChoferEstadoPipe } from './pipes/filtro-chofer-estado.pipe';
 
 @NgModule({
   declarations: [
@@ -90,6 +91,7 @@ import { NroMovilPipe } from './pipes/nro-movil.pipe';
     NombreCompletoPipe,
     NomElemPipe,
     NroMovilPipe,
+    FiltroChoferEstadoPipe,
   ],
   imports: [
     BrowserModule,
@@ -104,12 +106,12 @@ import { NroMovilPipe } from './pipes/nro-movil.pipe';
     NgxSpinnerModule,    
   ],
   providers: [
-    UsuariosService,
-    AdherentesService,
-    ChoferesService,
-    MovilesService,
-    TurnosService,
-    RequestService,
+    // UsuariosService,
+    // AdherentesService,
+    // ChoferesService,
+    // MovilesService,
+    // TurnosService,
+    // RequestService,
     { provide: OWL_DATE_TIME_LOCALE, useValue: 'es-ar' },
     { provide: OwlDateTimeIntl, useClass: DefaultIntl }
   ],
