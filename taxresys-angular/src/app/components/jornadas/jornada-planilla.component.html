@@ -28,23 +28,41 @@
                 <th scope="col" class="align-middle">Móvil</th>
                 <th scope="col" class="align-middle">Habilit.</th>
                 <th scope="col" class="align-middle">Nombre Chofer</th>
-                <th scope="col" class="align-middle text-center" style="width: 170px">
+                <th
+                  scope="col"
+                  class="align-middle text-center"
+                  style="width: 170px"
+                >
                   Hora Inicio
                 </th>
-                <th scope="col" class="align-middle text-center" style="width: 170px">
+                <th
+                  scope="col"
+                  class="align-middle text-center"
+                  style="width: 170px"
+                >
                   Hora Cierre
                 </th>
-                <th scope="col" class="align-middle text-center" style="width: 120px">Novedades</th>
+                <th
+                  scope="col"
+                  class="align-middle text-center"
+                  style="width: 120px"
+                >
+                  Novedades
+                </th>
               </tr>
             </thead>
             <tbody>
               <tr *ngFor="let movil of listaMovilesJornadas">
-                <th scope="row" class="align-middle" routerLinkActive="list-group-item-success">
+                <th
+                  scope="row"
+                  class="align-middle"
+                  routerLinkActive="list-group-item-success"
+                >
                   {{ movil.nro_interno }}
                 </th>
                 <td class="align-middle">
                   {{ movil.tipo }} {{ movil.nro_habilitacion }}
-                </td>                
+                </td>
                 <td class="align-middle">
                   {{
                     movil.chofer_id | nombreCompleto: "chofer_id":listaChoferes
@@ -61,7 +79,11 @@
                   <td class="align-middle">
                     <a
                       class="btn btn-info btn-block"
-                      [routerLink]="['inicio']" [queryParams]="{ mov: movil.movil_id, chp: movil.chofer_pref }"
+                      [routerLink]="['inicio']"
+                      [queryParams]="{
+                        mov: movil.movil_id,
+                        chp: movil.chofer_pref
+                      }"
                       ><i class="far fa-calendar-check"></i>&nbsp; Iniciar...
                     </a>
                   </td>
@@ -70,7 +92,7 @@
                       {{ movil.hora_cierre | date: "dd/MM/YYYY HH:mm'hs.'" }}
                     </span>
                   </td>
-                  
+
                   <!-- <td class="align-middle">
                     <span class="btn btn-outline-info btn-block"
                       >Inicie Jornada</span
@@ -86,7 +108,11 @@
                   <td class="align-middle">
                     <a
                       class="btn btn-danger btn-sm btn-block"
-                      [routerLink]="['cierre']" [queryParams]="{ mov: movil.movil_id, jrn: movil.jornada_id }"
+                      [routerLink]="['cierre']"
+                      [queryParams]="{
+                        mov: movil.movil_id,
+                        jrn: movil.jornada_id
+                      }"
                       ><i class="far fa-calendar-times"></i>&nbsp; Cerrar...</a
                     >
                   </td>
@@ -128,7 +154,22 @@
             </div>
           </div>
           <div class="card-body back-form shadow-effect">
-            <h5>Para poder ver las Jornadas el Operador debe Abrir su Turno</h5>
+            <div
+              class="
+                form-group
+                align-middle
+                alert alert-info
+                animate__animated animate__fadeIn
+              "
+              role="alert"
+            >
+              <div class="text-center" style="color: #4db8c8">
+                <i class="far fa-folder-open fa-7x"></i>
+              </div>
+              <h5 class="text-center">
+                Para poder ver las Jornadas el Operador debe Abrir su Turno
+              </h5>
+            </div>
           </div>
         </div>
       </div>

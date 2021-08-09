@@ -57,22 +57,7 @@
                       </div>
                     </div>
                   </div>
-
-                  <!-- Refactorear Mensajes de Error -->
-                  <!-- <div
-                    *ngIf="result['error']"
-                    class="form-group alert alert-danger text-center"
-                    role="alert"
-                  >
-                    <small> {{ result["error"]["message"] }} </small>
-                  </div>
-                  <div
-                    *ngIf="result['logged']"
-                    class="form-group alert alert-success text-center"
-                    role="alert"
-                  >
-                    <small> Logueo exitoso !! Espere... </small>
-                  </div> -->
+                  
                   <div class="form-group row">
                     <div class="col-sm-6 offset-sm-6">
                       <button
@@ -87,8 +72,8 @@
                               : 'fas fa-sign-in-alt'
                           "
                         ></i>
-                        <span *ngIf="!loading"> Verificar</span>
-                        <span *ngIf="loading"> Verificando...</span>
+                        <span *ngIf="!loading"> &nbsp; Verificar</span>
+                        <span *ngIf="loading"> &nbsp; Verificando...</span>
                       </button>
                     </div>
                   </div>

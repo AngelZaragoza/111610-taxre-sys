@@ -12,6 +12,7 @@ import Swal from 'sweetalert2/dist/sweetalert2.all.js';
 export class NavbarComponent implements OnInit {
   @Input() userLogged: any = { logged: false };
   pendientes: any = 0;
+  listaPendientes: any[] = [];
 
   constructor(
     private _usuariosService: UsuariosService,
@@ -22,7 +23,12 @@ export class NavbarComponent implements OnInit {
   ngOnInit(): void {
     //Suscribirse al observable de Viajes Pendientes para mostrar la notificación
     this._viajesService.pendientesObs$.subscribe((pend) => {
-      this.pendientes = pend;
+      this.listaPendientes = pend;
+      this.pendientes =
+        this.listaPendientes['message'] ==
+        'No hay Viajes Pendientes por Asignar'
+          ? 0
+          : this.listaPendientes.length;
       console.log('Pend. Navbar =>', this.pendientes);
     });
 
@@ -52,20 +58,19 @@ export class NavbarComponent implements OnInit {
   async logout() {
     let mensaje = `${this.userLogged.alias}: Sesión Cerrada`;
     await this._usuariosService.passportLogout().then(() => {
-      this.pendientes = 0;      
-      Swal.fire({        
-          title: mensaje,
-          icon: 'info',
-          position: 'center',        
-          toast: true,
-          timer: 3500,
-          timerProgressBar: true,
-          showConfirmButton: false,
-          didOpen: () => {
-            this.route.navigateByUrl('/home');  
-          }
-        });
+      this.pendientes = 0;
+      Swal.fire({
+        title: mensaje,
+        icon: 'info',
+        position: 'center',
+        toast: true,
+        timer: 3500,
+        timerProgressBar: true,
+        showConfirmButton: false,
+        didOpen: () => {
+          this.route.navigateByUrl('/home');
+        },
+      });
     });
-
   }
 }

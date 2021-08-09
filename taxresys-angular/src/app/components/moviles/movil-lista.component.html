@@ -23,7 +23,7 @@
               <thead class="thead-light">
                 <tr>
                   <th scope="col">Tipo</th>
-                  <th scope="col">Móvil</th>                  
+                  <th scope="col">Móv.</th>                  
                   <th scope="col">Chapa</th>
                   <th scope="col">Adherente</th>
                   <th scope="col">Acciones</th>
@@ -32,14 +32,14 @@
               <tbody>
                 <tr *ngFor="let movil of lista">
                   <td scope="row">{{ movil.tipo }}</td>
-                  <td>{{ movil.nro_interno }}</td>                  
+                  <td class="font-weight-bold">{{ movil.nro_interno }}</td>                  
                   <td>{{ movil.nro_habilitacion }}</td>
                   <td>{{ movil.adherente }}</td>
                   <td>
                     <a
                       class="btn btn-sm btn-warning"
                       [routerLink]="['detalle', movil.movil_id]"
-                      ><i class="fas fa-info-circle"></i>Detalles</a
+                      ><i class="fas fa-info-circle"></i>&nbsp; Detalles</a
                     >
                   </td>
                 </tr>

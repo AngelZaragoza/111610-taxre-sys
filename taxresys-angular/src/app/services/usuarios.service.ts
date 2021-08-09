@@ -18,7 +18,7 @@ export class UsuariosService {
     private _spinner: NgxSpinnerService
   ) {
     console.log('Usuarios listo');
-    console.log('Roles => ', this.roles, this.roles.length);
+    // console.log('Roles => ', this.roles, this.roles.length);
 
     //Instancia el objeto que será retornado como Observable
     this.userObs$ = new Subject();
@@ -101,7 +101,7 @@ export class UsuariosService {
   //Métodos de Autenticación
   //************************
   async passportLogin(user: any) {
-    console.log(user);
+    // console.log(user);
     let result: any;
 
     await this._conexion
@@ -116,7 +116,7 @@ export class UsuariosService {
         result = err;
       })
       .finally(() => {
-        console.log('Pasa por finally');
+        // console.log('Pasa por finally');
         this.checkAuth(false, result);
       });
 
@@ -128,18 +128,18 @@ export class UsuariosService {
     await this._conexion
       .request('GET', `${environment.serverUrl}/usuarios/passportLogout`)
       .then((res: any) => {
-        console.log('Then. Logout => ', res);
+        // console.log('Then. Logout => ', res);
         result = res;
         // localStorage.setItem('user', JSON.stringify(res));
       })
       .catch((err: any) => {
         result = err;
         console.log(err);
-      })
-      .finally(() => {
-        console.log('Finally. Logout => ', result);
-        // this.checkAuth(false, result);
       });
+      // .finally(() => {
+      //   console.log('Finally. Logout => ', result);
+      //   this.checkAuth(false, result);
+      // });
 
     this.turno = {};
     this.checkAuth(false, result);
@@ -168,7 +168,7 @@ export class UsuariosService {
     await this._conexion
       .request('GET', `${environment.serverUrl}/usuarios/detalle/${id}`)
       .then((res: any) => {
-        console.log(res);
+        // console.log(res);
         usuario = res;
       })
       .catch((err) => {

@@ -1,13 +1,11 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  Validators,
-} from '@angular/forms';
-import { Subscription } from 'rxjs';
+// import {
+//   FormBuilder,
+//   FormControl,
+//   FormGroup,
+//   Validators,
+// } from '@angular/forms';
 import { Viaje } from 'src/app/classes/viaje.model';
 import { UsuariosService } from 'src/app/services/usuarios.service';
 import { ViajesService } from 'src/app/services/viajes.service';
@@ -91,9 +89,7 @@ export class ViajeHistoricoComponent implements OnInit {
 
     //Se recuperan listas resumidas para mostrar datos mínimos
     //--------------------------------------------------------
-    this.listaMoviles = await (
-      await this._viajesService.getLista('/moviles')
-    ).map((mov) => {
+    this.listaMoviles = this._viajesService.listaMoviles.map((mov) => {
       return { movil_id: mov.movil_id, nro_interno: mov.nro_interno };
     });
 
@@ -181,6 +177,7 @@ export class ViajeHistoricoComponent implements OnInit {
     //Si se llamó desdel el Form, se restauran los registros filtrados
     if(desdeForm) {
       this.listaFiltrada = this.listaViajesFechas;
+      this.errorMessage = '';
     }
 
   }

@@ -16,6 +16,7 @@ import {
 import { Viaje } from 'src/app/classes/viaje.model';
 import { UsuariosService } from 'src/app/services/usuarios.service';
 import { ViajesService } from 'src/app/services/viajes.service';
+import Swal from 'sweetalert2/dist/sweetalert2.all.js';
 
 @Component({
   selector: 'app-form-viaje',
@@ -37,7 +38,7 @@ export class FormViajeComponent implements OnInit, OnDestroy {
   @Output() emitCerrar: EventEmitter<boolean>;
   @Output() emitViajeGuardado: EventEmitter<Viaje>;
 
-  //Datos del Viaje
+  //Form y Datos del Viaje
   datosViaje: FormGroup;
   newViaje: any;
 
@@ -45,6 +46,7 @@ export class FormViajeComponent implements OnInit, OnDestroy {
   loading: boolean = false;
   fechaMin: Date;
   fechaMax: Date;
+  alertDialog: any;
 
   constructor(
     private _usuariosService: UsuariosService,
@@ -57,6 +59,14 @@ export class FormViajeComponent implements OnInit, OnDestroy {
     //Instanciar emisores para enviar información al componente padre
     this.emitCerrar = new EventEmitter();
     this.emitViajeGuardado = new EventEmitter();
+
+    this.alertDialog = Swal.mixin({
+      customClass: {
+        confirmButton: 'btn btn-primary',
+        cancelButton: 'btn btn-secondary',
+      },
+      buttonsStyling: true,
+    });
   }
 
   ngOnInit(): void {
@@ -81,14 +91,6 @@ export class FormViajeComponent implements OnInit, OnDestroy {
 
     //Actualiza las reglas de validación del FormGroup
     this.datosViaje.updateValueAndValidity();
-
-    console.log(
-      'Min',
-      this.fechaMin,
-      typeof this.fechaMin,
-      'Max',
-      this.fechaMax
-    );
 
     //Crea una instancia con Algunas de las propiedades de la clase Viaje
     const viaje: Partial<Viaje> = {
@@ -127,7 +129,7 @@ export class FormViajeComponent implements OnInit, OnDestroy {
       viaje_id: new FormControl(''),
       usuario_id: new FormControl(''),
       turno_id: new FormControl(''),
-      jornada_id: new FormControl('', [Validators.required, Validators.min(1)]),      
+      jornada_id: new FormControl('', [Validators.required, Validators.min(1)]),
       tipo_viaje_id: new FormControl(''),
       estado_viaje_id: new FormControl(''),
       registrado: new FormControl('', Validators.required),
@@ -180,31 +182,52 @@ export class FormViajeComponent implements OnInit, OnDestroy {
     let nuevoViaje = Viaje.viajeDesdeJson(this.datosViaje.value);
     let mensaje: string;
 
-    //Chequea si la fecha y hora del viaje es mayor o igual a la
-    //fecha y hora de inicio de Jornada del Móvil
-    let horaValida = this.listaMovilesJornadas
-      .filter((jorn) => jorn.jornada_id == nuevoViaje.jornada_id)
-      .map((mov) => {
-        return {
-          valida: new Date(nuevoViaje.fecha_hora) >= new Date(mov.hora_inicio),
-          viaje: new Date(nuevoViaje.fecha_hora),
-          jornada: new Date(mov.hora_inicio),
-        };
-      });
+    if (nuevoViaje.tipo_viaje_id != 2 && this.asignaPendiente) {
+      //Chequea si la fecha y hora del viaje es mayor o igual a la
+      //fecha y hora de inicio de Jornada del Móvil
+      let horaValida = this.listaMovilesJornadas
+        .filter((jorn) => jorn.jornada_id == nuevoViaje.jornada_id)
+        .map((mov) => {
+          return {
+            valida: new Date(nuevoViaje.fecha_hora) >= new Date(mov.hora_inicio),
+            viaje: new Date(nuevoViaje.fecha_hora),
+            jornada: new Date(mov.hora_inicio),
+          };
+        });
 
-    if (!horaValida[0].valida) {
-      mensaje = `La Hora del viaje no puede ser anterior al inicio de Jornada del Móvil`;
-      mensaje += `\nInicio Jornada: ${horaValida[0].jornada.toLocaleDateString()} ${horaValida[0].jornada.toLocaleTimeString()}`;
-      alert(mensaje);
-      return;
+      if (!horaValida[0].valida) {
+        mensaje = 'Anterior al inicio de Jornada del Móvil:';
+        mensaje += `\n${horaValida[0].jornada.toLocaleDateString()} ${horaValida[0].jornada.toLocaleTimeString()}`;
+        this.alertDialog.fire({
+          title: 'Hora del Viaje no válida',
+          text: mensaje,
+          icon: 'warning',
+        });
+        // alert(mensaje);
+        return;
+      }
     }
 
     //Si la hora es correcta, se pide confirmación al Usuario:
-    let confirmacion = confirm('Guarda el Viaje?');
-    if (confirmacion) {
-      //Si el usuario confirma, se envía el objeto Viaje al método guardar
-      this.guardarViaje(nuevoViaje);
-    }
+    // let confirmacion = confirm('Guarda el Viaje?');
+    // if (confirmacion) {
+    //   //Si el usuario confirma, se envía el objeto Viaje al método guardar
+    //   this.guardarViaje(nuevoViaje);
+    // }
+    this.alertDialog
+      .fire({
+        title: '¿Guardar el Viaje?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Confirmar',
+        cancelButtonText: 'Cancelar',
+      })
+      .then((result) => {
+        if (result.isConfirmed) {
+          //Si el usuario confirma, se envía el objeto Viaje al método guardar
+          this.guardarViaje(nuevoViaje);
+        }
+      });
   }
 
   async guardarViaje(nuevoViaje: Viaje) {
@@ -229,11 +252,25 @@ export class FormViajeComponent implements OnInit, OnDestroy {
     }
 
     if (result instanceof HttpErrorResponse) {
-      mensaje = `Algo falló:\n${result.error.err?.code} \n ${result.statusText}\nNo se guardaron datos.`;
-      alert(mensaje);
+      mensaje = `${result.error.err?.code} \n ${result.statusText}\nNo se guardaron datos.`;
+      this.alertDialog.fire({        
+        title: 'Algo falló',
+        text: mensaje,
+        icon: 'error',
+      });
     } else {
-      mensaje = `Viaje guardado!\n${nuevoViaje.origen_nombre} ${nuevoViaje.origen_altura}`;
-      alert(mensaje);
+      mensaje = `${nuevoViaje.origen_nombre} ${nuevoViaje.origen_altura}`;
+      // alert(mensaje);
+      this.alertDialog.fire({
+        position: 'center',
+        title: 'Viaje guardado!',
+        text: mensaje,
+        icon: 'success',
+        showConfirmButton: false,
+        timer: 2500,
+        timerProgressBar: true,
+      });
+
       //Completa los datos faltantes en el objeto Viaje
       this.listaMovilesJornadas
         .filter((mov) => mov.jornada_id == this.jornada.value)

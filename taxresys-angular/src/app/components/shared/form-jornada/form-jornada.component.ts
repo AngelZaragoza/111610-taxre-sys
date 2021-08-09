@@ -9,7 +9,8 @@ import {
 import { Jornada } from 'src/app/classes/jornada';
 import { UsuariosService } from 'src/app/services/usuarios.service';
 import { JornadasService } from 'src/app/services/jornadas.service';
-import { MovilesService } from 'src/app/services/moviles.service';
+import { ViajesService } from 'src/app/services/viajes.service';
+import Swal from 'sweetalert2/dist/sweetalert2.all.js';
 
 @Component({
   selector: 'app-form-jornada',
@@ -17,34 +18,46 @@ import { MovilesService } from 'src/app/services/moviles.service';
   styles: [],
 })
 export class FormJornadaComponent implements OnInit {
+  //Listados
   listaChoferes: any[] = [];
+  listaMoviles: any[] = [];
 
-  abreJornada: boolean;
+  //Parámetros
   movParam: string;
   jrnParam: string;
   chfParam: string;
-  jornada: Jornada;
+  abreJornada: boolean;
+
+  //Auxiliares
   ready: boolean;
   loading: boolean;
   textoBoton: string = '';
   errorMessage: string = '';
-
   state: RouterStateSnapshot;
+  alertDialog: any;
 
-  //Formulario
+  //Form y Datos de la Jornada
   datosJornada: FormGroup;
+  jornada: Jornada;
 
   constructor(
     private _jornadasService: JornadasService,
     private _usuariosService: UsuariosService,
-    private _movilesService: MovilesService,
+    private _viajesService: ViajesService,
     private formBuilder: FormBuilder,
     private route: Router,
     private activatedRoute: ActivatedRoute
   ) {
     this.ready = false;
+    this.alertDialog = Swal.mixin({
+      customClass: {
+        confirmButton: 'btn btn-primary',
+        cancelButton: 'btn btn-secondary',
+      },
+      buttonsStyling: true,
+    });
 
-    this.listaChoferes = this._movilesService.listaChoferes;
+    this.cargarListas(this._viajesService.isIniciado);
 
     this.activatedRoute.queryParamMap.subscribe((params) => {
       this.loading = true;
@@ -54,23 +67,23 @@ export class FormJornadaComponent implements OnInit {
       this.abreJornada = this.state.url.indexOf('cierre') < 0 ? true : false;
       this.textoBoton = this.abreJornada ? 'Iniciar Jornada' : 'Cerrar Jornada';
 
-      console.log(params);
+      // console.log(params);
 
       //Lee los parámetros enviados desde el url
       this.movParam = params.get('mov');
       this.jrnParam = params.get('jrn');
       this.chfParam = params.get('chp') || '';
 
-      console.log(
-        'Abre Jornada?',
-        this.abreJornada,
-        'Movil?',
-        this.movParam,
-        'Jornada?',
-        this.jrnParam,
-        'Chof Pref?',
-        this.chfParam
-      );
+      // console.log(
+      //   'Abre Jornada?',
+      //   this.abreJornada,
+      //   'Movil?',
+      //   this.movParam,
+      //   'Jornada?',
+      //   this.jrnParam,
+      //   'Chof Pref?',
+      //   this.chfParam
+      // );
 
       this.initForm();
 
@@ -85,7 +98,7 @@ export class FormJornadaComponent implements OnInit {
           hora_cierre: null,
         });
         this.datosJornada.setValue(this.jornada);
-        console.log('Jornada nueva:', this.jornada);
+        // console.log('Jornada nueva:', this.jornada);
         this.loading = false;
       } else {
         this.detalleJornada(this.jrnParam).finally(() => {
@@ -97,6 +110,18 @@ export class FormJornadaComponent implements OnInit {
           this.loading = false;
         });
       }
+    });
+  }
+
+  async cargarListas(isIniciado: boolean) {
+    //Se recuperan las listas con datos para los Viajes
+    if (!isIniciado) {
+      await this._viajesService.cargarListas();
+    }
+
+    this.listaChoferes = this._viajesService.listaChoferes;
+    this.listaMoviles = this._viajesService.listaMoviles.map((mov) => {
+      return { movil_id: mov.movil_id, nro_interno: mov.nro_interno };
     });
   }
 
@@ -131,35 +156,62 @@ export class FormJornadaComponent implements OnInit {
       this.datosJornada.get('hora_cierre').setValidators(Validators.required);
       this.datosJornada.updateValueAndValidity();
     }
-    // return new Promise((resolve, reject) => {
-    //   resolve(this.datosJornada);
-    // });
   }
 
-  async saveJornada(inicioJornada: boolean) {
+  confirmaGuardado() {
+    let interno: string[] = this.listaMoviles
+      .filter((mov) => (mov.movil_id == this.movParam))
+      .map((int) => String(int.nro_interno).padStart(2, '0'));
+
+    this.alertDialog
+      .fire({
+        title: `¿${this.textoBoton}?`,
+        text: `Móvil ${interno[0]}`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Confirmar',
+        cancelButtonText: 'Cancelar',
+      })
+      .then((result) => {
+        if (result.isConfirmed) {
+          //Si el usuario confirma, se llama el método que guarda la Jornada
+          this.saveJornada(this.abreJornada, interno[0]);
+        }
+      });
+  }
+
+  async saveJornada(inicioJornada: boolean, nroInterno: string) {
     let result: any;
-    let confirmacion: boolean = confirm(`${this.textoBoton} ?`);
+    let mensaje: string;
 
-    if (confirmacion) {
-      let mensaje: string;
-      this.loading = true;
-      result = await this._jornadasService.guardarJornada(
-        inicioJornada,
-        this.datosJornada.value
-      );
-      if (result['success']) {
-        mensaje = inicioJornada ? 'Jornada Iniciada: ' : 'Jornada Cerrada: ';
-        mensaje += `${result['resp']['info']}`;
-        alert(mensaje);
-        this.ready = true;
-        this.route.navigateByUrl('/jornadas');
-      } else {
-        
-        mensaje = `Algo falló:\n${result.error.code} \n ${result.statusText}\nNo se guardaron datos.`;
-        alert(mensaje);
-      }
+    this.loading = true;
+    result = await this._jornadasService.guardarJornada(
+      inicioJornada,
+      this.datosJornada.value
+    );
+    if (result['success']) {
+      mensaje = inicioJornada ? 'Jornada Iniciada: ' : 'Jornada Cerrada: ';
+      this.ready = true;
 
-      this.loading = false;
+      this.alertDialog.fire({
+        position: 'center',
+        title: `${mensaje}`,
+        text: `Móvil ${nroInterno}`,
+        icon: 'success',
+        didDestroy: (al) => {
+          //Redirigir al home si el login fue exitoso
+          this.route.navigateByUrl('/jornadas');
+        },
+      });
+    } else {
+      mensaje = `${result.error.err?.code} \n ${result.statusText}\nNo se guardaron datos.`;
+      this.alertDialog.fire({
+        title: 'Algo falló',
+        text: mensaje,
+        icon: 'error',
+      });
     }
+
+    this.loading = false;
   }
 }

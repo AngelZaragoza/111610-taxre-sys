@@ -140,6 +140,8 @@ export class PendienteListaComponent implements OnInit {
     //Si no hay pendientes activos, se recupera el mensaje de error
     if (this.listaPendientesActivos[0] instanceof HttpErrorResponse) {
       this.errorMessage = this.listaPendientesActivos[0]['error']['message'];
+    } else {
+      this.errorMessage = '';
     }
   }
 }

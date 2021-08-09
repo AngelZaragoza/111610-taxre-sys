@@ -106,7 +106,7 @@
               <div class="col">
                 <button
                   type="button"
-                  (click)="datosJornada.valid && saveJornada(abreJornada)"
+                  (click)="datosJornada.valid && confirmaGuardado()"
                   class="btn btn-block btn-primary"
                   [disabled]="datosJornada.invalid || loading"
                 >

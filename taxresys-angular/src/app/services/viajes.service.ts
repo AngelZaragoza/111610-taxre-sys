@@ -12,6 +12,7 @@ export class ViajesService {
   tiposViaje: any[] = [];
   estadosViaje: any[] = [];
   listaChoferes: any[] = [];
+  listaMoviles: any[] = [];
   listaPendientesActivos: any[] = [];
   pendientesObs$: Subject<any>;
   isIniciado: boolean = false;
@@ -39,6 +40,9 @@ export class ViajesService {
         ),
         this.getLista('/choferes').then(
           (lista) => (this.listaChoferes = lista)
+        ),
+        this.getLista('/moviles').then(
+          (lista) => (this.listaMoviles = lista)
         ),
       ])
         .then(() => (this.isIniciado = true))
@@ -75,16 +79,14 @@ export class ViajesService {
         lista[0] = err;
       });
 
-    console.table(lista);
+    // console.table(lista);
     return lista;
   }
 
   async getViajesEntreFechas(objQuery: any) {
+    //Destructura el objQuery para facilidad de lectura
     let { fechaIni, fechaFin, cant, pag } = objQuery;
-    //Transformar las fechas en strings
-    // fechaIni = fechaIni.toISOString();
-    // fechaFin = fechaFin.toISOString();
-
+    
     let lista: Viaje[] = [];
     //Concatena los diferentes strings para la query
     let query = `ini=${fechaIni}&fin=${fechaFin}&cant=${cant}&pag=${pag}`
@@ -98,7 +100,7 @@ export class ViajesService {
         lista[0] = err;
       });
 
-    console.table(lista);
+    // console.table(lista);
     return lista;
   }
 
@@ -109,14 +111,14 @@ export class ViajesService {
       .then((res: any[]) => {
         lista = res;
         this.listaPendientesActivos = res;
-        this.pendientesObs$.next(lista.length);
+        this.pendientesObs$.next(lista);
       })
       .catch((err: any) => {
-        this.pendientesObs$.next(0);
         lista[0] = err;
+        this.pendientesObs$.next(lista);
       });
 
-    console.log('Pendientes =>', lista);
+    // console.log('Pendientes =>', lista);
     return lista;
   }
 
@@ -129,7 +131,7 @@ export class ViajesService {
       .then((res) => (viaje = res))
       .catch((err) => (viaje = err));
 
-    console.log('Viaje normal', viaje);
+    // console.log('Viaje normal', viaje);
     return viaje;
   }
 
