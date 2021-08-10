@@ -11,7 +11,10 @@
 
 <!-- Contenido -->
 
-<div *ngIf="lista.length > 0" class="container-fluid p-3 mb-3 rounded">
+<div
+  *ngIf="lista.length > 0 && !loading"
+  class="container-fluid p-3 mb-3 rounded"
+>
   <div class="row">
     <div class="col-md-5">
       <div class="card">
@@ -19,8 +22,16 @@
           <div class="h4 m-3 text-center text-white">Usuarios Registrados</div>
         </div>
         <div class="card-body back-form shadow-effect">
-          <table class="table table-hover table-responsive">
-            <thead class="thead-light">
+          <table
+            *ngIf="errorMessage == ''"
+            class="table table-hover table-responsive"
+          >
+            <thead
+              class="
+                list-group-item-secondary
+                animate__animated animate__fadeIn
+              "
+            >
               <tr>
                 <th scope="col">Usuario</th>
                 <th scope="col">Nombre</th>
@@ -37,18 +48,37 @@
                   <a
                     class="btn btn-sm btn-warning"
                     [routerLink]="['detalle', user.usuario_id]"
-                    ><i class="fas fa-info-circle"></i>Detalles</a
+                    ><i class="fas fa-info-circle"></i>&nbsp; Detalles</a
                   >
                 </td>
               </tr>
             </tbody>
           </table>
+
+          <!-- Mensajes de Error -->
+          <div
+            *ngIf="getTurno < 0"
+            class="form-group alert alert-danger"
+            role="alert"
+          >
+            <h5>No hay un Turno de Operador iniciado</h5>
+          </div>
+          <div
+            *ngIf="errorMessage != ''"
+            class="form-group alert alert-danger"
+            role="alert"
+          >
+            <h5 class="text-center">
+              {{ errorMessage }}
+            </h5>
+          </div>
+          <!-- Fin Mensajes de Error -->
         </div>
       </div>
     </div>
     <div class="col-md-7">
       <!-- Aquí se renderiza la ruta hija -->
-      <router-outlet></router-outlet>
+      <router-outlet (deactivate)="cerradoForm($event)"></router-outlet>
     </div>
   </div>
 </div>

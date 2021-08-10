@@ -136,10 +136,10 @@ export class UsuariosService {
         result = err;
         console.log(err);
       });
-      // .finally(() => {
-      //   console.log('Finally. Logout => ', result);
-      //   this.checkAuth(false, result);
-      // });
+    // .finally(() => {
+    //   console.log('Finally. Logout => ', result);
+    //   this.checkAuth(false, result);
+    // });
 
     this.turno = {};
     this.checkAuth(false, result);
@@ -196,6 +196,21 @@ export class UsuariosService {
       )
       .then((res) => (pers = res));
     return pers;
+  }
+
+  async updateUsuario(usuario: any, id: Number) {
+    let user: any;
+    try {
+      user = await this._conexion.request(
+        'PATCH',
+        `${environment.serverUrl}/usuarios/detalle/${id}`,
+        usuario
+      );
+    } catch (error) {
+      console.log(error);
+      user = error;
+    }
+    return user;
   }
 
   //Métodos auxiliares

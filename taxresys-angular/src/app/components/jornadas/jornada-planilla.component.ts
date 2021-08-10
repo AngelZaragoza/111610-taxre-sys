@@ -5,8 +5,7 @@ import { UsuariosService } from 'src/app/services/usuarios.service';
 
 @Component({
   selector: 'app-jornada-planilla',
-  templateUrl: './jornada-planilla.component.html',
-  styleUrls: ['./jornada-planilla.component.css'],
+  templateUrl: './jornada-planilla.component.html'
 })
 export class JornadaPlanillaComponent implements OnInit {
   listaMovilesJornadas: any[] = [];

@@ -44,7 +44,7 @@ class Usuario {
                 FROM personas p JOIN usuarios u
                   ON p.persona_id = u.persona_id
                WHERE u.usuario_id = ?`;
-    //  WHERE p.persona_id = ?`;
+    
     const results = await conexion.query(sql, [id]);
 
     if (results.length > 0) {
@@ -97,6 +97,60 @@ class Usuario {
         .catch((err) => {
           console.log("Error en procedure", err);
           return res.status(500).json(err);
+        });
+    } catch (err) {
+      console.log("Error interno", err);
+      return res.status(500).json(err);
+    }
+  };
+
+  updateUsuario = async (req, res) => {
+    try {
+      let { id } = req.params;
+      let {
+        rol_id,
+        alias,        
+        passwordAnterior,
+        passwordConfirm
+      } = req.body; //Recupera los campos enviados desde el form
+      let user;
+
+      if (id > 0) {
+        user = await this.getUsuario("usuario_id", id);
+      } else {
+        return res.status(403).json({ success: false, message: "Falta id de usuario" });
+      }
+
+      //Compara el password ingresado por el Usuario, si no es correcto se corta la ejecución
+      let passCorrecto = await this.passwordUtil(passwordAnterior, user.password);
+      if (!passCorrecto) {
+        // let { password, ...userSinPass } = user;
+        return res.status(403).json({ success: false, message: "El password ingresado no es correcto" });
+      } 
+      
+      //Si el password anterior es correcto, se hashea el nuevo password
+      const password = await this.passwordUtil(passwordConfirm);
+
+      //Llama el stored procedure que inserta la persona y el usuario al mismo tiempo
+      let sql = `UPDATE usuarios SET 
+                        rol_id=?, alias=?, password=?
+                  WHERE usuario_id=?`;
+      const results = await conexion
+        .query(sql, [
+          rol_id,
+          alias,
+          password,
+          id
+        ])
+        .then((resp) => {
+          console.log("UPDATE =>", resp);
+          return res
+            .status(200)
+            .json({ success: true, action: "updated", resp });
+        })
+        .catch((err) => {
+          console.log('Error en Update =>', err);
+          throw err;
         });
     } catch (err) {
       console.log("Error interno", err);

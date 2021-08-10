@@ -1,7 +1,7 @@
 <div class="container shadow p-3 mb-3 rounded">
     <div class="row justify-content-center">
       <div class="col-md-11">
-        <form [formGroup]="datosPersona" (ngSubmit)="savePersona()">
+        <form [formGroup]="datosPersona" (ngSubmit)="confirmaGuardado()">
           <fieldset [disabled]="!editar">
             <div class="form-group row">
               <label for="apellido" class="col-md-3 col-form-label"
@@ -156,13 +156,13 @@
                   (click)="cancelEdit()"
                   class="btn btn-secondary btn-block"                
                 >
-                  Descartar cambios...
+                  Descartar cambios
                 </button>
                 <button *ngIf="nuevo"
                   type="reset"
                   class="btn btn-secondary btn-block"                  
                 >
-                  Limpiar campos...
+                  Limpiar campos
                 </button>
               </div>
               <div class="col-sm-6">
@@ -171,7 +171,9 @@
                   class="btn btn-primary btn-block"
                   [disabled]="datosPersona.invalid"
                 >
-                  Guardar cambios...
+                <i class="far fa-save"
+                ></i>
+                  &nbsp; Guardar cambios...
                 </button>
               </div>
             </div>

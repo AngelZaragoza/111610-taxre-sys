@@ -30,13 +30,14 @@ function checkUser(req, res, next) {
 router.route("/").get(authGuard, usuariosController.listaUsuarios);
 router
   .route("/detalle/:id")
-  .get(usuariosController.detalleUsuario)
-  .put(personasController.updatePersona);
+  .get(authGuard, usuariosController.detalleUsuario)
+  .put(authGuard, personasController.updatePersona)
+  .patch(authGuard, usuariosController.updateUsuario);
+  
 router.route("/roles").get(authGuard, usuariosController.listaRoles);
 
-router.route("/nuevo").post(usuariosController.nuevoUsuarioFull);
+router.route("/nuevo").post(authGuard, usuariosController.nuevoUsuarioFull);
 
-// router.route("/login").get(checkUser);
 router.route("/isauth").get(authGuard, usuariosController.loginSuccess);
 
 router.route("/passportLogin").post(

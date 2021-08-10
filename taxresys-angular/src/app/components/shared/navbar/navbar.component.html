@@ -201,7 +201,7 @@
       </li>
     </ul>
   </div>
-  <div *ngIf="pendientes != 0" class="nav-item justify-content-end mr-5">
+  <div *ngIf="pendientes != 0 && isLogged" class="nav-item justify-content-end mr-5">
     <a
       class="nav-link btn btn-outline-light justify-content-end"
       [routerLink]="['viajes', 'pendientes']"

@@ -199,7 +199,7 @@ export class FormJornadaComponent implements OnInit {
         text: `Móvil ${nroInterno}`,
         icon: 'success',
         didDestroy: (al) => {
-          //Redirigir al home si el login fue exitoso
+          //Recargar la lista de Jornadas
           this.route.navigateByUrl('/jornadas');
         },
       });

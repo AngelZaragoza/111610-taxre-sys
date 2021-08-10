@@ -1,7 +1,14 @@
-import { Component, Input, Output, EventEmitter, DoCheck, OnDestroy } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  DoCheck,
+  OnDestroy,
+} from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Persona } from 'src/app/classes/persona';
-import { UsuariosService } from 'src/app/services/usuarios.service';
+import { AlertasService } from 'src/app/services/alertas.service';
 
 @Component({
   selector: 'app-form-persona',
@@ -13,13 +20,13 @@ export class FormPersonaComponent implements DoCheck, OnDestroy {
   @Input() editar: boolean = true;
   @Input() nuevo: boolean = true;
   @Input() ready: boolean = false;
-  
+
   @Output() emitEstado: EventEmitter<boolean>;
   @Output() emitPersona: EventEmitter<Persona>;
-    
+
   datosPersona: FormGroup;
 
-  constructor(private _usuariosService: UsuariosService) {
+  constructor(private _alertas: AlertasService) {
     console.log('Constructor =>', this.persona);
 
     //Instanciar controles del formulario con validadores
@@ -44,7 +51,7 @@ export class FormPersonaComponent implements DoCheck, OnDestroy {
         Validators.required,
         Validators.minLength(6),
         Validators.maxLength(20),
-        Validators.pattern('^[+0-9-]+$')
+        Validators.pattern('^[+0-9-]+$'),
       ]),
       email: new FormControl('', [Validators.email, Validators.maxLength(60)]),
       fecha_nac: new FormControl(''),
@@ -56,11 +63,11 @@ export class FormPersonaComponent implements DoCheck, OnDestroy {
 
     console.log('Editar => ', this.editar);
   }
-  
+
   ngDoCheck(): void {
     //En cada cambio del formulario, chequea si "editar" es false
-    //Cuando se cumple, setea el formulario con los datos de Persona    
-    if (!this.editar) {      
+    //Cuando se cumple, setea el formulario con los datos de Persona
+    if (!this.editar) {
       this.datosPersona.setValue(this.persona);
     }
   }
@@ -68,32 +75,52 @@ export class FormPersonaComponent implements DoCheck, OnDestroy {
   cancelEdit() {
     //Setea "editar" en false y lo emite hacia el componente padre
     this.editar = false;
+    this.ready = false;
     this.datosPersona.reset(this.persona);
     this.emitEstado.emit(this.editar);
   }
 
+  confirmaGuardado() {
+    let mensaje = this.nuevo
+      ? '¿Los Datos son correctos?'
+      : '¿Desea Guardar los Cambios?';
+    this._alertas.confirmDialog
+      .fire({
+        title: 'Datos Personales',
+        text: mensaje,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Confirmar',
+        cancelButtonText: 'Cancelar',
+      })
+      .then((result) => {
+        if (result.isConfirmed) {
+          //Si el usuario confirma, se envía el objeto Viaje al método guardar
+          this.savePersona();
+        }
+      });
+  }
+
   savePersona() {
     console.log(`Formulario => `, this.datosPersona.value);
-    let mensaje = this.nuevo? '¿Los Datos son correctos?' : '¿Desea guardar los Cambios?';
-    
-    if(confirm( mensaje )) {    
-      //Recorre los campos del form y asigna los valores al objeto Persona
-      for (const key in this.datosPersona.value) {
-        let value = this.datosPersona.value[key];        
-        if (value === '' || value === null) {
-          this.persona[key] = null;
-        } else {
-          this.persona[key] = value;
-        }        
+
+    //Recorre los campos del form y asigna los valores al objeto Persona
+    for (const key in this.datosPersona.value) {
+      let value = this.datosPersona.value[key];
+      if (value === '' || value === null) {
+        this.persona[key] = null;
+      } else {
+        this.persona[key] = value;
       }
-      console.table(this.persona);
-      
-      //Emite el objeto persona para que lo tome el componente padre
-      this.emitPersona.emit(this.persona);
     }
+    console.table(this.persona);
+
+    //Emite el objeto persona para que lo tome el componente padre
+    this.ready = true;
+    this.emitPersona.emit(this.persona);
   }
 
   ngOnDestroy(): void {
-    console.log('Form Persona destruido');    
+    console.log('Form Persona destruido');
   }
 }
