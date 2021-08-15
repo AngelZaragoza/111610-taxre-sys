@@ -24,10 +24,15 @@ export class FormPersonaComponent implements DoCheck, OnDestroy {
   @Output() emitEstado: EventEmitter<boolean>;
   @Output() emitPersona: EventEmitter<Persona>;
 
+  //Formulario
   datosPersona: FormGroup;
+  fechaMax: Date;
 
   constructor(private _alertas: AlertasService) {
     console.log('Constructor =>', this.persona);
+
+    //Para evitar que se almacene una fecha mayor a la actual
+    this.fechaMax = new Date();
 
     //Instanciar controles del formulario con validadores
     this.datosPersona = new FormGroup({
@@ -72,6 +77,34 @@ export class FormPersonaComponent implements DoCheck, OnDestroy {
     }
   }
 
+  //Accessores del Form
+  //*******************
+  get apellido() {
+    return this.datosPersona.get('apellido');
+  }
+
+  get nombre() {
+    return this.datosPersona.get('nombre');
+  }
+
+  get direccion() {
+    return this.datosPersona.get('direccion');
+  }
+
+  get telefono() {
+    return this.datosPersona.get('telefono');
+  }
+
+  get email() {
+    return this.datosPersona.get('email');
+  }
+
+  get fecha_nac() {
+    return this.datosPersona.get('fecha_nac');
+  }
+
+  //Métodos del componente
+  //*******************
   cancelEdit() {
     //Setea "editar" en false y lo emite hacia el componente padre
     this.editar = false;

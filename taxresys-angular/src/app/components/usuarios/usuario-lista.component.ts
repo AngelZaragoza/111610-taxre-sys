@@ -1,6 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { Subscription } from 'rxjs';
 import { UsuariosService } from 'src/app/services/usuarios.service';
 
 @Component({
@@ -14,7 +13,6 @@ export class UsuarioListaComponent implements OnInit {
   
   //Información del usuario y turno
   userLogged: any = {};
-  userSub: Subscription;
   
   //Auxiliares
   errorMessage: string;
@@ -25,10 +23,7 @@ export class UsuarioListaComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.userSub = this._usuariosService.userObs$.subscribe((userLogged) => {
-      // console.log('viajesPlanilla', userLogged);
-      this.userLogged = userLogged;
-    });
+    this.userLogged = this._usuariosService.user;
     //Controlar usuario que realiza solicitud    
     this.getUsuarios();
   }
@@ -60,6 +55,8 @@ export class UsuarioListaComponent implements OnInit {
     if (this.lista[0] instanceof HttpErrorResponse) {
       this._handleError(this.lista[0]);
       this.errorMessage = this.lista['error']['message'];
+    } else {
+      this.errorMessage = '';
     }
     this.loading = false;
     this._usuariosService.mostrarSpinner(this.loading, 'usuario_lista');

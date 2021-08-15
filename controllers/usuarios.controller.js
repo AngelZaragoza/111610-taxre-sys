@@ -38,8 +38,18 @@ class Usuario {
 
   detalleUsuario = async (req, res) => {
     let { id } = req.params; //Recupera el id enviado por parámetro
+    
+    // La query con DATE_FORMAT devuelve el formato aceptado por el input "date"
+    // Reemplazada por la query sin DATE_FORMAT por el uso del "ng-pick-datetime"
+    
+    // let sql = `SELECT p.persona_id, p.apellido, p.nombre, p.direccion,
+    //                   p.telefono, p.email, DATE_FORMAT(p.fecha_nac, '%Y-%m-%d') AS fecha_nac,
+    //                   u.usuario_id, u.rol_id, u.alias, u.password
+    //             FROM personas p JOIN usuarios u
+    //               ON p.persona_id = u.persona_id
+    //            WHERE u.usuario_id = ?`;
     let sql = `SELECT p.persona_id, p.apellido, p.nombre, p.direccion,
-                      p.telefono, p.email, DATE_FORMAT(p.fecha_nac, '%Y-%m-%d') AS fecha_nac,
+                      p.telefono, p.email, p.fecha_nac,
                       u.usuario_id, u.rol_id, u.alias, u.password
                 FROM personas p JOIN usuarios u
                   ON p.persona_id = u.persona_id
@@ -68,8 +78,12 @@ class Usuario {
         rol_id,
       } = req.body; //Recupera los campos enviados desde el form
 
+      //Si se recibe una fecha, se convierte a formato Fecha válido
+      if(fecha_nac) {
+        fecha_nac = new Date(fecha_nac);
+      }
+      
       password = await this.passwordUtil(password);
-      console.log(password);
 
       let user = { apellido, nombre, alias };
       console.log(user);

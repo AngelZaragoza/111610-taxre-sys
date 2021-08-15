@@ -6,34 +6,64 @@
   type="ball-circus"
   [fullScreen]="false"
   name="adh_detalle"
-  ><p style="color:black; font-weight: bold;">Cargando...</p></ngx-spinner
+  ><p style="color: black; font-weight: bold">Cargando...</p></ngx-spinner
 >
 
 <!-- Contenido -->
-<div class="container-fluid mb-3 rounded">
-  <div class="card">
+<div *ngIf="ready" class="container-fluid mb-3 rounded">
+  <div class="card animate__animated animate__fadeIn">
     <div class="card-header-form">
-      <div class="row">
+      <div class="h4 m-3 px-3 text-center text-white clearfix">
+        Detalles
+        <button
+          (click)="activarEdicion()"
+          class="float-right ml-3 w-25 btn btn-sm btn-info"
+          [disabled]="!isAdmin && !isManager"
+        >
+          <i class="fas fa-id-card"></i>
+          &nbsp; Editar
+        </button>
+        <button
+          type="button"
+          #toggleModal
+          id="toggleModal"
+          data-toggle="modal"
+          data-target="#editExtra"
+          class="float-right ml-3 w-25 btn btn-sm btn-info"
+          [disabled]="!isAdmin && !isManager"
+        >
+          <i class="fas fa-id-card-alt"></i>
+          &nbsp; Extra
+        </button>
+      </div>
+
+      <!-- <div class="row">
         <div class="col-md-5 h4 mt-3 text-center text-white">Detalles</div>
         <div class="col-md-3 mt-2">
-          <button (click)="activarEdicion()" class="btn btn-info btn-block">
+          <button
+            (click)="activarEdicion()"
+            class="btn btn-info btn-block"
+            [disabled]="!isAdmin && !isManager"
+          >
             <i class="fas fa-id-card"> </i>
-            Editar
+            &nbsp; Editar
           </button>
         </div>
         <div class="col-md-3 mt-2">
           <button
             type="button"
+            #toggleModal
             id="toggleModal"
             data-toggle="modal"
             data-target="#editExtra"
             class="btn btn-info btn-block"
+            [disabled]="!isAdmin && !isManager"
           >
             <i class="fas fa-id-card-alt"></i>
-            Extra
+            &nbsp; Extra
           </button>
         </div>
-      </div>
+      </div> -->
     </div>
     <div class="card-body back-form shadow-effect">
       <!-- Aquí se renderiza el componente con el form datosPersona -->
@@ -51,7 +81,6 @@
   <div
     class="modal fade"
     id="editExtra"
-    #editExtra
     data-backdrop="static"
     data-keyboard="false"
     tabindex="-1"
@@ -97,17 +126,17 @@
 
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">
-            Cancelar
+            Descartar Cambios
           </button>
           <button
             type="button"
             #updateAdh
-            (click)="updateAdherente()"
+            (click)="confirmaGuardado()"
             class="btn btn-primary"
             [disabled]="loading"
           >
             <i
-              [ngClass]="loading ? 'fas fa-sync-alt fa-spin' : 'far fa-save'"
+              [ngClass]="loading ? 'fas fa-sync-alt fa-spin' : 'fas fa-save'"
             ></i>
             <span *ngIf="!loading">&nbsp; Guardar Cambios</span>
             <span *ngIf="loading">&nbsp; Guardando...</span>

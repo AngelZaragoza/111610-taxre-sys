@@ -10,12 +10,23 @@
 >
 
 <!-- Contenido -->
-<div *ngIf="lista.length > 0" class="container-fluid p-3 mb-3 rounded">
-  <div class="row">
+<div class="container-fluid p-3 mb-3 rounded">
+  <!-- Inicio componente -->
+  <div *ngIf="lista.length > 0 && !loading" class="row">
     <div class="col-md-5">
-      <div class="card">
+      <div class="card animate__animated animate__fadeIn">
         <div class="card-header-list">
-          <div class="h4 m-3 text-center text-white">Adherentes Registrados</div>
+          <div class="h4 m-3 px-3 text-center text-white clearfix">
+            Adherentes Registrados
+            <button
+              *ngIf="isAdmin || isManager"
+              class="float-right w-25 btn btn-sm btn-success"
+              [routerLink]="['nuevo']"
+            >
+              <i class="fas fa-user-plus"></i>
+              &nbsp; Nuevo...
+            </button>
+          </div>
         </div>
         <div class="card-body back-form shadow-effect">
           <table class="table table-hover table-responsive">
@@ -23,7 +34,7 @@
               <tr>
                 <th scope="col">Apellido</th>
                 <th scope="col">Nombre</th>
-                <th scope="col">Cant. Móviles</th>
+                <th scope="col">Móviles</th>
                 <th scope="col">Acciones</th>
               </tr>
             </thead>
@@ -31,12 +42,12 @@
               <tr *ngFor="let adh of lista">
                 <th scope="row">{{ adh.apellido }}</th>
                 <td>{{ adh.nombre }}</td>
-                <td>{{ adh.moviles_activos }}</td>
+                <td class="text-center">{{ adh.moviles_activos }}</td>
                 <td>
                   <a
                     class="btn btn-sm btn-warning"
                     [routerLink]="['detalle', adh.adherente_id]"
-                    ><i class="fas fa-info-circle"></i>Detalles</a
+                    ><i class="fas fa-info-circle"></i>&nbsp; Detalles</a
                   >
                 </td>
               </tr>
@@ -47,7 +58,37 @@
     </div>
     <div class="col-md-7">
       <!-- Aquí se renderiza la ruta hija -->
-      <router-outlet></router-outlet>
+      <router-outlet
+        (deactivate)="cerradoForm($event)"
+      ></router-outlet>
     </div>
+  </div>
+  <!-- Mensajes de Error -->
+  <div *ngIf="!loading && errorMessage != ''" class="row">
+    <div
+      class="
+        form-group
+        align-middle
+        alert alert-info
+        animate__animated animate__fadeIn
+      "
+      role="alert"
+    >
+      <div class="text-center" style="color: #4db8c8">
+        <i class="far fa-folder-open fa-7x"></i>
+      </div>
+      <h5 class="text-center">
+        {{ errorMessage }}
+      </h5>
+      <button
+        *ngIf="isAdmin || isManager"
+        class="float-right btn btn-sm btn-success"
+        [routerLink]="['nuevo']"
+      >
+        <i class="fas fa-user-plus"></i>
+        &nbsp; Nuevo...
+      </button>
+    </div>
+    <!-- Fin Mensajes de Error -->
   </div>
 </div>

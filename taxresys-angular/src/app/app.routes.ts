@@ -28,12 +28,12 @@ import { FormJornadaComponent } from './components/shared/form-jornada/form-jorn
 
 import { ViajePlanillaComponent } from './components/viajes/viaje-planilla.component';
 import { PendienteListaComponent } from './components/viajes/pendiente-lista.component';
+import { ViajeHistoricoComponent } from './components/viajes/viaje-historico.component';
 
 //Guardianes de rutas
 import { AuthGuard } from './auth/auth.guard';
 import { OwnerGuard } from './auth/owner.guard';
 import { ErrorComponent } from './components/shared/error/error.component';
-import { ViajeHistoricoComponent } from './components/viajes/viaje-historico.component';
 
 const routes: Routes = [
   { path: 'home', component: HomeComponent },
@@ -111,11 +111,11 @@ const routes: Routes = [
   },
 
   { path: 'error', component: ErrorComponent },
-  { path: '**', pathMatch: 'full', redirectTo: '/home' },
+  { path: '**', pathMatch: 'full', redirectTo: 'home' },
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
+  imports: [RouterModule.forRoot(routes, { useHash: true } )],
   exports: [RouterModule],
   providers: [AuthGuard, OwnerGuard],
 })

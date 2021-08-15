@@ -15,10 +15,10 @@ import { HttpErrorResponse } from '@angular/common/http';
   styles: [],
 })
 export class UsuarioEditarComponent {
+  //Crea una referencia a un elemento del DOM
   @ViewChild('toggleModal', { read: ElementRef }) llamaModal: ElementRef;
-  
-  idParam: any;
-  editar: boolean;
+
+  //Clases modelo para los objetos
   detalle: DTODetalleUsuario = new DTODetalleUsuario();
   persona: Persona = new Persona();
   usuario: Usuario = new Usuario();
@@ -28,8 +28,11 @@ export class UsuarioEditarComponent {
   roles: any;
 
   //Auxiliares
+  idParam: any;
+  editar: boolean;
   loading: boolean;
   ready: boolean;
+  changes: boolean;
 
   constructor(
     private _usuariosService: UsuariosService,
@@ -49,9 +52,9 @@ export class UsuarioEditarComponent {
       this.idParam = params['usuario_id'];
       this.editar = false;
       this.ready = false;
+      this.changes = false;
 
       this.detalleUsuario(this.idParam).finally(() => {
-        
         this.editUsuario.get('persona_id').setValue(this.usuario.persona_id);
         this.editUsuario.get('usuario_id').setValue(this.usuario.usuario_id);
         this.editUsuario.get('rol_id').setValue(this.usuario.rol_id);
@@ -91,7 +94,9 @@ export class UsuarioEditarComponent {
       { validators: confirmaPassword }
     );
   }
+
   //Métodos accesores en general
+  //****************************
   get isAdmin(): boolean {
     return this._usuariosService.user['rol_id'] === 1;
   }
@@ -108,26 +113,30 @@ export class UsuarioEditarComponent {
   }
 
   //Accesores del Form
+  //*******************
+  get rolSelect() {
+    return this.editUsuario.get('rol_id');
+  }
+  
   get userName() {
-    return this.editUsuario.get('alias')
+    return this.editUsuario.get('alias');
   }
 
   get passAnterior() {
-    return this.editUsuario.get('passwordAnterior')
+    return this.editUsuario.get('passwordAnterior');
   }
-  
+
   get pass() {
-    return this.editUsuario.get('password')
+    return this.editUsuario.get('password');
   }
-  
+
   get passConfirm() {
-    return this.editUsuario.get('passwordConfirm')
+    return this.editUsuario.get('passwordConfirm');
   }
 
-
-
-//Métodos del componente
-  async detalleUsuario(id) {
+  //Métodos del componente
+  //**********************
+  async detalleUsuario(id: number) {
     this.loading = true;
     this._usuariosService.mostrarSpinner(this.loading, 'usuario_detalle');
 
@@ -164,12 +173,12 @@ export class UsuarioEditarComponent {
       result = await this._usuariosService.updatePersona(
         this.persona,
         this.persona.persona_id
-      );      
+      );
     } catch (error) {
       result = error;
     }
 
-    if(result instanceof HttpErrorResponse) {
+    if (result instanceof HttpErrorResponse) {
       mensaje = `${result['error']['message']} -- ${result['statusText']} -- No se guardaron datos.`;
       this._alertas.problemDialog.fire({
         title: 'Algo falló',
@@ -181,14 +190,16 @@ export class UsuarioEditarComponent {
         title: 'Cambios guardados!',
         text: 'Espere...',
       });
-    };
-    
+      this.changes = true;
+    }
+
     this.loading = false;
   }
 
   confirmaGuardado() {
-    
-    let mensaje = this.isOwner ? 'Su Sesión se cerrará. Deberá hacer LogIn nuevamente' : 'Se actualizarán los Datos de Acceso del Usuario';
+    let mensaje = this.isOwner
+      ? 'Su Sesión se cerrará. Deberá hacer LogIn nuevamente'
+      : 'Se actualizarán los Datos de Acceso del Usuario';
     this._alertas.confirmDialog
       .fire({
         title: 'Guardar Datos de Usuario',
@@ -206,27 +217,30 @@ export class UsuarioEditarComponent {
       });
   }
 
-
   async saveUsuario() {
     this.loading = true;
+    this._usuariosService.mostrarSpinner(this.loading, 'usuario_detalle');
     let mensaje: string;
     let result: any;
-    
-    console.log('Form', this.editUsuario.value);
+
+    // console.log('Form', this.editUsuario.value);
     try {
-      result = await this._usuariosService.updateUsuario(this.editUsuario.value, this.usuario.usuario_id);
+      result = await this._usuariosService.updateUsuario(
+        this.editUsuario.value,
+        this.usuario.usuario_id
+      );
     } catch (error) {
       result = error;
     }
 
-    if(result instanceof HttpErrorResponse) {
+    if (result instanceof HttpErrorResponse) {
       mensaje = `${result['error']['message']} -- ${result['statusText']} -- No se guardaron datos.`;
       this._alertas.problemDialog.fire({
         title: 'Algo falló',
         text: mensaje,
       });
     } else {
-      mensaje = this.isOwner ? 'Cerrando Sesión. Espere...' : 'Espere...'
+      mensaje = this.isOwner ? 'Cerrando Sesión. Espere...' : 'Espere...';
       this._alertas.successDialog.fire({
         position: 'center',
         title: 'Cambios guardados!',
@@ -234,30 +248,33 @@ export class UsuarioEditarComponent {
         didOpen: () => {
           //Si este mensaje se dispara, es pq todo funcionó
           //Se limpian algunos campos
-          
+
           this.passAnterior.setValue('');
           this.pass.setValue('');
           this.passConfirm.setValue('');
           this.editUsuario.updateValueAndValidity();
           this.ready = false;
-          
+
           //Se oculta el modal
-          this.llamaModal.nativeElement.dispatchEvent(new Event('click', { bubbles: true }));
-          
+          this.llamaModal.nativeElement.dispatchEvent(
+            new Event('click', { bubbles: true })
+          );
+
           //Si los cambios afectan al Usuario logueado, se cierra la Sesión
-          if(this.isOwner) {
+          if (this.isOwner) {
             this._usuariosService.passportLogout().then(() => {
               this.route.navigateByUrl('/home');
-            })
+            });
           } else {
+            //Si el cambio lo hizo un Admin o Encargado, se vuelve al listado de Usuarios
             this.ready = true;
             this.route.navigateByUrl('/usuarios');
-          }          
+          }
         },
-        
       });
     }
-    
+
     this.loading = false;
+    this._usuariosService.mostrarSpinner(this.loading, 'usuario_detalle');
   }
 }

@@ -35,10 +35,12 @@
       <!-- Si se carga desde cero los datos -->
       <div *ngIf="nuevo && eleccion">
         <div class="row justify-content-center">
-          <app-form-persona
-            [nuevo]="true"
-            (emitPersona)="listenNuevo($event)"
-          ></app-form-persona>
+          <div class="col-md-12">
+            <app-form-persona
+              [nuevo]="true"
+              (emitPersona)="listenNuevo($event)"
+            ></app-form-persona>
+          </div>
         </div>
       </div>
 

@@ -23,10 +23,20 @@ class Chofer {
 
   detalleChofer = async (req, res) => {
     let { id } = req.params; //Recupera el id enviado por parámetro
-    let sql = `SELECT p.persona_id, p.apellido, p.nombre, p.direccion,
-                      p.telefono, p.email, DATE_FORMAT(p.fecha_nac, '%Y-%m-%d') AS fecha_nac,
-                      c.chofer_id, c.carnet_nro, c.habilitado, 
-                      DATE_FORMAT(c.carnet_vence, '%Y-%m-%d') AS carnet_vence  
+    
+    // La query con DATE_FORMAT devuelve el formato aceptado por el input "date"
+    // Reemplazada por la query sin DATE_FORMAT por el uso del "ng-pick-datetime"
+
+    // let sql = `SELECT p.persona_id, p.apellido, p.nombre, p.direccion,
+    //                   p.telefono, p.email, DATE_FORMAT(p.fecha_nac, '%Y-%m-%d') AS fecha_nac,
+    //                   c.chofer_id, c.carnet_nro, c.habilitado, 
+    //                   DATE_FORMAT(c.carnet_vence, '%Y-%m-%d') AS carnet_vence  
+    //             FROM personas p JOIN choferes c
+    //               ON p.persona_id = c.persona_id
+    //            WHERE c.chofer_id = ?`;
+    let sql = `SELECT p.persona_id, p.apellido, p.nombre, 
+                      p.direccion, p.telefono, p.email, p.fecha_nac,
+                      c.chofer_id, c.carnet_nro, c.habilitado, c.carnet_vence 
                 FROM personas p JOIN choferes c
                   ON p.persona_id = c.persona_id
                WHERE c.chofer_id = ?`;
@@ -52,6 +62,11 @@ class Chofer {
         carnet_vence,
         habilitado,
       } = req.body; //Recupera los campos enviados desde el form
+
+      //Si se recibe una fecha, se convierte a formato Fecha válido
+      if(fecha_nac) {
+        fecha_nac = new Date(fecha_nac);
+      }      
 
       let chofer = { apellido, nombre, habilitado };
       console.log(chofer);
@@ -92,6 +107,9 @@ class Chofer {
       let chofer = { carnet_nro, carnet_vence };
       console.log(chofer);
 
+      //Convierte los valores recibidos a formato Fecha válido
+      carnet_vence = new Date(carnet_vence); 
+
       //Inserta sólo los datos extra del Chofer Nuevo, referenciando el id del Adherente ya cargado
       let sql = `INSERT INTO choferes (persona_id, carnet_nro, carnet_vence, habilitado)
                   VALUES(?,?,?,?)`;
@@ -117,6 +135,9 @@ class Chofer {
     try {
       let { id } = req.params; //Recupera el id enviado por parámetro
       let { carnet_nro, carnet_vence } = req.body; //Recupera los campos enviados desde el form
+      
+      //Convierte los valores recibidos a formato Fecha válido
+      carnet_vence = new Date(carnet_vence);
       
       let sql = `UPDATE choferes SET 
                         carnet_nro=?, carnet_vence=?

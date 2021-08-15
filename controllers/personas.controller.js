@@ -13,6 +13,11 @@ class Persona {
         fecha_nac = null,
       } = req.body; //Recupera los campos enviados desde el form
 
+      //Si se recibe una fecha, se convierte a formato Fecha válido
+      if(fecha_nac) {
+        fecha_nac = new Date(fecha_nac);
+      }      
+
       let sql = `UPDATE personas SET 
                         apellido=?, nombre=?, direccion=?, 
                         telefono=?, email=?, fecha_nac=?

@@ -33,10 +33,20 @@ class Movil {
 
   detalleMovil = async (req, res) => {
     let { id } = req.params; //Recupera el id enviado por parámetro
+    
+    // La query con DATE_FORMAT devuelve el formato aceptado por el input "date"
+    // Reemplazada por la query sin DATE_FORMAT por el uso del "ng-pick-datetime"
+    
+    // let sql = `SELECT m.movil_id, m.adherente_id, m.tipo_movil_id, m.marca, m.modelo,  
+    //                   m.descripcion, m.dominio, m.nro_habilitacion, 
+    //                   m.nro_interno, m.anio_fabr, m.chofer_pref, 
+    //                   DATE_FORMAT(m.fecha_itv, '%Y-%m-%d') AS fecha_itv, m.seguro
+    //             FROM moviles m 
+    //            WHERE m.movil_id = ?`;
     let sql = `SELECT m.movil_id, m.adherente_id, m.tipo_movil_id, m.marca, m.modelo,  
                       m.descripcion, m.dominio, m.nro_habilitacion, 
                       m.nro_interno, m.anio_fabr, m.chofer_pref, 
-                      DATE_FORMAT(m.fecha_itv, '%Y-%m-%d') AS fecha_itv, m.seguro
+                      m.fecha_itv, m.seguro
                 FROM moviles m 
                WHERE m.movil_id = ?`;
     const results = await conexion.query(sql, [id]);
@@ -65,6 +75,11 @@ class Movil {
         seguro = null,
       } = req.body; //Recupera los campos enviados desde el form
 
+      //Si se recibe una fecha, se convierte a formato Fecha válido
+      if(fecha_itv) {
+        fecha_itv = new Date(fecha_itv);
+      }
+      
       let movil = { marca, modelo, nro_interno, nro_habilitacion };
       console.log(movil);
 
@@ -124,6 +139,11 @@ class Movil {
         seguro = null,
       } = req.body; //Recupera los campos enviados desde el form
 
+      //Si se recibe una fecha, se convierte a formato Fecha válido
+      if(fecha_itv) {
+        fecha_itv = new Date(fecha_itv);
+      }
+      
       let sql = `CALL update_movil(?,?,?,?,?,?,?,?,?,?,?,?,?)`;
       const results = await conexion
         .query(sql, [
