@@ -1,21 +1,24 @@
-<div class="container-fluid mb-3 rounded">
-  <div class="card">
+<div *ngIf="ready && errorMessage == ''" class="container-fluid mb-3 rounded">
+  <div class="card animate__animated animate__fadeIn">
     <div class="card-header-form">
-      <div class="row">
-        <div class="col-md-2 offset-md-1 mt-2">
-          <a class="btn btn-outline-warning" [routerLink]="['/moviles']"
-            >Cancelar</a
-          >
-        </div>
-        <div class="col-md-8 h4 mt-3 text-center text-white">
-          Alta de Nuevo Móvil
-        </div>
-      </div>
+      <div class="h4 m-3 px-3 text-center text-white clearfix">
+        <button
+          class="float-left btn btn-sm btn-outline-warning"
+          [routerLink]="['/moviles']"
+        >
+          Cancelar
+        </button>
+        Alta de Nuevo Móvil
+      </div>      
     </div>
     <div class="card-body back-form shadow-effect">
       <app-form-movil
-        [nuevo]="true"
+        [nuevo]="nuevo"
+        [listaAdherentes]="listaAdherentes"
+        [listaChoferes]="listaChoferes"
+        [listaTipos]="listaTipos"
         (emitMovil)="listenMovil($event)"
       ></app-form-movil>
     </div>
   </div>
+</div>

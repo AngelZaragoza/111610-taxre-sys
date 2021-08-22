@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Viaje } from '../classes/viaje.model';
+import { MovilesService } from './moviles.service';
 import { RequestService } from './request.service';
 import { UsuariosService } from './usuarios.service';
 
@@ -9,21 +10,30 @@ import { UsuariosService } from './usuarios.service';
   providedIn: 'root',
 })
 export class ViajesService {
+  //Listados
   tiposViaje: any[] = [];
   estadosViaje: any[] = [];
   listaChoferes: any[] = [];
   listaMoviles: any[] = [];
   listaPendientesActivos: any[] = [];
+  
+  //Auxiliares
   pendientesObs$: Subject<any>;
   isIniciado: boolean = false;
 
   constructor(
     private _conexion: RequestService,
-    private _usuarios: UsuariosService
+    private _usuarios: UsuariosService,
+    private _moviles: MovilesService
   ) {
     //Instancia el objeto que será retornado como Observable
     this.pendientesObs$ = new Subject();
     // this.cargarListas();
+    
+    this._moviles.movilesObs$.subscribe((lista) => {
+      this.listaMoviles = lista;
+      console.log('---- Moviles en Viajes Actualizado ----');
+    })
     console.log('Viajes listo');
   }
 
@@ -32,20 +42,20 @@ export class ViajesService {
   async cargarListas() {
     if (this._usuarios.user.logged) {
       await Promise.all([
-        this.getLista('/viajes/tipos').then(
-          (lista) => (this.tiposViaje = lista)
-        ),
-        this.getLista('/viajes/estados').then(
-          (lista) => (this.estadosViaje = lista)
-        ),
-        this.getLista('/choferes').then(
-          (lista) => (this.listaChoferes = lista)
-        ),
-        this.getLista('/moviles').then(
-          (lista) => (this.listaMoviles = lista)
-        ),
+        this.getLista('/viajes/tipos'),
+        this.getLista('/viajes/estados'),
+        this.getLista('/choferes'),
+        this.getLista('/moviles'),
       ])
-        .then(() => (this.isIniciado = true))
+        .then((listas) => {
+          [
+            this.tiposViaje,
+            this.estadosViaje,
+            this.listaChoferes,
+            this.listaMoviles,
+          ] = listas;
+          this.isIniciado = true;
+        })
         .catch((error) => console.log('Listas no cargadas', error));
     }
   }
@@ -86,10 +96,10 @@ export class ViajesService {
   async getViajesEntreFechas(objQuery: any) {
     //Destructura el objQuery para facilidad de lectura
     let { fechaIni, fechaFin, cant, pag } = objQuery;
-    
+
     let lista: Viaje[] = [];
     //Concatena los diferentes strings para la query
-    let query = `ini=${fechaIni}&fin=${fechaFin}&cant=${cant}&pag=${pag}`
+    let query = `ini=${fechaIni}&fin=${fechaFin}&cant=${cant}&pag=${pag}`;
 
     await this._conexion
       .request('GET', `${environment.serverUrl}/viajes/hist-fechas?${query}`)

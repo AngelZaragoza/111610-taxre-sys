@@ -10,21 +10,34 @@
 >
 
 <!-- Contenido -->
-<div *ngIf="lista.length > 0" class="container-fluid p-3 mb-3 rounded">
-  <div class="row">
+<div class="container-fluid p-3 mb-3 rounded">
+  <!-- Inicio componente -->
+  <div *ngIf="lista.length > 0 && !loading && errorMessage == ''" class="row">
     <div class="col-md-5">
-      <div class="card">
+      <div class="card animate__animated animate__fadeInLeft animate__faster">
         <div class="card-header-list">
-          <div class="h4 m-3 text-center text-white">Móviles Registrados</div>
+          <div class="h4 m-3 px-3 text-center text-white clearfix">
+            Móviles Registrados
+            <button
+              *ngIf="isAdmin || isManager"
+              class="float-right w-25 btn btn-sm btn-success"
+              [routerLink]="['nuevo']"
+            >
+              <i class="fas fa-user-plus"></i>
+              &nbsp; Nuevo...
+            </button>
+          </div>
+
+          <!-- <div class="h4 m-3 text-center text-white">Móviles Registrados</div> -->
         </div>
         <div class="card-body back-form shadow-effect">
           <div class="table-responsive">
             <table class="table table-hover">
               <thead class="thead-light">
                 <tr>
-                  <th scope="col">Tipo</th>
-                  <th scope="col">Móv.</th>                  
-                  <th scope="col">Chapa</th>
+                  <th scope="col" style="width: 70px;">Tipo</th>
+                  <th scope="col" class="text-center" style="width: 60px;">Móv.</th>
+                  <th scope="col" class="text-center" style="width: 60px;">Chapa</th>
                   <th scope="col">Adherente</th>
                   <th scope="col">Acciones</th>
                 </tr>
@@ -32,8 +45,10 @@
               <tbody>
                 <tr *ngFor="let movil of lista">
                   <td scope="row">{{ movil.tipo }}</td>
-                  <td class="font-weight-bold">{{ movil.nro_interno }}</td>                  
-                  <td>{{ movil.nro_habilitacion }}</td>
+                  <td class="font-weight-bold text-center">
+                    {{ movil.nro_interno | number:'2.0-0' }}
+                  </td>
+                  <td class="text-center">{{ movil.nro_habilitacion | number:'3.0-0'}}</td>
                   <td>{{ movil.adherente }}</td>
                   <td>
                     <a
@@ -54,6 +69,34 @@
       <router-outlet></router-outlet>
     </div>
   </div>
+  <!-- Mensajes de Error -->
+  <div *ngIf="!loading && errorMessage != ''" class="row">
+    <div
+      class="
+        form-group
+        align-middle
+        alert alert-info
+        animate__animated animate__fadeIn
+      "
+      role="alert"
+    >
+      <div class="text-center" style="color: #4db8c8">
+        <i class="far fa-folder-open fa-7x"></i>
+      </div>
+      <h5 class="text-center">
+        {{ errorMessage }}
+      </h5>
+      <button
+        *ngIf="isAdmin || isManager"
+        class="float-right btn btn-sm btn-success"
+        [routerLink]="['nuevo']"
+      >
+        <i class="fas fa-user-plus"></i>
+        &nbsp; Nuevo...
+      </button>
+    </div>
+  </div>
+  <!-- Fin Mensajes de Error -->
 </div>
 
-<h4 *ngIf="!loading && errorMessage !== ''">{{ errorMessage }}</h4>
+<!-- <h4 *ngIf="!loading && errorMessage !== ''">{{ errorMessage }}</h4> -->

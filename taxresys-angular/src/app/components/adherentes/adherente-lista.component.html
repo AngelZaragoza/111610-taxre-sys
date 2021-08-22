@@ -12,7 +12,7 @@
 <!-- Contenido -->
 <div class="container-fluid p-3 mb-3 rounded">
   <!-- Inicio componente -->
-  <div *ngIf="lista.length > 0 && !loading" class="row">
+  <div *ngIf="lista.length > 0 && !loading && errorMessage == ''" class="row">
     <div class="col-md-5">
       <div class="card animate__animated animate__fadeIn">
         <div class="card-header-list">
@@ -58,9 +58,7 @@
     </div>
     <div class="col-md-7">
       <!-- Aquí se renderiza la ruta hija -->
-      <router-outlet
-        (deactivate)="cerradoForm($event)"
-      ></router-outlet>
+      <router-outlet></router-outlet>
     </div>
   </div>
   <!-- Mensajes de Error -->
@@ -89,6 +87,6 @@
         &nbsp; Nuevo...
       </button>
     </div>
-    <!-- Fin Mensajes de Error -->
   </div>
+  <!-- Fin Mensajes de Error -->
 </div>

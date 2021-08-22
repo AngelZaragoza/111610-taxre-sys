@@ -122,11 +122,11 @@
                       <label for="alias" class="col-sm-4 col-form-label"
                         >Confirmación: &nbsp;<span *ngIf="passConfirm.touched">
                           <i
-                            *ngIf="passConfirm.valid"
+                            *ngIf="passConfirm.valid && !newUsuario.errors?.nocoincide"
                             class="fas fa-check-circle text-success"
                           ></i>
                           <i
-                            *ngIf="passConfirm.invalid"
+                            *ngIf="passConfirm.invalid || newUsuario.errors?.nocoincide"
                             class="fas fa-times-circle text-danger"
                           ></i>
                         </span>

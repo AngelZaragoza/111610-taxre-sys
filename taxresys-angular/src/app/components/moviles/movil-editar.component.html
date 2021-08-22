@@ -3,17 +3,29 @@
   bdColor="rgba(233, 236, 239, 0.1)"
   size="medium"
   color="#f5627c"
-  type="ball-circus"
+  type="line-scale-pulse-out"
   [fullScreen]="false"
   name="movil_detalle"
   ><p style="color: black; font-weight: bold">Cargando...</p></ngx-spinner
 >
 
 <!-- Contenido -->
-<div *ngIf="!loading" class="container-fluid mb-3 rounded">
-  <div class="card">
+<div *ngIf="ready && errorMessage ==''" class="container-fluid mb-3 rounded">
+  <div class="card animate__animated animate__fadeIn">
     <div class="card-header-form">
-      <div class="row">
+      <div class="h4 m-3 px-3 text-center text-white clearfix">
+        Detalles
+        <button
+          (click)="activarEdicion()"
+          class="float-right ml-3 w-25 btn btn-sm btn-info"
+          [disabled]="!isAdmin && !isManager"
+        >
+          <i class="fas fa-taxi"></i>
+          &nbsp; Editar
+        </button>
+      </div>
+
+      <!-- <div class="row">
         <div class="col-md-8 h4 mt-3 text-center text-white">Detalles</div>
         <div class="col-md-3 mt-2">
           <button (click)="activarEdicion()" class="btn btn-info btn-block">
@@ -21,7 +33,7 @@
             Editar
           </button>
         </div>
-      </div>
+      </div> -->
     </div>
     <div class="card-body back-form shadow-effect">
       <!-- Aquí se renderiza el componente con el form datosMovil -->
@@ -30,7 +42,11 @@
           <app-form-movil
             [movil]="movil"
             [editar]="editar"
-            [nuevo]="false"
+            [nuevo]="nuevo"
+            [loading]="loading"
+            [listaAdherentes]="listaAdherentes"
+            [listaChoferes]="listaChoferes"
+            [listaTipos]="listaTipos"
             (emitEstado)="editar = $event"
             (emitMovil)="listenMovil($event)"
           ></app-form-movil>

@@ -1,5 +1,7 @@
 const express = require("express");
 const dotenv = require("dotenv").config();
+const path = require('path');
+
 const conexion = require("../db/db-connection");
 const cors = require("cors");
 const usuarios = require("../routes/usuarios.route");
@@ -23,13 +25,14 @@ require('../lib/passport');
 
 const app = express();
 const corsOptions = {
-  origin: 'http://localhost:4200',
+  origin: process.env.ORIGIN,
   credentials: true
 }
 
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(express.static('./files'));
 
 //*****************************************
 //Configuración del middleware de sesiones
@@ -76,6 +79,9 @@ const port = Number(process.env.PORT || 3400);
 //*****************************************
 //Configuración de las rutas del servidor
 //*****************************************
+
+//Apunta por defecto a la carpeta 'files'
+app.use(express.static(path.join(__dirname, 'files')));
 
 app.use("/usuarios", usuarios);
 app.use("/adherentes", adherentes);

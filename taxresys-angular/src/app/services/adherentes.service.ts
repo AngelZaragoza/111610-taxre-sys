@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Subject } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { RequestService } from './request.service';
 
@@ -6,34 +7,36 @@ import { RequestService } from './request.service';
   providedIn: 'root',
 })
 export class AdherentesService {
+  //Auxiliares
+  adherentesObs$: Subject<any>;
+
   constructor(private _conexion: RequestService) {
+    //Instancia el objeto que será retornado como Observable
+    this.adherentesObs$ = new Subject();
     console.log('Adherentes listo');
   }
- 
 
   //Métodos de manejo de Adherentes
   //*******************************
   async getAdherentes() {
-    let lista: any[] = [];
-    await this._conexion.request('GET', `${environment.serverUrl}/adherentes`)
-      .then((res: any[]) => {
-        lista = res.map((u) => u);
-      })
-      .catch((err: any) => {
-        console.log(err);
-        lista[0] = err;
-      });
-
-    console.log('Lista adherentes:', lista);
-    return lista;
+    try {
+      let lista = await this._conexion.request(
+        'GET',
+        `${environment.serverUrl}/adherentes`
+      );
+      //Emite la lista de Adherentes para actualizar cualquier suscriptor
+      this.adherentesObs$.next(lista);
+      return lista;
+    } catch (error) {
+      console.log(error);
+      return error;
+    }
   }
 
   async detalleAdherente(id: Number) {
     let adherente: any;
-    await this._conexion.request(
-      'GET',
-      `${environment.serverUrl}/adherentes/detalle/${id}`
-    )
+    await this._conexion
+      .request('GET', `${environment.serverUrl}/adherentes/detalle/${id}`)
       .then((res: any) => {
         adherente = res;
       })
@@ -42,34 +45,52 @@ export class AdherentesService {
   }
 
   async nuevoAdherenteFull(nuevo: any) {
-    let adh: any;
-    await this._conexion.request(
-      'POST',
-      `${environment.serverUrl}/adherentes/nuevo`,
-      nuevo
-    )
-      .then((res) => (adh = res))
-      .catch((err) => (adh = err));
-    return adh;
+    try {
+      let adh = await this._conexion.request(
+        'POST',
+        `${environment.serverUrl}/adherentes/nuevo`,
+        nuevo
+      );
+      this.getAdherentes();
+      return adh;
+    } catch (error) {
+      console.log(error);
+      return error;
+    }
   }
+  // async nuevoAdherenteFull(nuevo: any) {
+  //   let adh: any;
+  //   await this._conexion.request(
+  //     'POST',
+  //     `${environment.serverUrl}/adherentes/nuevo`,
+  //     nuevo
+  //   )
+  //     .then((res) => (adh = res))
+  //     .catch((err) => (adh = err));
+  //   return adh;
+  // }
 
   async updatePersona(persona: any, id: Number) {
     let pers: any;
-    await this._conexion.request(
-      'PUT',
-      `${environment.serverUrl}/adherentes/detalle/${id}`,
-      persona
-    ).then((res) => (pers = res));
+    await this._conexion
+      .request(
+        'PUT',
+        `${environment.serverUrl}/adherentes/detalle/${id}`,
+        persona
+      )
+      .then((res) => (pers = res));
+    this.getAdherentes();
     return pers;
   }
 
   async updateAdherente(adherente: any, id: Number) {
     let adh: any;
-    await this._conexion.request(
-      'PATCH',
-      `${environment.serverUrl}/adherentes/detalle/${id}`,
-      adherente
-    )
+    await this._conexion
+      .request(
+        'PATCH',
+        `${environment.serverUrl}/adherentes/detalle/${id}`,
+        adherente
+      )
       .then((res) => (adh = res))
       .catch((err) => (adh = err));
     return adh;

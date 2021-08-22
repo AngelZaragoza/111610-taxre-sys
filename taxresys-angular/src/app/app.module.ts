@@ -9,7 +9,7 @@ import {
   OwlDateTimeModule,
   OwlNativeDateTimeModule,
   OWL_DATE_TIME_LOCALE,
-  OwlDateTimeIntl
+  OwlDateTimeIntl,
 } from 'ng-pick-datetime';
 import { DefaultIntl } from './classes/default-intl';
 import { NgxSpinnerModule } from 'ngx-spinner';
@@ -103,7 +103,7 @@ import { FiltroChoferEstadoPipe } from './pipes/filtro-chofer-estado.pipe';
     HttpClientModule,
     OwlDateTimeModule,
     OwlNativeDateTimeModule,
-    NgxSpinnerModule,    
+    NgxSpinnerModule,
   ],
   providers: [
     // UsuariosService,
@@ -113,7 +113,7 @@ import { FiltroChoferEstadoPipe } from './pipes/filtro-chofer-estado.pipe';
     // TurnosService,
     // RequestService,
     { provide: OWL_DATE_TIME_LOCALE, useValue: 'es-ar' },
-    { provide: OwlDateTimeIntl, useClass: DefaultIntl }
+    { provide: OwlDateTimeIntl, useClass: DefaultIntl },
   ],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

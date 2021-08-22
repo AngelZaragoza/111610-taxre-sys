@@ -40,22 +40,7 @@ class Jornada {
 
   jornadasActivas = async (req, res) => {
     try {
-      /* ** Consulta Original: no devuelve las últimas jornadas creadas. Deprecada **
-      
-      //Con LEFT JOIN trae todos los móviles aunque no tengan una jornada creada aún.
-      let sql = `SELECT m.movil_id, m.nro_interno, m.nro_habilitacion, m.chofer_pref, 
-                        t.nombre AS tipo, CONCAT(m.marca, ' ', m.modelo) as marca_modelo,
-                        j.jornada_id, j.chofer_id, j.turno_inicio, 
-                        j.hora_inicio, j.turno_cierre, j.hora_cierre 
-                   FROM tipos_movil t JOIN moviles m
-                     ON t.tipo_movil_id = m.tipo_movil_id
-                   LEFT JOIN jornadas_moviles j
-                     ON m.movil_id = j.movil_id
-                  GROUP BY m.movil_id
-                  ORDER BY m.nro_interno`;
-      */
-
-      // *** CONSULTA CORRECTA: Devuelve siempre las últimas Jornadas creadas ***
+      /* ** Consulta Original: no devuelve TODOS los Móviles. Deprecada **
       let sql = `SELECT m.movil_id, m.nro_interno, m.nro_habilitacion, m.chofer_pref,
                         t.nombre AS tipo, CONCAT(m.marca, ' ', m.modelo) AS modelo, 
                         j.jornada_id, j.chofer_id, j.turno_inicio, 
@@ -66,6 +51,24 @@ class Jornada {
                      ON j.movil_id = m.movil_id
                   WHERE j.jornada_id IN
                         (SELECT MAX(jm.jornada_id) FROM jornadas_moviles jm GROUP BY jm.movil_id)
+                  ORDER BY m.nro_interno ASC`;
+      */
+
+      // *** CONSULTA CORRECTA: Devuelve siempre las últimas Jornadas creadas ***
+      //Con LEFT JOIN trae todos los móviles aunque no tengan una jornada creada aún.
+      let sql = `SELECT m.movil_id, m.nro_interno, m.nro_habilitacion, m.chofer_pref, 
+                        t.nombre AS tipo, CONCAT(m.marca, ' ', m.modelo) AS modelo,
+                        j.jornada_id, j.chofer_id, j.turno_inicio, 
+                        j.hora_inicio, j.turno_cierre, j.hora_cierre 
+                   FROM tipos_movil t INNER JOIN moviles m
+                     ON t.tipo_movil_id = m.tipo_movil_id
+                   LEFT JOIN jornadas_moviles j
+                     ON j.movil_id = m.movil_id
+                    AND j.jornada_id IN 
+                        (SELECT MAX(jm.jornada_id) 
+                           FROM jornadas_moviles jm 
+                          GROUP BY jm.movil_id)
+                  GROUP BY m.movil_id
                   ORDER BY m.nro_interno ASC`;
       
       const lista = await conexion.query(sql);

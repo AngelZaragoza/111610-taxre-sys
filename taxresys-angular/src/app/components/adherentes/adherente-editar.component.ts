@@ -1,4 +1,4 @@
-import { Component, DoCheck, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AdherentesService } from '../../services/adherentes.service';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
@@ -30,6 +30,7 @@ export class AdherenteEditarComponent {
   editar: boolean;
   loading: boolean;
   ready: boolean;
+  errorMessage: string = '';
   changes: boolean;
 
   constructor(
@@ -85,17 +86,25 @@ export class AdherenteEditarComponent {
   //**********************
   async detalleAdherente(id) {
     this.loading = true;
+    this.ready = false;
     this._usuariosService.mostrarSpinner(this.loading, 'adh_detalle');
-    this.detalle = await this._adherentesService.detalleAdherente(id);
-
-    for (let field in this.detalle) {
-      //Toma los campos del detalle y los divide en sus respectivos objetos
-      if (this.adherente[field] !== undefined)
-        this.adherente[field] = this.detalle[field];
-      if (this.persona[field] !== undefined)
-        this.persona[field] = this.detalle[field];
+    
+    try {
+      this.detalle = await this._adherentesService.detalleAdherente(id);
+      for (let field in this.detalle) {
+        //Toma los campos del detalle y los divide en sus respectivos objetos
+        if (this.adherente[field] !== undefined)
+          this.adherente[field] = this.detalle[field];
+        if (this.persona[field] !== undefined)
+          this.persona[field] = this.detalle[field];
+      }
+      this.ready = true;
+      this.errorMessage = '';
+    } catch (error) {
+      this.ready = false;
+      this.errorMessage = error.error?.message;
     }
-
+    
     this.loading = false;
     this._usuariosService.mostrarSpinner(this.loading, 'adh_detalle');
   }
@@ -107,8 +116,6 @@ export class AdherenteEditarComponent {
   listenPersona(persona) {
     //Recibe el objeto "persona" desde el evento del componente hijo
     this.persona = persona;
-    this.activarEdicion();
-    //console.table(this.persona);
     this.updatePersona();
   }
 
@@ -138,15 +145,12 @@ export class AdherenteEditarComponent {
         position: 'center',
         title: 'Cambios guardados!',
         text: 'Espere...',
+        didOpen: () => {
+          this.activarEdicion();
+        },
       });
     }
-
-    // if (result['success']) {
-    //   alert(`Datos Actualizados!: ${result['resp']['info']}`);
-    //   // this.route.navigateByUrl('/home');
-    // } else {
-    //   alert(`Algo falló`);
-    // }
+    
     this.loading = false;
     this._usuariosService.mostrarSpinner(this.loading, 'adh_detalle');
     this.ready = true;

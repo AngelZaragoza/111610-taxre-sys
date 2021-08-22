@@ -1,4 +1,6 @@
 const bcrypt = require("bcrypt");
+const dotenv = require("dotenv");
+dotenv.config();
 const conexion = require("../db/db-connection");
 
 class Usuario {
@@ -239,15 +241,20 @@ class Usuario {
   //**********************************
 
   getUsuario = async (field, value) => {
-    // Sentencia original: trataba los strings como case insensitive
-    // let sql = `SELECT * FROM usuarios WHERE ${field} = ?`;
+    let sql = '';
 
-    // Si el campo a buscar es "alias", se convierte la comparación a case sensitive,
-    // caso contrario 'Admin' sería igual de válido que 'admin' o 'ADmiN'
-    let sql =
-      field == "alias"
-        ? `SELECT * FROM usuarios WHERE ${field} = CONVERT(? USING utf8mb4) COLLATE utf8mb4_0900_as_cs`
-        : `SELECT * FROM usuarios WHERE ${field} = ?`;
+    if(process.env.DB_VERSION != 8 ) {
+      // Se trata los strings como case insensitive (MySQL versiones anteriores a la 8)
+      sql = `SELECT * FROM usuarios WHERE ${field} = ?`;
+    } else {
+      // Si el campo a buscar es "alias", se convierte la comparación a case sensitive,
+      // caso contrario 'Admin' sería igual de válido que 'admin' o 'ADmiN'
+      // (Funciona en MySQL versiones 8+)
+      sql =
+        field == "alias"
+          ? `SELECT * FROM usuarios WHERE ${field} = CONVERT(? USING utf8mb4) COLLATE utf8mb4_0900_as_cs`
+          : `SELECT * FROM usuarios WHERE ${field} = ?`;
+    }
     
     const user = await conexion.query(sql, [value]);
     if (user.length > 0) {

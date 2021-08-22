@@ -1,5 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { AdherentesService } from 'src/app/services/adherentes.service';
 import { UsuariosService } from 'src/app/services/usuarios.service';
 
@@ -8,7 +9,7 @@ import { UsuariosService } from 'src/app/services/usuarios.service';
   templateUrl: './adherente-lista.component.html',
   styles: [],
 })
-export class AdherenteListaComponent implements OnInit {
+export class AdherenteListaComponent implements OnInit, OnDestroy {
   //Listado
   lista: any[] = [];
 
@@ -18,6 +19,7 @@ export class AdherenteListaComponent implements OnInit {
   //Auxiliares
   errorMessage: string = '';
   loading: boolean;
+  listaSub: Subscription;
 
   constructor(
     private _adherentesService: AdherentesService,
@@ -53,14 +55,33 @@ export class AdherenteListaComponent implements OnInit {
     }
     this.loading = false;
     this._usuariosService.mostrarSpinner(this.loading, 'adh_lista');
+    
+    this.listenUpdates();
   }
   
-  cerradoForm(event: any): void {
-    //Se ejecuta cuando un componente en una ruta hija se destruye
-    if (event['changes']) {
-      //Si la propiedad ready desde el event es true, se actualiza la lista
-      this.getAdherentes();
-    }
-    // this.formAbierto = false;
+  listenUpdates(): void {
+    //Se suscribe a los cambios en la lista de Adherentes
+    this.listaSub = this._adherentesService.adherentesObs$.subscribe((lista) => {
+      if (lista[0] instanceof HttpErrorResponse) {
+        this.errorMessage = lista[0]['error']['message'];
+      }  else {
+        this.errorMessage = '';
+      }
+      this.lista = lista;
+    })
+  }
+  
+  // cerradoForm(event: any): void {
+  //   //Se ejecuta cuando un componente en una ruta hija se destruye
+  //   if (event['changes']) {
+  //     //Si la propiedad ready desde el event es true, se actualiza la lista
+  //     this.getAdherentes();
+  //   }
+  //   // this.formAbierto = false;
+  // }
+
+  ngOnDestroy(): void {
+    //Destruye la suscripción
+    this.listaSub.unsubscribe();
   }
 }

@@ -82,13 +82,7 @@ class Movil {
       
       let movil = { marca, modelo, nro_interno, nro_habilitacion };
       console.log(movil);
-
-      // let sql = `INSERT INTO moviles (
-      //                   adherente_id, tipo_movil_id, marca, modelo,  
-      //                   descripcion, dominio, nro_habilitacion, nro_interno, 
-      //                   anio_fabr, chofer_pref, fecha_itv, seguro
-      //                   )
-      //             VALUES(?,?,?,?,?,?,?,?,?,?,?,?)`;
+      
       let sql = `CALL nuevo_movil(?,?,?,?,?,?,?,?,?,?,?,?)`
       const results = await conexion
         .query(sql, [
@@ -106,10 +100,10 @@ class Movil {
           seguro,
         ])
         .then((resp) => {
-          console.log("CALL NUEVO =>", resp);
+          console.log("CALL NUEVO =>", resp[0][0]);
           return res
             .status(201)
-            .json({ success: true, action: "added", movil, resp });
+            .json({ success: true, action: "added", movil, resp: resp[0][0] });
         })
         .catch((err) => {
           console.log("Error interno", err);
@@ -162,10 +156,10 @@ class Movil {
           seguro          
         ])
         .then((resp) => {
-          console.log("CALL UPDATE =>", resp);
+          console.log("CALL UPDATE =>", resp[0][0]);
           return res
             .status(200)
-            .json({ success: "true", action: "updated", resp });
+            .json({ success: "true", action: "updated", resp: resp[0][0] });
         })
         .catch((err) => {
           console.log("Error en update", err);

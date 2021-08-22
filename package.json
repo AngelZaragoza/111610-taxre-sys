@@ -1,6 +1,9 @@
 {
   "name": "111610-tax-re-sys",
   "version": "1.0.0",
+  "engines": {
+    "node": "13.14.0"
+  },
   "description": "Server de la API Rest del proyecto TaxReSys",
   "main": "src/server.js",
   "scripts": {
