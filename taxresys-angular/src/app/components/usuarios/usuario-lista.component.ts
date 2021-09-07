@@ -15,11 +15,13 @@ export class UsuarioListaComponent implements OnInit {
   userLogged: any = {};
   
   //Auxiliares
-  errorMessage: string;
   loading: boolean;
+  errorMessage: string;
+  nombreComponente: string;
   
   constructor( private _usuariosService: UsuariosService ) { 
     this.errorMessage = '';
+    this.nombreComponente = 'usr_lista';
   }
 
   ngOnInit(): void {
@@ -45,39 +47,24 @@ export class UsuarioListaComponent implements OnInit {
   get isAdmin(): boolean {
     return this.userLogged.rol_id == 1;
   }
+  
+  get isManager(): boolean {
+    return this.userLogged.rol_id == 2;
+  }
 
-  async getUsuarios() {
-    
-    //Implementar ngIf de Cargando...
+  //Métodos del componente
+  //*******************
+  async getUsuarios() {        
     this.loading = true;
-    this._usuariosService.mostrarSpinner(this.loading, 'usuario_lista');
+    this._usuariosService.mostrarSpinner(this.loading, this.nombreComponente);
     this.lista = await this._usuariosService.getUsuarios();
-    if (this.lista[0] instanceof HttpErrorResponse) {
-      this._handleError(this.lista[0]);
-      this.errorMessage = this.lista['error']['message'];
-    } else {
+    
+    if (this.lista instanceof HttpErrorResponse) {      
+      this.errorMessage = this.lista.error['message'];
+    } else {      
       this.errorMessage = '';
     }
     this.loading = false;
-    this._usuariosService.mostrarSpinner(this.loading, 'usuario_lista');
-  }
-
-  cerradoForm(event: any): void {
-    console.log('Outlet desactivado', event);
-    if(event['ready']) {
-      //Si la propiedad ready desde el event es true, se actualiza la lista
-      this.getUsuarios();
-    }
-    // this.formAbierto = false;
-  }
-
-
-  _handleError(error:Error) {
-    if(error['status'] === 401) 
-      console.log('Error auth', error.message);
-    if(error['status'] === 404)
-      console.log('Error not found', error.message);
-      
-    
+    this._usuariosService.mostrarSpinner(this.loading, this.nombreComponente);
   }
 }

@@ -5,6 +5,7 @@ body {
   /* background-color: hsl(59 92% 71%) !important; */
   /* background-color: #fbee5d !important; */
   background-color: #dfdddd !important;
+  min-height: 100vh;
   padding-bottom: 50px;
 }
 
@@ -15,12 +16,6 @@ textarea {
 /* Colores */
 .fondo-navbar {
   background-color: #243e58 !important;
-}
-
-.fondo-titulo {
-  /* background-color: #f4f123 !important; */
-  /* background-color: #fbee5d !important; */
-  background-color: #f9ee72b0 !important;
 }
 
 .card-header-form {
@@ -48,31 +43,11 @@ textarea {
   box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
 }
 
-/* Animaciones */
-.animated {
-  -webkit-animation-duration: 1s;
-  animation-duration: 1s;
-  -webkit-animation-fill-mode: both;
-  animation-fill-mode: both;
+/* Misceláneos */
+.error-solo {
+  padding: 15vh 0;  
 }
 
-.fast {
-  -webkit-animation-duration: 0.4s;
-  animation-duration: 0.4s;
-  -webkit-animation-fill-mode: both;
-  animation-fill-mode: both;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
-}
-
-.fadeIn {
-  animation-name: fadeIn;
+.error-embedded {
+  padding: 3rem 0;  
 }

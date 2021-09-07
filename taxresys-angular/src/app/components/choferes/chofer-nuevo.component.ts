@@ -12,6 +12,7 @@ import { Persona } from '../../classes/persona';
 import { Chofer } from '../../classes/chofer';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
+import { AlertasService } from 'src/app/services/alertas.service';
 
 @Component({
   selector: 'app-chofer-nuevo',
@@ -21,7 +22,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 export class ChoferNuevoComponent implements OnInit {
   //Crea una referencia a un elemento del DOM
   @ViewChild('comboAdh', { read: ElementRef }) comboAdh: ElementRef;
-  @ViewChild('carnet', { read: ElementRef }) carnet: ElementRef;
+  @ViewChild('formCarnet', { read: ElementRef }) formCarnet: ElementRef;
 
   lista: any[] = [];
 
@@ -33,32 +34,30 @@ export class ChoferNuevoComponent implements OnInit {
   //Formulario
   newChofer: FormGroup;
 
-  //Listo para guardar nuevo Chofer
+  //Auxiliares
   ready: boolean;
   nuevo: boolean;
   loading: boolean;
   eleccion: boolean;
+  errorMessage: string;
 
   constructor(
     private _adherentesService: AdherentesService,
     private _choferesService: ChoferesService,
     private formBuilder: FormBuilder,
+    private _alertas: AlertasService,
     private route: Router
   ) {
     //Listo para guardar nuevo Chofer: false
     this.ready = false;
     this.nuevo = false;
     this.eleccion = false;
+    this.errorMessage = '';
   }
 
   ngOnInit(): void {
     this.getAdherentes();
     this.initForm();
-  }
-
-  //Recupera la lista de Adherentes
-  async getAdherentes() {
-    this.lista = await this._adherentesService.getAdherentes();
   }
 
   //Inicializa el formulario con valores por defecto
@@ -73,6 +72,29 @@ export class ChoferNuevoComponent implements OnInit {
       carnet_vence: new FormControl('', Validators.required),
       habilitado: new FormControl(1),
     });
+  }
+
+  //Accesores del Form
+  //*******************
+  get carnet() {
+    return this.newChofer.get('carnet_nro');
+  }
+
+  get vencimiento() {
+    return this.newChofer.get('carnet_vence');
+  }
+
+  //Métodos del componente
+  //**********************
+  //Recupera la lista de Adherentes
+  async getAdherentes() {
+    try {
+      this.lista = await this._adherentesService.getAdherentes();
+      this.errorMessage = '';
+      this.ready = true;
+    } catch (error) {
+      this.errorMessage = error.error?.message;
+    }
   }
 
   nuevoDesdeCero() {
@@ -91,14 +113,10 @@ export class ChoferNuevoComponent implements OnInit {
 
   listenNuevo(persona: Persona) {
     //Recibe el objeto "persona" desde el evento del componente hijo
-    this.persona = persona;
+    this.persona = persona;    
 
-    console.log('Nueva Persona =>');
-    console.table(this.persona);
-
-    //Invoca el click en el botón oculto
-    console.log(this.carnet);
-    this.carnet.nativeElement.dispatchEvent(
+    //Invoca el click en el botón oculto    
+    this.formCarnet.nativeElement.dispatchEvent(
       new Event('click', { bubbles: true, cancelable: true })
     );
   }
@@ -106,7 +124,7 @@ export class ChoferNuevoComponent implements OnInit {
   //Muestra el modal con el formulario para los datos del Carnet
   modalCarnet(event?: Event) {
     let persona_id;
-    console.log('Evento =>', event);
+    // console.log('Evento =>', event);
 
     if (!this.nuevo) {
       persona_id = this.comboAdh.nativeElement.value;
@@ -117,8 +135,10 @@ export class ChoferNuevoComponent implements OnInit {
         //Se impide la apertura del modal interrumpiendo el botón
         event.stopImmediatePropagation();
 
-        //A mejorar aspecto...
-        alert('Debe seleccionar un Adherente');
+        this._alertas.problemDialog.fire({
+          title: 'Error',
+          text: 'Debe seleccionar un Adherente',
+        });
       } else {
         //Setea el valor en el campo correspondiente del form y abre el modal
         this.newChofer.get('persona_id').setValue(persona_id);
@@ -126,44 +146,74 @@ export class ChoferNuevoComponent implements OnInit {
     }
   }
 
-  async saveChofer() {
-    this.loading = true;
+  confirmaGuardado() {
+    //Recibe el objeto con los datos adicionales del Chofer del form
     this.chofer = { ...this.newChofer.value };
 
-    //Pide confirmación para el guardado (a mejorar aspecto...)
-    if (confirm(`Guardar nuevo Chofer?`)) {
-      let result: any;
+    let mensaje = `¿Guarda el Nuevo Chofer: ${this.persona.apellido}, ${this.persona.nombre}?`;
+    this._alertas.confirmDialog
+      .fire({
+        title: 'Guardar Datos',
+        text: mensaje,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Confirmar',
+        cancelButtonText: 'Cancelar',
+      })
+      .then((result) => {
+        if (result.isConfirmed) {
+          //Si el usuario confirma, se llama el método que guarda en la DB
+          this.saveChofer();
+        }
+      });
+  }
+
+  async saveChofer() {
+    this.loading = true;
+    let mensaje: string;
+    let result: any;
+
+    try {
       //Si nuevo es true, se crea un objeto "detalle" uniendo "persona" y "chofer" y se envía al servicio
       if (this.nuevo) {
         this.detalle = { ...this.persona, ...this.chofer };
-        console.table(this.detalle);
+        // console.table(this.detalle);
         result = await this._choferesService.nuevoChofer(
           this.detalle,
           this.nuevo
         );
       } else {
-        //Si nuevo es false, se envía el objeto "chofer" al servicio
+        //Si nuevo es false, se envía solamente el objeto "chofer" al servicio
         result = await this._choferesService.nuevoChofer(
           this.chofer,
           this.nuevo
         );
       }
-
-      if (result instanceof HttpErrorResponse) {
-        alert(
-          `Algo falló:\n${result.error.err?.code} \n ${result.statusText}\nNo se guardaron datos.`
-        );
-      } else {
-        alert(`Nuevo Chofer guardado!`);
-        let cerrar = document.querySelector('#cerrar');
-        cerrar.dispatchEvent(new Event('click', { bubbles: true }));
-
-        //Flag para indicar al elemento padre que debe recargar lista
-        this.ready = true;
-        this.route.navigateByUrl('/choferes');
-      }
+    } catch (error) {
+      result = error;
     }
 
+    if (result instanceof HttpErrorResponse) {
+      mensaje = `${result['error']['message']} -- ${result['statusText']} -- No se guardaron datos.`;
+      this._alertas.problemDialog.fire({
+        title: 'Algo falló',
+        text: mensaje,
+      });
+    } else {
+      mensaje = `Nuevo Chofer Creado. Espere...`;
+      this._alertas.successDialog.fire({
+        position: 'center',
+        title: 'Chofer Guardado!',
+        text: mensaje,
+        didOpen: () => {
+          this.ready = false;
+          this.formCarnet.nativeElement.dispatchEvent(
+            new Event('click', { bubbles: true })
+          );
+          this.route.navigateByUrl('/choferes');
+        },
+      });
+    }
     this.loading = false;
   }
 }

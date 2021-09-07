@@ -78,17 +78,15 @@
             type="button"
             (click)="confirmaGuardado()"
             class="btn btn-primary"
-          >
-            <!-- <button type="button" (click)=" modal.close('Guardado')" class="btn btn-primary"> -->
+          >            
             <i
               [ngClass]="loading ? 'fas fa-sync-alt fa-spin' : 'fas fa-save'"
             ></i>
-            <span *ngIf="!loading"> Guardar Adherente</span>
-            <span *ngIf="loading"> Guardando...</span>
+            <span *ngIf="!loading">&nbsp; Guardar Adherente</span>
+            <span *ngIf="loading">&nbsp; Guardando...</span>
           </button>
         </div>
       </div>
-    </ng-template>
-    <!-- </div> -->
+    </ng-template>    
   </div>
 </div>

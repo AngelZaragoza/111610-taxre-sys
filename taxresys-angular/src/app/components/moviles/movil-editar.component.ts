@@ -137,7 +137,7 @@ export class MovilEditarComponent implements OnInit {
     }
 
     if (result instanceof HttpErrorResponse) {
-      mensaje = `${result['error']['message']} -- ${result['statusText']} -- No se guardaron datos.`;
+      mensaje = `${result.error['message']} -- ${result.error['status']} -- No se guardaron datos.`;
       this._alertas.problemDialog.fire({
         title: 'Algo falló',
         text: mensaje,

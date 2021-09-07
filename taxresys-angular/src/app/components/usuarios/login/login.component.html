@@ -1,84 +1,90 @@
-<div class="container mb-3 rounded animate__animated animate__fadeInRight animate__faster">
-  <div class="row justify-content-center">
-    <div class="col-md-6 mt-3">
-      <div class="card">
-        <div class="card-header-form">
-          <div class="h4 mt-3 text-center text-white">
-            Introduzca su información de Login
+<div class="error-solo d-flex align-items-center">
+  <div class="container mb-3 rounded">
+    <div class="row justify-content-center">
+      <div class="col-md-6 mt-3">
+        <div
+          class="card animate__animated animate__fadeInRight animate__faster"
+        >
+          <div class="card-header-form">
+            <div class="h4 mt-3 text-center text-white">
+              Login de Usuario
+            </div>
           </div>
-        </div>
-        <div class="card-body back-form shadow-effect">
-          <div class="row justify-content-center">
-            <div class="col-md-10">
-              <form [formGroup]="forma" (ngSubmit)="logIn()">
-                <fieldset [disabled]="desactivar">
-                  <div class="form-group">
-                    <label for="usuario" class="col-form-label">Usuario:</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      [ngClass]="{
-                        'border-danger':
-                          !forma.get('usuario').valid &&
-                          forma.get('usuario').touched
-                      }"
-                      formControlName="usuario"
-                      placeholder="Usuario"
-                    />
-                    <div
-                      *ngIf="
-                        forma.controls['usuario'].errors?.required &&
-                        forma.controls['usuario'].touched
-                      "
-                      class="text-danger"
-                    >
-                      Ingrese nombre de usuario
-                    </div>
-                  </div>
-                  <div class="form-group">
-                    <label for="pass" class="col-form-label">Password:</label>
-                    <input
-                      type="password"
-                      class="form-control"
-                      [ngClass]="{
-                        'border-danger':
-                          !forma.get('pass').valid && forma.get('pass').touched
-                      }"
-                      formControlName="pass"
-                      placeholder="Password"
-                    />
-                    <div *ngIf="forma.get('pass').touched" class="text-danger">
-                      <div *ngIf="forma.get('pass').errors?.required">
-                        Ingrese password
-                      </div>
-                      <div *ngIf="forma.get('pass').errors?.minlength">
-                        El password debe contener al menos
-                        {{ minChar }} caracteres
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div class="form-group row">
-                    <div class="col-sm-6 offset-sm-6">
-                      <button
-                        type="submit"
-                        class="btn btn-primary btn-block"
-                        [disabled]="forma.invalid || loading"
+          <div class="card-body back-form shadow-effect">
+            <div class="row justify-content-center">
+              <div class="col-md-10">
+                <form [formGroup]="datosLogin" (ngSubmit)="logIn()">
+                  <fieldset [disabled]="desactivar">
+                    <div class="form-group">
+                      <label for="usuario" class="col-form-label"
+                        >Usuario:</label
                       >
-                        <i
-                          [ngClass]="
-                            loading
-                              ? 'fas fa-sync-alt fa-spin'
-                              : 'fas fa-sign-in-alt'
-                          "
-                        ></i>
-                        <span *ngIf="!loading"> &nbsp; Verificar</span>
-                        <span *ngIf="loading"> &nbsp; Verificando...</span>
-                      </button>
+                      <input
+                        type="text"
+                        class="form-control"
+                        [ngClass]="{
+                          'border-danger': usuario.touched && !usuario.valid
+                        }"
+                        formControlName="usuario"
+                        placeholder="Usuario"
+                      />
+                      <div *ngIf="usuario.touched" class="text-danger">
+                        <div
+                          *ngIf="usuario.errors?.required"
+                          class="text-danger"
+                        >
+                          Ingrese nombre de Usuario
+                        </div>
+                        <div *ngIf="usuario.errors?.minlength">
+                          El Usuario debe contener al menos
+                          {{ minChar }} caracteres
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </fieldset>
-              </form>
+                    <div class="form-group">
+                      <label for="pass" class="col-form-label">Password:</label>
+                      <input
+                        type="password"
+                        class="form-control"
+                        [ngClass]="{
+                          'border-danger': pass.touched && !pass.valid
+                        }"
+                        formControlName="pass"
+                        placeholder="Password"
+                      />
+                      <div *ngIf="pass.touched" class="text-danger">
+                        <div *ngIf="pass.errors?.required">
+                          Ingrese Password
+                        </div>
+                        <div *ngIf="pass.errors?.minlength">
+                          El Password debe contener al menos
+                          {{ minChar }} caracteres
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="form-group row">
+                      <div class="col-sm-6 offset-sm-6">
+                        <button
+                          type="submit"
+                          class="btn btn-primary btn-block"
+                          [disabled]="datosLogin.invalid || loading"
+                        >
+                          <i
+                            [ngClass]="
+                              loading
+                                ? 'fas fa-sync-alt fa-spin'
+                                : 'fas fa-sign-in-alt'
+                            "
+                          ></i>
+                          <span *ngIf="!loading"> &nbsp; Verificar</span>
+                          <span *ngIf="loading"> &nbsp; Verificando...</span>
+                        </button>
+                      </div>
+                    </div>
+                  </fieldset>
+                </form>
+              </div>
             </div>
           </div>
         </div>

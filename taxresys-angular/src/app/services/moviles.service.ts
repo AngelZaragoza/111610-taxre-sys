@@ -31,12 +31,18 @@ export class MovilesService {
     this.minMaxITV();
     //Instancia el objeto que será retornado como Observable
     this.movilesObs$ = new Subject();
-    
+
     //Se suscribe a los cambios en el Módulo de Adherentes
     this._adherentes.adherentesObs$.subscribe((lista) => {
       console.log('---- Adherentes en Moviles Actualizado ----');
       this.listaAdherentes = lista;
-    })
+    });
+
+    //Se suscribe a los cambios en el Módulo de Choferes
+    this._choferes.choferesObs$.subscribe((lista) => {
+      console.log('---- Choferes en Moviles Actualizado ----');
+      this.listaChoferes = lista;
+    });
   }
 
   async cargarListas() {
@@ -152,11 +158,15 @@ export class MovilesService {
     let reducir: number;
 
     // Actualiza el nro de móviles de los Adherentes involucrados
-    aumentar = this.listaAdherentes.findIndex((adh) => adh['adherente_id'] == actual);
+    aumentar = this.listaAdherentes.findIndex(
+      (adh) => adh['adherente_id'] == actual
+    );
     this.listaAdherentes[aumentar].moviles_activos += 1;
 
     if (action == 'updated' && anterior != actual) {
-      reducir = this.listaAdherentes.findIndex((adh) => adh['adherente_id'] == anterior);
+      reducir = this.listaAdherentes.findIndex(
+        (adh) => adh['adherente_id'] == anterior
+      );
       this.listaAdherentes[reducir].moviles_activos -= 1;
     }
   }

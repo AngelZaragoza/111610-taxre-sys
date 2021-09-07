@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Viaje } from '../classes/viaje.model';
+import { ChoferesService } from './choferes.service';
 import { MovilesService } from './moviles.service';
 import { RequestService } from './request.service';
 import { UsuariosService } from './usuarios.service';
@@ -16,7 +17,7 @@ export class ViajesService {
   listaChoferes: any[] = [];
   listaMoviles: any[] = [];
   listaPendientesActivos: any[] = [];
-  
+
   //Auxiliares
   pendientesObs$: Subject<any>;
   isIniciado: boolean = false;
@@ -24,16 +25,22 @@ export class ViajesService {
   constructor(
     private _conexion: RequestService,
     private _usuarios: UsuariosService,
-    private _moviles: MovilesService
+    private _moviles: MovilesService,
+    private _choferes: ChoferesService
   ) {
     //Instancia el objeto que será retornado como Observable
     this.pendientesObs$ = new Subject();
-    // this.cargarListas();
-    
+
+    //Se suscribe a los cambios en el Módulo de Móviles
     this._moviles.movilesObs$.subscribe((lista) => {
       this.listaMoviles = lista;
       console.log('---- Moviles en Viajes Actualizado ----');
-    })
+    });
+    //Se suscribe a los cambios en el Módulo de Choferes
+    this._choferes.choferesObs$.subscribe((lista) => {
+      console.log('---- Choferes en Viajes Actualizado ----');
+      this.listaChoferes = lista;
+    });
     console.log('Viajes listo');
   }
 
@@ -56,7 +63,10 @@ export class ViajesService {
           ] = listas;
           this.isIniciado = true;
         })
-        .catch((error) => console.log('Listas no cargadas', error));
+        .catch((error) => {
+          console.log('Listas no cargadas', error);
+          this.isIniciado = false;
+        });
     }
   }
 

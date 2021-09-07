@@ -32,7 +32,8 @@ export class UsuarioEditarComponent {
   editar: boolean;
   loading: boolean;
   ready: boolean;
-  changes: boolean;
+  errorMessage: string = '';
+  nombreComponente: string;
 
   constructor(
     private _usuariosService: UsuariosService,
@@ -40,6 +41,7 @@ export class UsuarioEditarComponent {
     private _alertas: AlertasService,
     private route: Router
   ) {
+    this.nombreComponente = 'usr_detalle';
     this.roles = this._usuariosService.roles;
 
     //Inicializar los controles del Form
@@ -52,14 +54,16 @@ export class UsuarioEditarComponent {
       this.idParam = params['usuario_id'];
       this.editar = false;
       this.ready = false;
-      this.changes = false;
 
       this.detalleUsuario(this.idParam).finally(() => {
-        this.editUsuario.get('persona_id').setValue(this.usuario.persona_id);
-        this.editUsuario.get('usuario_id').setValue(this.usuario.usuario_id);
-        this.editUsuario.get('rol_id').setValue(this.usuario.rol_id);
-        this.editUsuario.get('alias').setValue(this.usuario.alias);
-        this.ready = true;
+        if (this.ready) {
+          this.personaId.setValue(this.usuario.persona_id);
+          this.userId.setValue(this.usuario.usuario_id);
+          this.userName.setValue(this.usuario.alias);
+          this.rolSelect.setValue(this.usuario.rol_id);
+        } else {
+          console.warn(this.errorMessage);
+        }
       });
     });
   }
@@ -114,10 +118,18 @@ export class UsuarioEditarComponent {
 
   //Accesores del Form
   //*******************
+  get personaId() {
+    return this.editUsuario.get('persona_id');
+  }
+
+  get userId() {
+    return this.editUsuario.get('usuario_id');
+  }
+
   get rolSelect() {
     return this.editUsuario.get('rol_id');
   }
-  
+
   get userName() {
     return this.editUsuario.get('alias');
   }
@@ -137,21 +149,27 @@ export class UsuarioEditarComponent {
   //Métodos del componente
   //**********************
   async detalleUsuario(id: number) {
-    this.loading = true;
-    this._usuariosService.mostrarSpinner(this.loading, 'usuario_detalle');
+    this.loading = true;    
+    this._usuariosService.mostrarSpinner(this.loading, this.nombreComponente);
 
     this.detalle = await this._usuariosService.detalleUsuario(id);
-
-    for (let field in this.detalle) {
-      //Toma los campos del detalle y los divide en sus respectivos objetos
-      if (this.usuario[field] !== undefined)
-        this.usuario[field] = this.detalle[field];
-      if (this.persona[field] !== undefined)
-        this.persona[field] = this.detalle[field];
+    if (this.detalle instanceof HttpErrorResponse) {
+      this.ready = false;
+      this.errorMessage = this.detalle.error['message'];
+    } else {
+      for (let field in this.detalle) {
+        //Toma los campos del detalle y los divide en sus respectivos objetos
+        if (this.usuario[field] !== undefined)
+          this.usuario[field] = this.detalle[field];
+        if (this.persona[field] !== undefined)
+          this.persona[field] = this.detalle[field];
+      }
+      this.ready = true;
+      this.errorMessage = '';
     }
 
     this.loading = false;
-    this._usuariosService.mostrarSpinner(this.loading, 'usuario_detalle');
+    this._usuariosService.mostrarSpinner(this.loading, this.nombreComponente);
   }
 
   activarEdicion() {
@@ -161,25 +179,21 @@ export class UsuarioEditarComponent {
   listenPersona(persona) {
     //Recibe el objeto "persona" desde el evento del componente hijo
     this.persona = persona;
-    this.activarEdicion();
     this.updatePersona();
   }
 
   async updatePersona() {
     this.loading = true;
+    this._usuariosService.mostrarSpinner(this.loading, this.nombreComponente);
     let mensaje: string;
-    let result: any;
-    try {
-      result = await this._usuariosService.updatePersona(
-        this.persona,
-        this.persona.persona_id
-      );
-    } catch (error) {
-      result = error;
-    }
+    let result = await this._usuariosService.updatePersona(
+      '/usuarios',
+      this.persona,
+      this.persona.persona_id
+    );
 
     if (result instanceof HttpErrorResponse) {
-      mensaje = `${result['error']['message']} -- ${result['statusText']} -- No se guardaron datos.`;
+      mensaje = `${result.error['message']} -- ${result.error['status']} -- No se guardaron datos.`;
       this._alertas.problemDialog.fire({
         title: 'Algo falló',
         text: mensaje,
@@ -189,52 +203,45 @@ export class UsuarioEditarComponent {
         position: 'center',
         title: 'Cambios guardados!',
         text: 'Espere...',
+        didOpen: () => {
+          this.activarEdicion();
+        },
       });
-      this.changes = true;
     }
 
     this.loading = false;
+    this._usuariosService.mostrarSpinner(this.loading, this.nombreComponente);
   }
 
   confirmaGuardado() {
     let mensaje = this.isOwner
-      ? 'Su Sesión se cerrará. Deberá hacer LogIn nuevamente'
+      ? 'Su Sesión se cerrará. Deberá hacer Log In nuevamente'
       : 'Se actualizarán los Datos de Acceso del Usuario';
     this._alertas.confirmDialog
       .fire({
         title: 'Guardar Datos de Usuario',
         text: mensaje,
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'Confirmar',
-        cancelButtonText: 'Cancelar',
+        icon: 'warning',
       })
       .then((result) => {
         if (result.isConfirmed) {
-          //Si el usuario confirma, se envía el objeto Viaje al método guardar
-          this.saveUsuario();
+          //Si el usuario confirma, se invoca el método que guarda en la DB
+          this.updateUsuario();
         }
       });
   }
 
-  async saveUsuario() {
+  async updateUsuario() {
     this.loading = true;
-    this._usuariosService.mostrarSpinner(this.loading, 'usuario_detalle');
     let mensaje: string;
-    let result: any;
 
-    // console.log('Form', this.editUsuario.value);
-    try {
-      result = await this._usuariosService.updateUsuario(
-        this.editUsuario.value,
-        this.usuario.usuario_id
-      );
-    } catch (error) {
-      result = error;
-    }
+    let result = await this._usuariosService.updateUsuario(
+      this.editUsuario.value,
+      this.usuario.usuario_id
+    );
 
     if (result instanceof HttpErrorResponse) {
-      mensaje = `${result['error']['message']} -- ${result['statusText']} -- No se guardaron datos.`;
+      mensaje = `${result.error['message']} -- ${result.error['status']} -- No se guardaron datos.`;
       this._alertas.problemDialog.fire({
         title: 'Algo falló',
         text: mensaje,
@@ -248,12 +255,10 @@ export class UsuarioEditarComponent {
         didOpen: () => {
           //Si este mensaje se dispara, es pq todo funcionó
           //Se limpian algunos campos
-
           this.passAnterior.setValue('');
           this.pass.setValue('');
           this.passConfirm.setValue('');
           this.editUsuario.updateValueAndValidity();
-          this.ready = false;
 
           //Se oculta el modal
           this.llamaModal.nativeElement.dispatchEvent(
@@ -262,12 +267,16 @@ export class UsuarioEditarComponent {
 
           //Si los cambios afectan al Usuario logueado, se cierra la Sesión
           if (this.isOwner) {
-            this._usuariosService.passportLogout().then(() => {
-              this.route.navigateByUrl('/home');
-            });
+            this._usuariosService
+              .passportLogout()
+              .then(() => {
+                this.route.navigateByUrl('/home');
+              })
+              .catch((error: HttpErrorResponse) => {
+                this.errorMessage = error.error['message'];
+              });
           } else {
             //Si el cambio lo hizo un Admin o Encargado, se vuelve al listado de Usuarios
-            this.ready = true;
             this.route.navigateByUrl('/usuarios');
           }
         },
@@ -275,6 +284,5 @@ export class UsuarioEditarComponent {
     }
 
     this.loading = false;
-    this._usuariosService.mostrarSpinner(this.loading, 'usuario_detalle');
   }
 }

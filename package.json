@@ -1,6 +1,6 @@
 {
   "name": "111610-tax-re-sys",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "engines": {
     "node": "13.14.0"
   },

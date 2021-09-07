@@ -17,12 +17,15 @@ export class AlertasService {
         confirmButton: 'btn btn-primary',
         cancelButton: 'btn btn-secondary',
       },
+      showCancelButton: true,
+      confirmButtonText: 'Confirmar',
+      cancelButtonText: 'Cancelar',
       buttonsStyling: true,
     });
 
     this.successDialog = Swal.mixin({
       icon: 'success',
-      timer: 3000,
+      timer: 2500,
       timerProgressBar: true,
       showConfirmButton: false,
     });
@@ -31,12 +34,10 @@ export class AlertasService {
       icon: 'error',
       position: 'center',
     });
-    
+
     this.infoDialog = Swal.mixin({
       icon: 'info',
       position: 'center',
     });
-
-
   }
 }

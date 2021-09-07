@@ -3,141 +3,170 @@
   bdColor="rgba(233, 236, 239, 0.1)"
   size="medium"
   color="#f5627c"
-  type="ball-circus"
+  type="line-scale-pulse-out"
   [fullScreen]="false"
   name="chofer_detalle"
   ><p style="color: black; font-weight: bold">Cargando...</p></ngx-spinner
 >
 
 <!-- Contenido -->
-<div *ngIf="!loading" class="container-fluid mb-3 rounded">
-  <div class="card">
-    <div class="card-header-form">
-      <div class="row">
-        <div class="col-md-5 h4 mt-3 text-center text-white">Detalles</div>
-        <div class="col-md-3 mt-2">
-          <button (click)="activarEdicion()" class="btn btn-info btn-block">
-            <i class="fas fa-id-card"> </i>
-            Editar
-          </button>
-        </div>
-        <div class="col-md-3 mt-2">
-          <button
-            type="button"
-            id="toggleModal"
-            data-toggle="modal"
-            data-target="#editCarnet"
-            class="btn btn-info btn-block"
-          >
-            <i class="fas fa-id-card-alt"></i>
-            Extra
-          </button>
-        </div>
-      </div>
-    </div>
-    <div class="card-body back-form shadow-effect">
-      <!-- Aquí se renderiza el componente con el form datosPersona -->
-      <app-form-persona
-        [persona]="persona"
-        [editar]="editar"
-        [nuevo]="false"
-        (emitEstado)="editar = $event"
-        (emitPersona)="listenPersona($event)"
-      ></app-form-persona>
-    </div>
-  </div>
-
-  <!-- Modal -->
-  <div
-    class="modal fade"
-    id="editCarnet"
-    #editCarnet
-    data-backdrop="static"
-    data-keyboard="false"
-    tabindex="-1"
-    aria-labelledby="staticBackdropLabel"
-    aria-hidden="true"
-  >
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="staticBackdropLabel">
-            Editar Datos Adicionales del Chofer
-          </h5>
-          <button
-            id="cerrar"
-            type="button"
-            class="close"
-            data-dismiss="modal"
-            aria-label="Close"
-          >
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          <div class="container justify-content-between">
-            <form [formGroup]="editChofer">
-              <div class="form-group row">
-                <label for="carnet_nro" class="col-sm-5 col-form-label"
-                  >Tipo Carnet - Nro.:
-                </label>
-                <div class="col-sm-7">
-                  <input
-                    type="text"
-                    formControlName="carnet_nro"
-                    class="form-control"
-                    aria-describedby="helpId"
-                    [ngClass]="{
-                      'border-danger':
-                        editChofer.get('carnet_nro').invalid &&
-                        editChofer.get('carnet_nro').touched
-                    }"
-                  />
-                  <small id="helpId" class="text-muted"
-                    >Ejemplo: "D1-25666666" (Sin las comillas)</small
-                  >
-                </div>
-              </div>
-              <div class="form-group row">
-                <label for="carnet_vence" class="col-md-5 col-form-label"
-                  >Fecha Vencimiento:</label
-                >
-                <div class="col-md-7">
-                  <input
-                    type="date"
-                    class="form-control"
-                    formControlName="carnet_vence"
-                    [ngClass]="{
-                      'border-danger':
-                        editChofer.get('carnet_vence').invalid &&
-                        editChofer.get('carnet_vence').touched
-                    }"
-                  />
-                </div>
-              </div>
-            </form>
+<div class="container-fluid mb-3 rounded">
+  <div *ngIf="ready && errorMessage == ''" class="row">
+    <div class="col">
+      <div class="card animate__animated animate__fadeIn">
+        <div class="card-header-form">
+          <div class="h4 m-3 px-3 text-center text-white clearfix">
+            Detalles
+            <button
+              (click)="activarEdicion()"
+              class="float-right ml-3 w-25 btn btn-sm btn-info"
+              [disabled]="!isAdmin && !isManager"
+            >
+              <i class="fas fa-id-card"></i>
+              &nbsp; Editar
+            </button>
+            <button
+              type="button"
+              #toggleModal
+              data-toggle="modal"
+              data-target="#editCarnet"
+              class="float-right ml-3 w-25 btn btn-sm btn-info"
+              [disabled]="!isAdmin && !isManager"
+            >
+              <i class="fas fa-id-card-alt"></i>
+              &nbsp; Extra
+            </button>
           </div>
         </div>
 
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">
-            Cancelar
-          </button>
-          <button
-            type="button"
-            #updateCho
-            (click)="updateChofer()"
-            class="btn btn-primary"
-            [disabled]="editChofer.invalid || loading"
-          >
-            <i
-              [ngClass]="loading ? 'fas fa-sync-alt fa-spin' : 'far fa-save'"
-            ></i>
-            <span *ngIf="!loading"> Guardar Cambios</span>
-            <span *ngIf="loading"> Guardando...</span>
-          </button>
+        <div class="card-body back-form shadow-effect">
+          <!-- Aquí se renderiza el componente con el form datosPersona -->
+          <app-form-persona
+            [persona]="persona"
+            [editar]="editar"
+            [nuevo]="false"
+            (emitEstado)="editar = $event"
+            (emitPersona)="listenPersona($event)"
+          ></app-form-persona>
         </div>
       </div>
+      <!-- Modal -->
+      <div
+        class="modal fade"
+        id="editCarnet"
+        data-backdrop="static"
+        data-keyboard="false"
+        tabindex="-1"
+        aria-labelledby="staticBackdropLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="staticBackdropLabel">
+                Editar Datos Adicionales del Chofer
+              </h5>
+              <button
+                type="button"
+                class="close"
+                data-dismiss="modal"
+                aria-label="Close"
+              >
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="container justify-content-between">
+                <form [formGroup]="editChofer">
+                  <div class="form-group row">
+                    <label for="carnet_nro" class="col-sm-5 col-form-label"
+                      >Tipo Carnet - Nro.:
+                    </label>
+                    <div class="col-sm-7">
+                      <input
+                        type="text"
+                        formControlName="carnet_nro"
+                        class="form-control"
+                        aria-describedby="helpId"
+                        [ngClass]="{
+                          'border-danger': carnet.touched && carnet.invalid
+                        }"
+                      />
+                      <small id="helpId" class="text-muted"
+                        >Ejemplo: "D1-25666666" (Sin las comillas)</small
+                      >
+                    </div>
+                  </div>
+                  <div class="form-group row">
+                    <label for="carnet_vence" class="col-sm-5 col-form-label"
+                      >Fecha Vencimiento:</label
+                    >
+                    <div class="col-sm-7">
+                      <input
+                        [owlDateTime]="venceCarnet"
+                        [owlDateTimeTrigger]="venceCarnet"
+                        class="form-control"
+                        formControlName="carnet_vence"
+                        placeholder="Vencim. Carnet"
+                        [ngClass]="{
+                          'border-danger':
+                            vencimiento.touched && vencimiento.invalid
+                        }"
+                      />
+                      <owl-date-time
+                        [pickerType]="'calendar'"
+                        #venceCarnet
+                      ></owl-date-time>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-dismiss="modal"
+              >
+                Descartar Cambios
+              </button>
+              <button
+                type="button"
+                (click)="confirmaGuardado()"
+                class="btn btn-primary"
+                [disabled]="editChofer.invalid || loading"
+              >
+                <i
+                  [ngClass]="
+                    loading ? 'fas fa-sync-alt fa-spin' : 'fas fa-save'
+                  "
+                ></i>
+                <span *ngIf="!loading">&nbsp; Guardar Cambios</span>
+                <span *ngIf="loading">&nbsp; Guardando...</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Fin Modal -->
     </div>
   </div>
+  <!-- Mensajes de Error -->
+  <div *ngIf="!loading && errorMessage != ''" class="row">
+    <div class="col">
+      <app-error
+        [origin]="'chf_detalle'"
+        [errorMessage]="errorMessage"
+      ></app-error>      
+      <button
+        *ngIf="isAdmin || isManager"
+        class="float-right btn btn-sm btn-success"
+        [routerLink]="['/choferes', 'nuevo']"
+      >
+        <i class="fas fa-user-plus"></i>
+        &nbsp; Nuevo...
+      </button>
+    </div>
+  </div>
+  <!-- Fin Mensajes de Error -->
 </div>

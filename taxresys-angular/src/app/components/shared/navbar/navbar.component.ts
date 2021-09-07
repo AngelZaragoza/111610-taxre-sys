@@ -1,8 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { AlertasService } from 'src/app/services/alertas.service';
 import { UsuariosService } from 'src/app/services/usuarios.service';
 import { ViajesService } from 'src/app/services/viajes.service';
-import Swal from 'sweetalert2/dist/sweetalert2.all.js';
 
 @Component({
   selector: 'app-navbar',
@@ -17,6 +17,7 @@ export class NavbarComponent implements OnInit {
   constructor(
     private _usuariosService: UsuariosService,
     private _viajesService: ViajesService,
+    private _alertas: AlertasService,
     private route: Router
   ) {}
 
@@ -46,7 +47,8 @@ export class NavbarComponent implements OnInit {
     });
   }
 
-  //Recupera datos del servicio de Usuarios
+  //Métodos accesores en general
+  //****************************
   get isLogged(): boolean {
     return this.userLogged.logged;
   }
@@ -55,22 +57,56 @@ export class NavbarComponent implements OnInit {
     return this.userLogged.open;
   }
 
-  async logout() {
-    let mensaje = `${this.userLogged.alias}: Sesión Cerrada`;
-    await this._usuariosService.passportLogout().then(() => {
-      this.pendientes = 0;
-      Swal.fire({
-        title: mensaje,
-        icon: 'info',
-        position: 'center',
+  //Métodos del componente
+  //**********************
+  confirmaLogout() {
+    this._alertas.confirmDialog
+      .fire({
+        title: `¿Desea Cerrar la Sesión?`,
+        text: `${this.userLogged.alias}`,
+        icon: 'question',
+        position: 'top-end',
         toast: true,
-        timer: 3500,
+        // showCancelButton: true,
+        // confirmButtonText: 'Confirmar',
+        // cancelButtonText: 'Cancelar',
+      })
+      .then((result) => {
+        if (result.isConfirmed) {
+          //Si el usuario confirma, se invoca el método para cerrar sesión
+          this.logOut();
+        }
+      });
+  }
+
+  async logOut() {
+    try {
+      let mensaje = `${this.userLogged.alias}: `;
+      let result = await this._usuariosService.passportLogout();
+      if (result['status'] === 200) {
+        mensaje += result['message'];
+        this.pendientes = 0;
+        this._alertas.infoDialog.fire({
+          title: mensaje,
+          toast: true,
+          timer: 3000,
+          timerProgressBar: true,
+          showConfirmButton: false,
+          didOpen: () => {
+            this.route.navigateByUrl('/home');
+          },
+        });
+      }
+    } catch (error) {
+      console.error('Logout Error =>', error);
+      this._alertas.problemDialog.fire({
+        title: error['error'].message,
+        position: 'top',
+        toast: true,
+        timer: 3000,
         timerProgressBar: true,
         showConfirmButton: false,
-        didOpen: () => {
-          this.route.navigateByUrl('/home');
-        },
       });
-    });
+    }
   }
 }

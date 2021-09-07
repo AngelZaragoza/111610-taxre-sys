@@ -31,7 +31,7 @@ export class AdherenteEditarComponent {
   loading: boolean;
   ready: boolean;
   errorMessage: string = '';
-  changes: boolean;
+  nombreComponente: string;
 
   constructor(
     public _adherentesService: AdherentesService,
@@ -39,6 +39,9 @@ export class AdherenteEditarComponent {
     private _usuariosService: UsuariosService,
     private _alertas: AlertasService
   ) {
+    this.nombreComponente = 'adh_detalle';
+
+    //Inicializar los controles del Form
     this.editAdherente = new FormGroup({
       persona_id: new FormControl(0),
       adherente_id: new FormControl(0),
@@ -53,13 +56,13 @@ export class AdherenteEditarComponent {
       this.idParam = params['adherente_id'];
       this.editar = false;
       this.ready = false;
-      this.changes = false;
 
       this.detalleAdherente(this.idParam).finally(() => {
-        console.table(this.adherente);
-        console.table(this.persona);
-        this.editAdherente.setValue(this.adherente);
-        this.ready = true;
+        if (this.ready) {          
+          this.editAdherente.setValue(this.adherente);
+        } else {
+          console.warn(this.errorMessage);
+        }
       });
     });
   }
@@ -85,12 +88,14 @@ export class AdherenteEditarComponent {
   //Métodos del componente
   //**********************
   async detalleAdherente(id) {
-    this.loading = true;
-    this.ready = false;
-    this._usuariosService.mostrarSpinner(this.loading, 'adh_detalle');
-    
-    try {
-      this.detalle = await this._adherentesService.detalleAdherente(id);
+    this.loading = true;    
+    this._usuariosService.mostrarSpinner(this.loading, this.nombreComponente);
+
+    this.detalle = await this._adherentesService.detalleAdherente(id);
+    if (this.detalle instanceof HttpErrorResponse) {
+      this.ready = false;
+      this.errorMessage = this.detalle.error['message'];
+    } else {
       for (let field in this.detalle) {
         //Toma los campos del detalle y los divide en sus respectivos objetos
         if (this.adherente[field] !== undefined)
@@ -100,13 +105,10 @@ export class AdherenteEditarComponent {
       }
       this.ready = true;
       this.errorMessage = '';
-    } catch (error) {
-      this.ready = false;
-      this.errorMessage = error.error?.message;
     }
-    
+
     this.loading = false;
-    this._usuariosService.mostrarSpinner(this.loading, 'adh_detalle');
+    this._usuariosService.mostrarSpinner(this.loading, this.nombreComponente);
   }
 
   activarEdicion() {
@@ -119,23 +121,19 @@ export class AdherenteEditarComponent {
     this.updatePersona();
   }
 
-  async updatePersona() {    
+  async updatePersona() {
     this.loading = true;
-    this._usuariosService.mostrarSpinner(this.loading, 'adh_detalle');
+    this._usuariosService.mostrarSpinner(this.loading, this.nombreComponente);
     let mensaje: string;
-    let result: any;
 
-    try {
-      result = await this._adherentesService.updatePersona(
-        this.persona,
-        this.persona.persona_id
-      );
-    } catch (error) {
-      result = error;
-    }
+    let result = await this._usuariosService.updatePersona(
+      '/adherentes',
+      this.persona,
+      this.persona.persona_id
+    );
 
     if (result instanceof HttpErrorResponse) {
-      mensaje = `${result['error']['message']} -- ${result['statusText']} -- No se guardaron datos.`;
+      mensaje = `${result.error['message']} -- ${result.error['status']} -- No se guardaron datos.`;
       this._alertas.problemDialog.fire({
         title: 'Algo falló',
         text: mensaje,
@@ -150,10 +148,9 @@ export class AdherenteEditarComponent {
         },
       });
     }
-    
+
     this.loading = false;
-    this._usuariosService.mostrarSpinner(this.loading, 'adh_detalle');
-    this.ready = true;
+    this._usuariosService.mostrarSpinner(this.loading, this.nombreComponente);
   }
 
   confirmaGuardado() {
@@ -163,35 +160,27 @@ export class AdherenteEditarComponent {
         title: 'Datos de Adherente',
         text: mensaje,
         icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'Confirmar',
-        cancelButtonText: 'Cancelar',
       })
       .then((result) => {
         if (result.isConfirmed) {
-          //Si el usuario confirma, se envía el objeto Viaje al método guardar
+          //Si el usuario confirma, se invoca el método que guarda en la DB
           this.updateAdherente();
         }
       });
   }
 
   async updateAdherente() {
-    this.loading = true;    
+    this.loading = true;
     let mensaje: string;
-    let result: any;
     this.adherente = this.editAdherente.value;
 
-    try {
-      result = await this._adherentesService.updateAdherente(
-        this.adherente,
-        this.adherente.adherente_id
-      );
-    } catch (error) {
-      result = error;
-    }
+    let result = await this._adherentesService.updateAdherente(
+      this.adherente,
+      this.adherente.adherente_id
+    );
 
     if (result instanceof HttpErrorResponse) {
-      mensaje = `${result['error']['message']} -- ${result['statusText']} -- No se guardaron datos.`;
+      mensaje = `${result.error['message']} -- ${result.error['status']} -- No se guardaron datos.`;
       this._alertas.problemDialog.fire({
         title: 'Algo falló',
         text: mensaje,
@@ -203,38 +192,14 @@ export class AdherenteEditarComponent {
         title: 'Cambios guardados!',
         text: mensaje,
         didOpen: () => {
+          //Si este mensaje se dispara, es pq todo funcionó
           //Se oculta el modal
           this.llamaModal.nativeElement.dispatchEvent(
             new Event('click', { bubbles: true })
           );
-          this.changes = true;
         },
       });
     }
-    // let cierraModal = document.querySelector('#toggleModal');
-    // console.log(cierraModal);
-    // console.log(this.llamaModal);
-
-    //Pide confirmación para el guardado (a mejorar aspecto...)
-    // if (confirm(`¿Guardar cambios?`)) {
-    //   let result = await this._adherentesService.updateAdherente(
-    //     this.adherente,
-    //     this.adherente.adherente_id
-    //   );
-
-    //   if (result['success']) {
-    //     //Envía un evento 'click' al botón que abre y cierra el modal
-    //     this.llamaModal.nativeElement.dispatchEvent(
-    //       new Event('click', { bubbles: true })
-    //     );
-
-    //     // cierraModal.dispatchEvent(new Event('click', { bubbles: true }));
-    //     // this.llamaModal.nativeElement['modal']('toggle');
-    //     alert(`Datos Actualizados!: ${result['resp']['info']}`);
-    //   } else {
-    //     alert(`Algo falló`);
-    //   }
-    // }
 
     this.loading = false;
   }

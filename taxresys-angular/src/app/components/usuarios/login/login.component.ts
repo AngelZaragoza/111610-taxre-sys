@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import Swal from 'sweetalert2/dist/sweetalert2.all.js';
-
+import { AlertasService } from 'src/app/services/alertas.service';
 import { UsuariosService } from '../../../services/usuarios.service';
 
 @Component({
@@ -10,21 +9,21 @@ import { UsuariosService } from '../../../services/usuarios.service';
   templateUrl: './login.component.html',
 })
 export class LoginComponent implements OnInit {
-  forma: FormGroup;
+  datosLogin: FormGroup;
   minChar = 5;
-  result: any = {};
   loading: boolean;
   desactivar: boolean;
 
   constructor(
     private _usuariosService: UsuariosService,
+    private _alertas: AlertasService,
     private route: Router
   ) {
-    //Controlar el estado de los controles del formulario
+    //Controla el estado de los controles del formulario
     this.desactivar = false;
 
     //Instanciar controles del formulario con validadores
-    this.forma = new FormGroup({
+    this.datosLogin = new FormGroup({
       usuario: new FormControl('', [
         Validators.required,
         Validators.minLength(this.minChar),
@@ -38,47 +37,53 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {}
 
+  //Accesores del Form
+  //*******************
+  get usuario() {
+    return this.datosLogin.get('usuario');
+  }
+
+  get pass() {
+    return this.datosLogin.get('pass');
+  }
+
+  //Métodos del componente
+  //**********************
   async logIn() {
-    this.loading = true;
-    this.result = await this._usuariosService.passportLogin(this.forma.value);
-
-    //Desactivar controles del formulario y mostrar un toast según el resultado
-    this.desactivar = true;
-
-    if (this.result['error']) {
-      console.log('Login Error =>', this.result['error']);
-
-      Swal.fire({
-        title: this.result['error'].message,
-        icon: 'error',
-        position: 'top',        
-        toast: true,
-        timer: 3000,
-        timerProgressBar: true,
-        showConfirmButton: false,
-        didOpen: () => {
-          //Activar controles si el login falló 
-          this.desactivar = false;
-        },
-      });
-    } else {
+    try {
+      this.loading = true;
+      let result = await this._usuariosService.passportLogin(
+        this.datosLogin.value
+      );
       console.log('User en service =>', this._usuariosService.user);
 
-      Swal.fire({
+      //Desactivar controles del formulario y mostrar un toast según el resultado
+      this.desactivar = true;
+      this._alertas.successDialog.fire({
         title: 'Logueo exitoso !! Espere...',
-        icon: 'success',
+        position: 'top',
+        toast: true,
+        didDestroy: () => {
+          //Redirigir al home luego del login exitoso
+          this.route.navigateByUrl('/home');
+        },
+      });
+    } catch (error) {
+      console.error('Login Error =>', error);
+      this._alertas.problemDialog.fire({
+        title: error['error'].message,
         position: 'top',
         toast: true,
         timer: 3000,
         timerProgressBar: true,
         showConfirmButton: false,
-        didDestroy: (toast) => {
-          //Redirigir al home si el login fue exitoso
-          this.route.navigateByUrl('/home');
+        didOpen: () => {
+          //Activar controles si el login falló
+          this.desactivar = false;
         },
       });
+    } finally {
+      this.loading = false;
     }
-
-    this.loading = false;
   }
 }

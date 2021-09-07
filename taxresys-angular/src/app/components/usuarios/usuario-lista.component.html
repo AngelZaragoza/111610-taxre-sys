@@ -5,15 +5,15 @@
   color="#f5627c"
   type="ball-atom"
   [fullScreen]="true"
-  name="usuario_lista"
+  [name]="nombreComponente"
   ><p style="color: white">Cargando...</p></ngx-spinner
 >
 
-<!-- Contenido -->
-<div class="container-fluid p-3 mb-3 rounded">
-  <div *ngIf="lista.length > 0 && !loading" class="row">
+<!-- Inicio componente -->
+<div *ngIf="!loading" class="container-fluid p-3 mb-3 rounded">
+  <div class="row">
     <div class="col-md-5">
-      <div class="card animate__animated animate__fadeIn">
+      <div class="card animate__animated animate__fadeInLeft animate__faster">
         <div class="card-header-list">
           <div class="h4 m-3 px-3 text-center text-white clearfix">
             Usuarios Registrados
@@ -28,64 +28,47 @@
           </div>
         </div>
         <div class="card-body back-form shadow-effect">
-          <table
-            *ngIf="errorMessage == ''"
-            class="table table-hover table-responsive"
-          >
-            <thead
-              class="
-                list-group-item-secondary
-                animate__animated animate__fadeIn
-              "
-            >
-              <tr>
-                <th scope="col">Usuario</th>
-                <th scope="col">Nombre</th>
-                <th scope="col">Rol</th>
-                <th scope="col">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let user of lista">
-                <th scope="row">{{ user.alias }}</th>
-                <td>{{ user.nombre }}</td>
-                <td>{{ user.rol }}</td>
-                <td>
-                  <a
-                    class="btn btn-sm btn-warning"
-                    [routerLink]="['detalle', user.usuario_id]"
-                    ><i class="fas fa-info-circle"></i>&nbsp; Detalles</a
-                  >
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <!-- Contenido -->
+          <div *ngIf="errorMessage === ''" class="table-responsive">
+            <table class="table table-hover">
+              <thead class="list-group-item-secondary">
+                <tr>
+                  <th scope="col">Usuario</th>
+                  <th scope="col">Nombre</th>
+                  <th scope="col">Rol</th>
+                  <th scope="col">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let user of lista">
+                  <th scope="row">{{ user.alias }}</th>
+                  <td>{{ user.nombre }}</td>
+                  <td>{{ user.rol }}</td>
+                  <td>
+                    <a
+                      class="btn btn-sm btn-warning"
+                      [routerLink]="['detalle', user.usuario_id]"
+                      ><i class="fas fa-info-circle"></i>&nbsp; Detalles</a
+                    >
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <!-- Fin Contenido -->
+          <!-- Mensajes de Error -->
+          <app-error
+            *ngIf="errorMessage !== ''"
+            [origin]="nombreComponente"
+            [errorMessage]="errorMessage"
+          ></app-error>
+          <!-- Fin Mensajes de Error -->
         </div>
       </div>
     </div>
     <div class="col-md-7">
       <!-- Aquí se renderiza la ruta hija -->
-      <router-outlet (deactivate)="cerradoForm($event)"></router-outlet>
+      <router-outlet></router-outlet>
     </div>
   </div>
-  <!-- Mensajes de Error -->
-  <div *ngIf="!loading && errorMessage != ''" class="row">
-    <div
-      class="
-        form-group
-        align-middle
-        alert alert-info
-        animate__animated animate__fadeIn
-      "
-      role="alert"
-    >
-      <div class="text-center" style="color: #4db8c8">
-        <i class="far fa-folder-open fa-7x"></i>
-      </div>
-      <h5 class="text-center">
-        {{ errorMessage }}
-      </h5>
-    </div>
-  </div>
-  <!-- Fin Mensajes de Error -->
 </div>

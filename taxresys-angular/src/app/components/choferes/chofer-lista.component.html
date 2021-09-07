@@ -11,45 +11,88 @@
 
 <!-- Contenido -->
 <div *ngIf="lista.length > 0" class="container-fluid p-3 mb-3 rounded">
-  <div class="row">
+  <!-- Inicio componente -->
+  <div *ngIf="lista.length > 0 && !loading && errorMessage == ''" class="row">
     <div class="col-md-5">
-      <div class="card">
+      <div class="card animate__animated animate__fadeInLeft animate__faster">
         <div class="card-header-list">
-          <div class="h4 m-3 text-center text-white">Choferes Registrados</div>
+          <div class="h4 m-3 px-3 text-center text-white clearfix">
+            Choferes Registrados
+            <button
+              *ngIf="isAdmin || isManager"
+              class="float-right w-25 btn btn-sm btn-success"
+              [routerLink]="['nuevo']"
+            >
+              <i class="fas fa-user-plus"></i>
+              &nbsp; Nuevo...
+            </button>
+          </div>
         </div>
         <div class="card-body back-form shadow-effect">
-          <table class="table table-hover table-responsive">
-            <thead class="thead-light">
-              <tr>
-                <th scope="col">Apellido</th>
-                <th scope="col">Nombre</th>
-                <th scope="col">Habilitado</th>
-                <th scope="col">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let chofer of lista">
-                <th scope="row">{{ chofer.apellido }}</th>
-                <td>{{ chofer.nombre }}</td>
-                <td>{{ chofer.habilitado }}</td>
-                <td>
-                  <a
-                    class="btn btn-sm btn-warning"
-                    [routerLink]="['detalle', chofer.chofer_id]"
-                    ><i class="fas fa-info-circle"></i>Detalles</a
-                  >
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead class="list-group-item-secondary">
+                <tr>
+                  <th scope="col">Apellido</th>
+                  <th scope="col">Nombre</th>
+                  <th scope="col">Activo</th>
+                  <th scope="col">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let chofer of lista">
+                  <th scope="row">{{ chofer.apellido }}</th>
+                  <td>{{ chofer.nombre }}</td>
+                  <td>{{ chofer.habilitado === 1 ? 'Sí' : 'No' }}</td>
+                  <td>
+                    <a
+                      class="btn btn-sm btn-warning"
+                      [routerLink]="['detalle', chofer.chofer_id]"
+                      ><i class="fas fa-info-circle"></i>&nbsp; Detalles</a
+                    >
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
     <div class="col-md-7">
       <!-- Aquí se renderiza la ruta hija -->
-      <router-outlet (deactivate)="desdeOutlet($event)" ></router-outlet>
+      <router-outlet></router-outlet>
     </div>
   </div>
+  <!-- Mensajes de Error -->
+  <div *ngIf="!loading && errorMessage != ''" class="row">
+    <div class="col">
+      <div
+        class="
+          form-group
+          align-middle
+          alert alert-info
+          animate__animated animate__fadeIn
+        "
+        role="alert"
+      >
+        <div class="text-center" style="color: #4db8c8">
+          <i class="far fa-folder-open fa-7x"></i>
+        </div>
+        <h5 class="text-center">
+          {{ errorMessage }}
+        </h5>
+        <button
+          *ngIf="isAdmin || isManager"
+          class="float-right btn btn-sm btn-success"
+          [routerLink]="['nuevo']"
+        >
+          <i class="fas fa-user-plus"></i>
+          &nbsp; Nuevo...
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- Fin Mensajes de Error -->
 </div>
 
-<h4 *ngIf="!loading && errorMessage !== ''">{{ errorMessage }}</h4>
+<!-- <h4 *ngIf="!loading && errorMessage !== ''">{{ errorMessage }}</h4> -->

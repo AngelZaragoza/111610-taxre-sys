@@ -28,71 +28,63 @@ export class AdherentesService {
       this.adherentesObs$.next(lista);
       return lista;
     } catch (error) {
-      console.log(error);
+      console.error(error);
       return error;
     }
   }
 
   async detalleAdherente(id: Number) {
-    let adherente: any;
-    await this._conexion
-      .request('GET', `${environment.serverUrl}/adherentes/detalle/${id}`)
-      .then((res: any) => {
-        adherente = res;
-      })
-      .catch((err) => (adherente = err));
-    return adherente[0];
+    try {
+      let adherente = await this._conexion.request(
+        'GET',
+        `${environment.serverUrl}/adherentes/detalle/${id}`
+      );
+      return adherente[0];
+    } catch (error) {
+      console.log(error);
+      return error;
+    }
   }
 
   async nuevoAdherenteFull(nuevo: any) {
     try {
       let adh = await this._conexion.request(
         'POST',
-        `${environment.serverUrl}/adherentes/nuevo`,
+        `${environment.serverUrl}/adherentes`,
         nuevo
       );
       this.getAdherentes();
       return adh;
     } catch (error) {
-      console.log(error);
+      console.error(error);
       return error;
     }
   }
-  // async nuevoAdherenteFull(nuevo: any) {
-  //   let adh: any;
-  //   await this._conexion.request(
-  //     'POST',
-  //     `${environment.serverUrl}/adherentes/nuevo`,
-  //     nuevo
-  //   )
-  //     .then((res) => (adh = res))
-  //     .catch((err) => (adh = err));
-  //   return adh;
+
+  // async updatePersona(persona: any, id: Number) {
+  //   let pers: any;
+  //   await this._conexion
+  //     .request(
+  //       'PUT',
+  //       `${environment.serverUrl}/adherentes/detalle/${id}`,
+  //       persona
+  //     )
+  //     .then((res) => (pers = res));
+  //   this.getAdherentes();
+  //   return pers;
   // }
 
-  async updatePersona(persona: any, id: Number) {
-    let pers: any;
-    await this._conexion
-      .request(
-        'PUT',
-        `${environment.serverUrl}/adherentes/detalle/${id}`,
-        persona
-      )
-      .then((res) => (pers = res));
-    this.getAdherentes();
-    return pers;
-  }
-
   async updateAdherente(adherente: any, id: Number) {
-    let adh: any;
-    await this._conexion
-      .request(
+    try {
+      let adh = await this._conexion.request(
         'PATCH',
         `${environment.serverUrl}/adherentes/detalle/${id}`,
         adherente
-      )
-      .then((res) => (adh = res))
-      .catch((err) => (adh = err));
-    return adh;
+      );
+      return adh;
+    } catch (error) {
+      console.error(error);
+      return error;
+    }
   }
 }

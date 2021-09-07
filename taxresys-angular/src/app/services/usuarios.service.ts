@@ -8,6 +8,7 @@ import { RequestService } from './request.service';
   providedIn: 'root',
 })
 export class UsuariosService {
+  //Auxiliares
   user: any = {};
   userObs$: Subject<any>;
   turno: any;
@@ -17,44 +18,16 @@ export class UsuariosService {
     private _conexion: RequestService,
     private _spinner: NgxSpinnerService
   ) {
-    console.log('Usuarios listo');
-    // console.log('Roles => ', this.roles, this.roles.length);
-
     //Instancia el objeto que será retornado como Observable
     this.userObs$ = new Subject();
     //Chequea contra el servidor que haya un usuario logueado
-    this.checkAuth(true);
+    // this.checkAuth(true);
+
+    console.log('Usuarios listo');
   }
 
   //Chequea si hay un usuario logueado
   //**********************************
-  // checkAuth() {
-  //   try {
-  //     let local = localStorage.getItem('user');
-
-  //     if (local) {
-  //       //Si se recupera data de localStorage, se procede con:
-  //       this.user = JSON.parse(local);
-
-  //       //Si hay un id en el localStorage, recupera su alias y devuelve true
-  //       if (this.user['usuario_id']) {
-  //         console.log(this.user.alias, this.user.rol_id);
-  //         this.logged = true;
-  //         return true;
-  //       } else {
-  //         this.logged = false;
-  //         return false;
-  //       }
-  //     } else {
-  //       //Si no se recupera nada de localStorage, se procede con:
-  //       localStorage.setItem('user', JSON.stringify({ logged: false }));
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //     return false;
-  //   }
-  // }
-
   async checkAuth(chkServer: boolean, passportResult?: any) {
     try {
       if (passportResult) {
@@ -101,80 +74,73 @@ export class UsuariosService {
   //Métodos de Autenticación
   //************************
   async passportLogin(user: any) {
-    // console.log(user);
-    let result: any;
+    try {
+      let result = await this._conexion.request(
+        'POST',
+        `${environment.serverUrl}/usuarios/passportLogin`,
+        user
+      );
 
-    await this._conexion
-      .request('POST', `${environment.serverUrl}/usuarios/passportLogin`, user)
-      .then((res: any) => {
-        console.log('Resp. Login =>', res);
-        // localStorage.setItem('user', JSON.stringify(res));
-        result = res;
-      })
-      .catch((err: any) => {
-        console.log(err);
-        result = err;
-      })
-      .finally(() => {
-        // console.log('Pasa por finally');
-        this.checkAuth(false, result);
-      });
-
-    return result;
+      this.checkAuth(false, result);
+      return result;
+    } catch (error) {
+      throw error;
+    }
   }
 
   async passportLogout() {
-    let result: any;
-    await this._conexion
-      .request('GET', `${environment.serverUrl}/usuarios/passportLogout`)
-      .then((res: any) => {
-        // console.log('Then. Logout => ', res);
-        result = res;
-        // localStorage.setItem('user', JSON.stringify(res));
-      })
-      .catch((err: any) => {
-        result = err;
-        console.log(err);
-      });
-    // .finally(() => {
-    //   console.log('Finally. Logout => ', result);
-    //   this.checkAuth(false, result);
-    // });
+    try {
+      let result = await this._conexion.request(
+        'GET',
+        `${environment.serverUrl}/usuarios/passportLogout`
+      );
 
-    this.turno = {};
-    this.checkAuth(false, result);
-
-    return result;
+      this.turno = {};
+      this.checkAuth(false, result);
+      return result;
+    } catch (error) {
+      throw error;
+    }
   }
 
   //Métodos de manejo de Usuarios
   //*****************************
   async getUsuarios() {
-    let lista: any[] = [];
-    await this._conexion
-      .request('GET', `${environment.serverUrl}/usuarios`)
-      .then((res: any[]) => {
-        lista = res.map((u) => u);
-      })
-      .catch((err: any) => {
-        lista = err;
-        console.log(err);
-      });
-    return lista;
+    try {
+      let lista = await this._conexion.request(
+        'GET',
+        `${environment.serverUrl}/usuarios`
+      );
+      return lista;
+    } catch (error) {
+      console.error(error);
+      return error;
+    }
   }
 
   async detalleUsuario(id: Number) {
-    let usuario: any;
-    await this._conexion
-      .request('GET', `${environment.serverUrl}/usuarios/detalle/${id}`)
-      .then((res: any) => {
-        // console.log(res);
-        usuario = res;
-      })
-      .catch((err) => {
-        usuario = err;
-      });
-    return usuario[0];
+    try {
+      let usuario = await this._conexion.request(
+        'GET',
+        `${environment.serverUrl}/usuarios/detalle/${id}`
+      );
+      return usuario[0];
+    } catch (error) {
+      console.error(error);
+      return error;
+    }
+
+    // let usuario: any;
+    // await this._conexion
+    //   .request('GET', `${environment.serverUrl}/usuarios/detalle/${id}`)
+    //   .then((res: any) => {
+    //     // console.log(res);
+    //     usuario = res;
+    //   })
+    //   .catch((err) => {
+    //     usuario = err;
+    //   });
+    // return usuario[0];
   }
 
   async nuevoUsuarioFull(nuevo: any) {
@@ -186,31 +152,32 @@ export class UsuariosService {
     return usuario;
   }
 
-  async updatePersona(persona: any, id: Number) {
-    let pers: any;
-    await this._conexion
-      .request(
+  async updatePersona(origen: string, persona: any, id: Number) {
+    try {
+      let pers = await this._conexion.request(
         'PUT',
-        `${environment.serverUrl}/usuarios/detalle/${id}`,
+        `${environment.serverUrl}${origen}/detalle/${id}`,
         persona
-      )
-      .then((res) => (pers = res));
-    return pers;
+      );
+      return pers;
+    } catch (error) {
+      console.error(error);
+      return error;
+    }
   }
 
   async updateUsuario(usuario: any, id: Number) {
-    let user: any;
     try {
-      user = await this._conexion.request(
+      let user = await this._conexion.request(
         'PATCH',
         `${environment.serverUrl}/usuarios/detalle/${id}`,
         usuario
       );
+      return user;
     } catch (error) {
-      console.log(error);
-      user = error;
+      console.error(error);
+      return error;
     }
-    return user;
   }
 
   //Métodos auxiliares

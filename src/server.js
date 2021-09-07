@@ -1,8 +1,8 @@
 const express = require("express");
 const dotenv = require("dotenv").config();
 const path = require('path');
-
-const conexion = require("../db/db-connection");
+const errorMiddleware = require('../lib/error.middleware');
+// const conexion = require("../db/db-connection");
 const cors = require("cors");
 const usuarios = require("../routes/usuarios.route");
 const adherentes = require("../routes/adherentes.route");
@@ -16,7 +16,7 @@ const session = require("express-session");
 const MySQLStore = require("express-mysql-session")(session);
 
 const passport = require('passport');
-require('../lib/passport');
+require('../lib/passport.utils');
 
 
 //*****************************************
@@ -90,6 +90,12 @@ app.use("/moviles", moviles);
 app.use("/jornadas", jornadas);
 app.use("/turnos", turnos);
 app.use("/viajes", viajes);
+
+//*****************************************
+//Configuración del middleware de errores
+//*****************************************
+
+app.use(errorMiddleware);
 
 //*****************************************
 //Levanta el servidor e informa el puerto

@@ -20,7 +20,6 @@ import { MovilListaComponent } from './components/moviles/movil-lista.component'
 import { MovilNuevoComponent } from './components/moviles/movil-nuevo.component';
 import { MovilEditarComponent } from './components/moviles/movil-editar.component';
 
-//Temporal, hasta que implemente el modal
 import { FormTurnoComponent } from './components/shared/form-turno/form-turno.component';
 
 import { JornadaPlanillaComponent } from './components/jornadas/jornada-planilla.component';
@@ -30,15 +29,14 @@ import { ViajePlanillaComponent } from './components/viajes/viaje-planilla.compo
 import { PendienteListaComponent } from './components/viajes/pendiente-lista.component';
 import { ViajeHistoricoComponent } from './components/viajes/viaje-historico.component';
 
-//Guardianes de rutas
+//Guardianes de rutas y página de Error
 import { AuthGuard } from './auth/auth.guard';
 import { OwnerGuard } from './auth/owner.guard';
 import { ErrorComponent } from './components/shared/error/error.component';
 
 const routes: Routes = [
   { path: 'home', component: HomeComponent },
-  { path: 'usuarios/login', component: LoginComponent },
-  // { path: 'usuarios/nuevo', component: UsuarioNuevoComponent },
+  { path: 'login', component: LoginComponent },  
   {
     path: 'usuarios',
     component: UsuarioListaComponent,
@@ -46,6 +44,7 @@ const routes: Routes = [
       { path: 'detalle/:usuario_id', component: UsuarioEditarComponent },
       { path: 'nuevo', component: UsuarioNuevoComponent },
     ],
+    canActivate: [AuthGuard],
   },
 
   {
@@ -73,6 +72,7 @@ const routes: Routes = [
       { path: 'detalle/:movil_id', component: MovilEditarComponent },
       { path: 'nuevo', component: MovilNuevoComponent },
     ],
+    canActivate: [AuthGuard],
   },
 
   {
@@ -91,21 +91,20 @@ const routes: Routes = [
   },
   {
     path: 'viajes',
+    canActivate: [AuthGuard],
     children: [
       {
         path: 'turno',
         component: ViajePlanillaComponent,
-        canActivate: [AuthGuard, OwnerGuard],
+        canActivate: [OwnerGuard],
       },
       {
         path: 'hist-viajes',
-        component: ViajeHistoricoComponent,
-        canActivate: [AuthGuard],
+        component: ViajeHistoricoComponent,        
       },
       {
         path: 'pendientes',
-        component: PendienteListaComponent,
-        canActivate: [AuthGuard],
+        component: PendienteListaComponent,        
       },
     ],
   },
@@ -115,7 +114,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes, { useHash: true } )],
+  imports: [RouterModule.forRoot(routes, { useHash: true })],
   exports: [RouterModule],
   providers: [AuthGuard, OwnerGuard],
 })

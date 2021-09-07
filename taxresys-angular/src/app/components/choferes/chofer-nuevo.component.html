@@ -1,7 +1,17 @@
 <div class="container-fluid mb-3 rounded">
-  <div class="card">
+  <div class="card animate__animated animate__fadeIn">
     <div class="card-header-form">
-      <div class="row">
+      <div class="h4 m-3 px-3 text-center text-white clearfix">
+        <button
+          class="float-left btn btn-sm btn-outline-warning"
+          [routerLink]="['/choferes']"
+        >
+          Cancelar
+        </button>
+        Alta de Nuevo Chofer
+      </div>
+
+      <!-- <div class="row">        
         <div class="col-md-2 offset-md-1 mt-2">
           <a class="btn btn-outline-warning" [routerLink]="['/choferes']"
             >Cancelar</a
@@ -10,7 +20,7 @@
         <div class="col-md-8 h4 mt-3 text-center text-white">
           Alta de Nuevo Chofer
         </div>
-      </div>
+      </div> -->
     </div>
     <div class="card-body back-form shadow-effect">
       <div class="row justify-content-around shadow-effect p-2">
@@ -47,7 +57,7 @@
       <!-- Si se carga a partir de un Adherente existente -->
       <div *ngIf="!nuevo && eleccion" class="container m-3">
         <div class="row justify-content-center">
-          <div class="col-lg-9">
+          <div class="col-md-9">
             <form>
               <div class="form-group row">
                 <label for="rol_id" class="col-sm-3 col-form-label"
@@ -74,7 +84,7 @@
           <div class="col-lg-9">
             <button
               (click)="modalCarnet($event)"
-              #carnet
+              #formCarnet
               type="button"
               data-toggle="modal"
               data-target="#datosCarnet"
@@ -119,19 +129,17 @@
           <div class="container justify-content-between">
             <form [formGroup]="newChofer">
               <div class="form-group row">
-                <label for="carnet_nro" class="col-sm-5 col-form-label"
+                <label for="carnet_nro" class="col-md-5 col-form-label"
                   >Tipo Carnet - Nro.:
                 </label>
-                <div class="col-sm-7">
+                <div class="col-md-7">
                   <input
                     type="text"
                     formControlName="carnet_nro"
                     class="form-control"
                     aria-describedby="helpId"
                     [ngClass]="{
-                      'border-danger':
-                        newChofer.get('carnet_nro').invalid &&
-                        newChofer.get('carnet_nro').touched
+                      'border-danger': carnet.touched && carnet.invalid
                     }"
                   />
                   <small id="helpId" class="text-muted"
@@ -145,15 +153,20 @@
                 >
                 <div class="col-md-7">
                   <input
-                    type="date"
-                    class="form-control"
-                    formControlName="carnet_vence"
-                    [ngClass]="{
-                      'border-danger':
-                        newChofer.get('carnet_vence').invalid &&
-                        newChofer.get('carnet_vence').touched
-                    }"
-                  />
+                        [owlDateTime]="venceCarnet"
+                        [owlDateTimeTrigger]="venceCarnet"
+                        class="form-control"
+                        formControlName="carnet_vence"
+                        placeholder="Vencim. Carnet"
+                        [ngClass]="{
+                          'border-danger':
+                            vencimiento.touched && vencimiento.invalid
+                        }"
+                      />
+                      <owl-date-time
+                        [pickerType]="'calendar'"
+                        #venceCarnet
+                      ></owl-date-time>
                 </div>
               </div>
             </form>
@@ -166,15 +179,15 @@
           </button>
           <button
             type="button"
-            (click)="saveChofer()"
+            (click)="confirmaGuardado()"
             class="btn btn-primary"
             [disabled]="newChofer.invalid || loading"
           >
-          <i
-              [ngClass]="loading ? 'fas fa-sync-alt fa-spin' : 'far fa-save'"
+            <i
+              [ngClass]="loading ? 'fas fa-sync-alt fa-spin' : 'fas fa-save'"
             ></i>
-            <span *ngIf="!loading"> Guardar Chofer</span>
-            <span *ngIf="loading"> Guardando...</span>           
+            <span *ngIf="!loading">&nbsp; Guardar Chofer</span>
+            <span *ngIf="loading">&nbsp; Guardando...</span>
           </button>
         </div>
       </div>

@@ -29,8 +29,6 @@ export class FormPersonaComponent implements DoCheck, OnDestroy {
   fechaMax: Date;
 
   constructor(private _alertas: AlertasService) {
-    console.log('Constructor =>', this.persona);
-
     //Para evitar que se almacene una fecha mayor a la actual
     this.fechaMax = new Date();
 

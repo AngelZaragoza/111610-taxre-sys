@@ -1,5 +1,5 @@
 <nav class="navbar navbar-expand-lg sticky-top navbar-dark fondo-navbar">
-  <a class="navbar-brand" [routerLink]="['home']">Inicio</a>
+  <a class="navbar-brand mr-3" [routerLink]="['home']">Inicio</a>
   <button
     class="navbar-toggler"
     type="button"
@@ -12,11 +12,8 @@
     <span class="navbar-toggler-icon"></span>
   </button>
   <div class="collapse navbar-collapse" id="navbarNavDropdown">
-    <ul class="navbar-nav justify-content-start ml-4">
-      <!-- <li *ngIf="logged" class="nav-item" routerLinkActive="active">
-        <a class="nav-link" [routerLink]="['viajes']">Viajes</a>
-      </li> -->
-      <li *ngIf="isLogged" class="nav-item dropdown justify-content-end ml-4 mr-3">
+    <ul class="navbar-nav justify-content-start ml-5">      
+      <li *ngIf="isLogged" class="nav-item dropdown justify-content-end mr-3">
         <a
           class="nav-link dropdown-toggle"
           href="#"
@@ -215,15 +212,15 @@
     <a
       *ngIf="!isLogged"
       class="nav-link btn btn-light justify-content-end"
-      [routerLink]="['usuarios', 'login']"
-      >Login</a
+      [routerLink]="['login']"
+      >Log In</a
     >
     <button
       *ngIf="isLogged"
       class="nav-link btn btn-light justify-content-end"
-      (click)="logout()"
+      (click)="confirmaLogout()"
     >
-      LogOut {{ userLogged.alias }}
+      Log Out {{ userLogged.alias }}
     </button>
   </div>
 </nav>

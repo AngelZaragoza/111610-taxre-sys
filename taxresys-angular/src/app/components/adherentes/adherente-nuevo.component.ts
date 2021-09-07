@@ -86,9 +86,8 @@ export class AdherenteNuevoComponent {
   }
 
   confirmaGuardado() {
-    //Recibe el objeto con los datos de "usuario" del form
-    this.adherente = { ...this.newAdherente.value };
-    // console.table(this.adherente);
+    //Recibe el objeto con los datos adicionales del Adherente del form
+    this.adherente = { ...this.newAdherente.value };    
 
     let mensaje = `¿Guarda el Nuevo Adherente: ${this.persona.apellido}, ${this.persona.nombre}?`;
     this._alertas.confirmDialog
@@ -146,23 +145,5 @@ export class AdherenteNuevoComponent {
     }
 
     this.loading = false;
-    /*
-    //Pide confirmación para el guardado (a mejorar aspecto...)
-    if(confirm(`Guardar nuevo Adherente?`)) {
-      let result = await this._adherentesService.nuevoAdherenteFull(this.detalle);
-  
-      if (result instanceof HttpErrorResponse) {
-        alert(
-          `Algo falló:\n${result.error.err?.code} \n ${result.statusText}\nNo se guardaron datos.`
-        );
-      } else {
-        alert(
-          `Adherente guardado: ${result['adher']['apellido']} ${result['adher']['nombre']}!`
-        );
-        this.modalRef.close();
-        this.route.navigateByUrl('/home');
-      }
-    }
-    */
   }
 }

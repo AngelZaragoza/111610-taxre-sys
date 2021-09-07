@@ -6,7 +6,6 @@ import {
   RouterStateSnapshot,
   UrlTree,
 } from '@angular/router';
-import { Observable } from 'rxjs';
 import { UsuariosService } from '../services/usuarios.service';
 
 @Injectable({
@@ -22,16 +21,14 @@ export class OwnerGuard implements CanActivate {
     //Compara el id del usuario logueado con el usuario con el último turno abierto
     const isOwner =
       this._usuarios.user.logged &&
-      this._usuarios.user.usuario_id === this._usuarios.user.owner;
-    console.log('|| Llegó al OwnerGuard ||', isOwner);
+      this._usuarios.user.usuario_id === this._usuarios.user.owner;    
 
-    if (isOwner) {
-      console.log('Route', route, 'State', state);
+    if (isOwner) {      
       return true;
-    } else {
-      console.log('Route', route, 'State', state);
-      this.router.navigateByUrl('/error');
-      return false;
     }
+    
+    // Se redirige al path de error con el queryParam correspondiente
+    this.router.navigate(['/error'], {queryParams: {origin: 'turno-pln' }})
+      return false;
   }
 }
