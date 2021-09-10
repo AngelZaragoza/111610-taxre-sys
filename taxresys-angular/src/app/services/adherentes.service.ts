@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { RequestService } from './request.service';
+import { UsuariosService } from './usuarios.service';
 
 @Injectable({
   providedIn: 'root',
@@ -10,7 +11,7 @@ export class AdherentesService {
   //Auxiliares
   adherentesObs$: Subject<any>;
 
-  constructor(private _conexion: RequestService) {
+  constructor(private _conexion: RequestService, private _usuariosService: UsuariosService) {
     //Instancia el objeto que será retornado como Observable
     this.adherentesObs$ = new Subject();
     console.log('Adherentes listo');
@@ -53,35 +54,25 @@ export class AdherentesService {
         `${environment.serverUrl}/adherentes`,
         nuevo
       );
-      this.getAdherentes();
+      //Se emiten los datos mediante el Observable para actualizar la lista      
+      this._usuariosService.personaObs$.next(adh);
+
       return adh;
     } catch (error) {
       console.error(error);
       return error;
     }
   }
-
-  // async updatePersona(persona: any, id: Number) {
-  //   let pers: any;
-  //   await this._conexion
-  //     .request(
-  //       'PUT',
-  //       `${environment.serverUrl}/adherentes/detalle/${id}`,
-  //       persona
-  //     )
-  //     .then((res) => (pers = res));
-  //   this.getAdherentes();
-  //   return pers;
-  // }
-
+  
   async updateAdherente(adherente: any, id: Number) {
     try {
-      let adh = await this._conexion.request(
+      let result: any = await this._conexion.request(
         'PATCH',
         `${environment.serverUrl}/adherentes/detalle/${id}`,
         adherente
       );
-      return adh;
+
+      return result;
     } catch (error) {
       console.error(error);
       return error;

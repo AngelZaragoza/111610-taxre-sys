@@ -43,7 +43,7 @@
                 <tr *ngFor="let user of lista">
                   <th scope="row">{{ user.alias }}</th>
                   <td>{{ user.nombre }}</td>
-                  <td>{{ user.rol }}</td>
+                  <td>{{ user.rol_id | nomElem: "rol_id":roles }}</td>
                   <td>
                     <a
                       class="btn btn-sm btn-warning"

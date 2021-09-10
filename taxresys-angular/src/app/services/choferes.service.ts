@@ -10,6 +10,7 @@ import { UsuariosService } from './usuarios.service';
 })
 export class ChoferesService {
   //Listados
+  listaAdherentes: any[] = [];
   listaChoferes: any[] = [];
 
   //Auxiliares
@@ -22,6 +23,14 @@ export class ChoferesService {
   ) {
     //Instancia el objeto que será retornado como Observable
     this.choferesObs$ = new Subject();
+
+    //Se suscribe a los cambios en el Módulo de Adherentes
+    this._adherentes.adherentesObs$.subscribe((lista) => {
+      if (Array.isArray(lista)) {
+        console.log('---- Adherentes en Choferes Actualizado ----');
+        this.listaAdherentes = lista;
+      }
+    });
     console.log('Choferes listo');
   }
 

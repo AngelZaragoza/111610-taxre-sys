@@ -172,11 +172,11 @@ export class UsuarioEditarComponent {
     this._usuariosService.mostrarSpinner(this.loading, this.nombreComponente);
   }
 
-  activarEdicion() {
+  activarEdicion(): void {
     this.editar = !this.editar;
   }
 
-  listenPersona(persona) {
+  listenPersona(persona): void {
     //Recibe el objeto "persona" desde el evento del componente hijo
     this.persona = persona;
     this.updatePersona();
@@ -193,9 +193,9 @@ export class UsuarioEditarComponent {
     );
 
     if (result instanceof HttpErrorResponse) {
-      mensaje = `${result.error['message']} -- ${result.error['status']} -- No se guardaron datos.`;
+      mensaje = `${result.error['message']} -- No se guardaron datos.`;
       this._alertas.problemDialog.fire({
-        title: 'Algo falló',
+        title: `Algo falló (${result.error['status']})`,
         text: mensaje,
       });
     } else {
@@ -213,7 +213,7 @@ export class UsuarioEditarComponent {
     this._usuariosService.mostrarSpinner(this.loading, this.nombreComponente);
   }
 
-  confirmaGuardado() {
+  confirmaGuardado(): void {
     let mensaje = this.isOwner
       ? 'Su Sesión se cerrará. Deberá hacer Log In nuevamente'
       : 'Se actualizarán los Datos de Acceso del Usuario';
@@ -241,9 +241,9 @@ export class UsuarioEditarComponent {
     );
 
     if (result instanceof HttpErrorResponse) {
-      mensaje = `${result.error['message']} -- ${result.error['status']} -- No se guardaron datos.`;
+      mensaje = `${result.error['message']} -- No se guardaron datos.`;
       this._alertas.problemDialog.fire({
-        title: 'Algo falló',
+        title: `Algo falló (${result.error['status']})`,
         text: mensaje,
       });
     } else {

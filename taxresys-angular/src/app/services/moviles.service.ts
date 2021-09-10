@@ -34,14 +34,18 @@ export class MovilesService {
 
     //Se suscribe a los cambios en el Módulo de Adherentes
     this._adherentes.adherentesObs$.subscribe((lista) => {
-      console.log('---- Adherentes en Moviles Actualizado ----');
-      this.listaAdherentes = lista;
+      if (Array.isArray(lista)) {
+        console.log('---- Adherentes en Moviles Actualizado ----');
+        this.listaAdherentes = lista;
+      }
     });
 
     //Se suscribe a los cambios en el Módulo de Choferes
     this._choferes.choferesObs$.subscribe((lista) => {
-      console.log('---- Choferes en Moviles Actualizado ----');
-      this.listaChoferes = lista;
+      if (Array.isArray(lista)) {
+        console.log('---- Choferes en Moviles Actualizado ----');
+        this.listaChoferes = lista;
+      }
     });
   }
 

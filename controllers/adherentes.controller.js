@@ -90,13 +90,14 @@ class Adherente {
       ]);
       console.log("CALL =>", results);
 
-      let adher = {
+      const created = {
         apellido,
         nombre,
         moviles_activos,
         adherente_id: results[0][0]["adherente_id"],
+        persona_id: results[0][0]["persona_id"],
       };
-      res.status(201).json({ success: true, action: "added", adher });
+      res.status(201).json({ success: true, action: "added", created });
     } catch (error) {
       next(error);
     }

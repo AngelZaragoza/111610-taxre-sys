@@ -1,5 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { RouterEvent } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AdherentesService } from 'src/app/services/adherentes.service';
 import { UsuariosService } from 'src/app/services/usuarios.service';
@@ -17,7 +18,7 @@ export class AdherenteListaComponent implements OnInit, OnDestroy {
   userLogged: any = {};
 
   //Auxiliares
-  listaSub: Subscription;
+  personaSub: Subscription;
   loading: boolean;
   errorMessage: string;
   nombreComponente: string;
@@ -52,7 +53,7 @@ export class AdherenteListaComponent implements OnInit, OnDestroy {
     this.loading = true;
     this._usuariosService.mostrarSpinner(this.loading, this.nombreComponente);
     this.lista = await this._adherentesService.getAdherentes();
-    
+
     if (this.lista instanceof HttpErrorResponse) {
       this.errorMessage = this.lista.error['message'];
     } else {
@@ -60,19 +61,42 @@ export class AdherenteListaComponent implements OnInit, OnDestroy {
     }
     this.loading = false;
     this._usuariosService.mostrarSpinner(this.loading, this.nombreComponente);
-    
+
     this.listenUpdates();
   }
-  
-  listenUpdates(): void {
-    //Se suscribe a los cambios en la lista de Adherentes
-    this.listaSub = this._adherentesService.adherentesObs$.subscribe((lista) => {      
-      this.lista = lista;
-    })
-  }
 
+  listenUpdates(): void {
+    //Se suscribe a los cambios en cualquier elemento de la lista
+    this.personaSub = this._usuariosService.personaObs$.subscribe((data) => {
+      let { action, ...valores } = data;
+
+      // Se chequea la propiedad 'action' del Observable
+      switch (action) {
+        case 'added':
+          this.lista.push(valores['created']);
+          this.lista.sort((a, b) => {
+            if (a.apellido.toLowerCase() < b.apellido.toLowerCase()) return -1;
+            if (a.apellido.toLowerCase() > b.apellido.toLowerCase()) return 1;
+            return 0;
+          });
+          break;
+        case 'updated':
+          let index = this.lista.findIndex(
+            (item) => item['persona_id'] == valores['persona_id']
+          );
+          for (const key in this.lista[index]) {
+            if (Object.prototype.hasOwnProperty.call(valores, key)) {
+              this.lista[index][key] = valores[key];
+            }
+          }
+          break;
+      }
+    });
+  }
+  
   ngOnDestroy(): void {
-    //Destruye la suscripción
-    this.listaSub.unsubscribe();
+    //Destruye la suscripción y emite la lista actualizada
+    this.personaSub.unsubscribe();
+    this._adherentesService.adherentesObs$.next(this.lista);
   }
 }

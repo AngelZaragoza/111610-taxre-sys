@@ -8,14 +8,9 @@
             <div class="form-group col-md-6">
               <label for="apellido" class="col-form-label"
                 >Apellido: &nbsp;<span *ngIf="apellido.touched">
-                  <i
-                    *ngIf="apellido.valid"
-                    class="fas fa-check-circle text-success"
-                  ></i>
-                  <i
-                    *ngIf="apellido.invalid"
-                    class="fas fa-times-circle text-danger"
-                  ></i>
+                  <ng-container
+                    *ngIf="apellido.valid; then valido; else invalido"
+                  ></ng-container>
                 </span>
               </label>
               <input
@@ -28,7 +23,7 @@
                 placeholder="Apellido"
               />
               <small
-                *ngIf="apellido.invalid && apellido.touched"
+                *ngIf="apellido.touched && apellido.invalid"
                 class="text-danger"
               >
                 Ingrese el Apellido (3-40 caracteres)
@@ -37,14 +32,9 @@
             <div class="form-group col-md-6">
               <label for="nombre" class="col-form-label">Nombre: &nbsp;</label>
               <span *ngIf="nombre.touched">
-                <i
-                  *ngIf="nombre.valid"
-                  class="fas fa-check-circle text-success"
-                ></i>
-                <i
-                  *ngIf="nombre.invalid"
-                  class="fas fa-times-circle text-danger"
-                ></i>
+                <ng-container
+                  *ngIf="nombre.valid; then valido; else invalido"
+                ></ng-container>
               </span>
               <input
                 type="text"
@@ -52,11 +42,11 @@
                 placeholder="Nombre"
                 class="form-control"
                 [ngClass]="{
-                  'border-danger': nombre.invalid && nombre.touched
+                  'border-danger': nombre.touched && nombre.invalid
                 }"
               />
               <small
-                *ngIf="nombre.invalid && nombre.touched"
+                *ngIf="nombre.touched && nombre.invalid"
                 class="text-danger"
               >
                 Ingrese el Nombre (3-45 caracteres)
@@ -71,14 +61,9 @@
                 >Dirección: &nbsp;</label
               >
               <span *ngIf="direccion.touched">
-                <i
-                  *ngIf="direccion.valid"
-                  class="fas fa-check-circle text-success"
-                ></i>
-                <i
-                  *ngIf="direccion.invalid"
-                  class="fas fa-times-circle text-danger"
-                ></i>
+                <ng-container
+                  *ngIf="direccion.valid; then valido; else invalido"
+                ></ng-container>
               </span>
               <input
                 type="text"
@@ -86,11 +71,11 @@
                 placeholder="Dirección"
                 class="form-control"
                 [ngClass]="{
-                  'border-danger': direccion.invalid && direccion.touched
+                  'border-danger': direccion.touched && direccion.invalid
                 }"
               />
               <small
-                *ngIf="direccion.invalid && direccion.touched"
+                *ngIf="direccion.touched && direccion.invalid"
                 class="text-danger"
               >
                 Ingrese la Dirección (5-50 caracteres)
@@ -101,26 +86,21 @@
                 >Nro. Teléfono: &nbsp;</label
               >
               <span *ngIf="telefono.touched">
-                <i
-                  *ngIf="telefono.valid"
-                  class="fas fa-check-circle text-success"
-                ></i>
-                <i
-                  *ngIf="telefono.invalid"
-                  class="fas fa-times-circle text-danger"
-                ></i>
+                <ng-container
+                  *ngIf="telefono.valid; then valido; else invalido"
+                ></ng-container>
               </span>
               <input
                 type="text"
                 class="form-control"
                 [ngClass]="{
-                  'border-danger': telefono.invalid && telefono.touched
+                  'border-danger': telefono.touched && telefono.invalid
                 }"
                 formControlName="telefono"
                 placeholder="351-55556666"
               />
               <small
-                *ngIf="telefono.invalid && telefono.touched"
+                *ngIf="telefono.touched && telefono.invalid"
                 class="text-danger"
               >
                 Ingrese un Teléfono (dígitos, + y -)
@@ -135,26 +115,21 @@
                 >Correo Electrónico: &nbsp;</label
               >
               <span *ngIf="email.dirty">
-                <i
-                  *ngIf="email.valid"
-                  class="fas fa-check-circle text-success"
-                ></i>
-                <i
-                  *ngIf="email.invalid"
-                  class="fas fa-times-circle text-danger"
-                ></i>
+                <ng-container
+                  *ngIf="email.valid; then valido; else invalido"
+                ></ng-container>
               </span>
               <input
                 type="text"
                 class="form-control"
                 [ngClass]="{
-                  'border-danger': email.invalid && email.dirty
+                  'border-danger': email.dirty && email.invalid
                 }"
                 formControlName="email"
                 placeholder="usuario@correo.com"
               />
-              <small *ngIf="email.invalid && email.dirty" class="text-danger">
-                Debe ingresar una dirección de e-mail válida
+              <small *ngIf="email.dirty && email.invalid" class="text-danger">
+                Ingrese una dirección de e-mail válida o deje en blanco
               </small>
             </div>
             <div class="form-group col-md-5">
@@ -162,18 +137,14 @@
                 >Fecha de Nacimiento: &nbsp;</label
               >
               <span *ngIf="fecha_nac.dirty">
-                <i
-                  *ngIf="fecha_nac.valid"
-                  class="fas fa-check-circle text-success"
-                ></i>
-                <i
-                  *ngIf="fecha_nac.invalid"
-                  class="fas fa-times-circle text-danger"
-                ></i>
+                <ng-container
+                  *ngIf="fecha_nac.valid; then valido; else invalido"
+                ></ng-container>
               </span>
               <input
                 [owlDateTime]="fechaNac"
                 [owlDateTimeTrigger]="fechaNac"
+                [min]="fechaMin"
                 [max]="fechaMax"
                 class="form-control"
                 formControlName="fecha_nac"
@@ -181,29 +152,17 @@
               />
               <owl-date-time
                 [pickerType]="'calendar'"
+                [startView]="'multi-years'"
                 #fechaNac
               ></owl-date-time>
             </div>
           </div>
           <!-- Fin Opcionales: Email y Fecha de Nacimiento -->
 
-          <!--
-            </div>
-            <label for="fecha_nac" class="col-md-2 col-form-label"
-              >F. Nac.</label
-            >
-            <div class="col-md-4">
-              <input
-                type="date"
-                class="form-control"
-                formControlName="fecha_nac"
-              />
-            </div>
-          </div> -->
-
           <div *ngIf="editar" class="form-group row">
             <div class="col-sm-6">
               <button
+                type="button"
                 *ngIf="!nuevo"
                 (click)="cancelEdit()"
                 class="btn btn-secondary btn-block"
@@ -234,3 +193,10 @@
     </div>
   </div>
 </div>
+<!-- Templates para mostrar en validación del Formulario -->
+<ng-template #valido>
+  <i class="fas fa-check-circle text-success"></i>
+</ng-template>
+<ng-template #invalido>
+  <i class="fas fa-times-circle text-danger"></i>
+</ng-template>

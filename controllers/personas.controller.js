@@ -37,21 +37,10 @@ class Persona {
       if (results["changedRows"] < 1) {
         throw new HttpException(418, "No hubo cambios", { action: "unchanged", ...results });
       }
+      
       res.status(200).json({ success: true, action: "updated", results });
-      // .then((resp) => {
-      //   console.log("UPDATE =>", resp);
-      //   return res
-      //     .status(200)
-      //     .json({ success: "true", action: "updated", resp });
-      // })
-      // .catch((err) => {
-      //   console.log("Error en update", err);
-      //   return res.status(500).json(err);
-      // });
     } catch (error) {
-      next(error)
-      // console.log(err);
-      // return res.status(500).json(err);
+      next(error)      
     }
   };
 }

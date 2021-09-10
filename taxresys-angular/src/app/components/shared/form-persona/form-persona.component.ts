@@ -3,36 +3,54 @@ import {
   Input,
   Output,
   EventEmitter,
-  DoCheck,
+  OnInit,
   OnDestroy,
 } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Persona } from 'src/app/classes/persona';
 import { AlertasService } from 'src/app/services/alertas.service';
+import { UsuariosService } from 'src/app/services/usuarios.service';
 
 @Component({
   selector: 'app-form-persona',
   templateUrl: './form-persona.component.html',
 })
-export class FormPersonaComponent implements DoCheck, OnDestroy {
+export class FormPersonaComponent implements OnInit, OnDestroy {
   //Atributos que pueden ser seteados desde el componente padre
   @Input() persona: Persona = new Persona();
   @Input() editar: boolean = true;
   @Input() nuevo: boolean = true;
-  @Input() ready: boolean = false;
 
+  //Atributos que emiten datos hacia el componente padre
   @Output() emitEstado: EventEmitter<boolean>;
   @Output() emitPersona: EventEmitter<Persona>;
 
   //Formulario
   datosPersona: FormGroup;
   fechaMax: Date;
+  fechaMin: Date;
 
-  constructor(private _alertas: AlertasService) {
-    //Para evitar que se almacene una fecha mayor a la actual
-    this.fechaMax = new Date();
+  constructor(
+    private _usuariosService: UsuariosService,
+    private _alertas: AlertasService
+  ) {
+    //Para evitar que se almacenen fechas inválidas
+    this.fechaMax = this._usuariosService.calculaFechaMax(new Date(), 'y', -18);
+    this.fechaMin = this._usuariosService.calculaFechaMax(new Date(), 'y', -120);
 
     //Instanciar controles del formulario con validadores
+    this.initForm();
+
+    //Instanciar emisores para enviar información al componente padre
+    this.emitEstado = new EventEmitter();
+    this.emitPersona = new EventEmitter();
+  }
+
+  ngOnInit(): void {
+    this.datosPersona.setValue(this.persona);
+  }
+
+  initForm(): void {
     this.datosPersona = new FormGroup({
       persona_id: new FormControl(''),
       apellido: new FormControl('', [
@@ -59,20 +77,6 @@ export class FormPersonaComponent implements DoCheck, OnDestroy {
       email: new FormControl('', [Validators.email, Validators.maxLength(60)]),
       fecha_nac: new FormControl(''),
     });
-
-    //Instanciar emisores para enviar información al componente padre
-    this.emitEstado = new EventEmitter();
-    this.emitPersona = new EventEmitter();
-
-    console.log('Editar => ', this.editar);
-  }
-
-  ngDoCheck(): void {
-    //En cada cambio del formulario, chequea si "editar" es false
-    //Cuando se cumple, setea el formulario con los datos de Persona
-    if (!this.editar) {
-      this.datosPersona.setValue(this.persona);
-    }
   }
 
   //Accessores del Form
@@ -103,15 +107,14 @@ export class FormPersonaComponent implements DoCheck, OnDestroy {
 
   //Métodos del componente
   //*******************
-  cancelEdit() {
+  cancelEdit(): void {
     //Setea "editar" en false y lo emite hacia el componente padre
     this.editar = false;
-    this.ready = false;
     this.datosPersona.reset(this.persona);
     this.emitEstado.emit(this.editar);
   }
 
-  confirmaGuardado() {
+  confirmaGuardado(): void {
     let mensaje = this.nuevo
       ? '¿Los Datos son correctos?'
       : '¿Desea Guardar los Cambios?';
@@ -120,9 +123,6 @@ export class FormPersonaComponent implements DoCheck, OnDestroy {
         title: 'Datos Personales',
         text: mensaje,
         icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'Confirmar',
-        cancelButtonText: 'Cancelar',
       })
       .then((result) => {
         if (result.isConfirmed) {
@@ -132,9 +132,7 @@ export class FormPersonaComponent implements DoCheck, OnDestroy {
       });
   }
 
-  savePersona() {
-    console.log(`Formulario => `, this.datosPersona.value);
-
+  savePersona(): void {
     //Recorre los campos del form y asigna los valores al objeto Persona
     for (const key in this.datosPersona.value) {
       let value = this.datosPersona.value[key];
@@ -143,11 +141,9 @@ export class FormPersonaComponent implements DoCheck, OnDestroy {
       } else {
         this.persona[key] = value;
       }
-    }
-    console.table(this.persona);
+    }    
 
     //Emite el objeto persona para que lo tome el componente padre
-    this.ready = true;
     this.emitPersona.emit(this.persona);
   }
 

@@ -85,14 +85,13 @@ export class UsuarioNuevoComponent {
   }
 
   //Métodos del componente
-  listenNuevo(persona) {
+  //********************
+  listenNuevo(persona: Persona): void {
     //Recibe el objeto "persona" desde el evento del componente hijo
     this.persona = persona;
 
     //Listo para guardar nuevo usuario: true
     this.ready = true;
-    // console.log('Nueva Persona =>');
-    // console.table(this.persona);
 
     //Mueve el carrusel al siguiente Form
     this.nextSlide.nativeElement.dispatchEvent(
@@ -100,10 +99,9 @@ export class UsuarioNuevoComponent {
     );
   }
 
-  confirmaGuardado() {
+  confirmaGuardado(): void {
     //Recibe el objeto con los datos de "usuario" del form
     this.usuario = { ...this.newUsuario.value };
-    // console.table(this.usuario);
 
     let mensaje = `¿Crear el Nuevo Usuario: ${this.usuario.alias} ?`;
     this._alertas.confirmDialog
@@ -111,9 +109,6 @@ export class UsuarioNuevoComponent {
         title: 'Guardar Datos',
         text: mensaje,
         icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'Confirmar',
-        cancelButtonText: 'Cancelar',
       })
       .then((result) => {
         if (result.isConfirmed) {
@@ -126,54 +121,33 @@ export class UsuarioNuevoComponent {
   async saveUsuario() {
     this.loading = true;
     let mensaje: string;
-    let result: any;
-
+    
     //Crea un objeto "detalle" uniendo "persona" y "usuario"
     this.detalle = { ...this.persona, ...this.usuario };
-    console.log('Resultado final =>');
-    console.table(this.detalle);
-
-    try {
-      //Envia el objeto "detalle" al servicio para guardar en la DB
-      result = await this._usuariosService.nuevoUsuarioFull(this.detalle);
-    } catch (error) {
-      result = error;
-    }
+    // console.log('Resultado final =>');
+    // console.table(this.detalle);
+    
+    //Envia el objeto "detalle" al servicio para guardar en la DB
+    let result = await this._usuariosService.nuevoUsuarioFull(this.detalle);    
 
     if (result instanceof HttpErrorResponse) {
-      mensaje = `${result['error']['message']} -- ${result['statusText']} -- No se guardaron datos.`;
+      mensaje = `${result.error['message']} -- No se guardaron datos.`;
       this._alertas.problemDialog.fire({
-        title: 'Algo falló',
+        title: `Algo falló (${result.error['status']})`,
         text: mensaje,
       });
     } else {
-      mensaje = `Nuevo Usuario: ${result['user']['alias']}`;
+      mensaje = `Nuevo Usuario Creado. Espere...`;
       this._alertas.successDialog.fire({
         position: 'center',
-        title: 'Usuario Creado!',
+        title: 'Usuario Guardado!',
         text: mensaje,
         didOpen: () => {
           this.ready = true;
           this.route.navigateByUrl('/usuarios');
         },
       });
-    }
-
-    // //Pide confirmación para el guardado (a mejorar aspecto...)
-    // if (confirm(`Guardar nuevo Usuario: ${this.usuario.alias} ?`)) {
-    //   //Crea un objeto "detalle" uniendo "persona" y "usuario"
-    //   this.detalle = { ...this.persona, ...this.usuario };
-    //   console.log('Resultado final =>');
-    //   console.table(this.detalle);
-
-    //Envia el objeto "detalle" al servicio para guardar en la DB
-    // result = await this._usuariosService.nuevoUsuarioFull(this.detalle);
-    // if (result['success']) {
-    //   alert(`Usuario agregado: ${result['user']['alias']} !`);
-    //   this.route.navigateByUrl('/home');
-    // } else {
-    //   alert(`Algo falló`);
-    // }
+    }    
 
     this.loading = false;
   }

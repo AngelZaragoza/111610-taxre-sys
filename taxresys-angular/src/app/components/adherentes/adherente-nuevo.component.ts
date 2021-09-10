@@ -2,7 +2,6 @@ import { Component, ViewChild, TemplateRef } from '@angular/core';
 import { AdherentesService } from '../../services/adherentes.service';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-
 import { Persona } from '../../classes/persona';
 import { Adherente } from '../../classes/adherente';
 import { Router } from '@angular/router';
@@ -15,7 +14,7 @@ import { AlertasService } from 'src/app/services/alertas.service';
   styles: [],
 })
 export class AdherenteNuevoComponent {
-  //Crea una referencia ...  
+  //Crea una referencia a un template para el modal
   @ViewChild('extraInfo', { read: TemplateRef }) extraModal: TemplateRef<any>;
   modalRef: NgbModalRef;
 
@@ -27,41 +26,32 @@ export class AdherenteNuevoComponent {
   //Formulario
   newAdherente: FormGroup;  
 
-  //Listo para guardar nuevo Adherente
-  ready: boolean;
+  //Auxiliares
   loading: boolean;
-  changes: boolean;
 
   constructor(
     private _adherentesService: AdherentesService,
-    private modalService: NgbModal,
+    private _modalService: NgbModal,
     private _alertas: AlertasService,
     private route: Router
   ) {
     //Controles del formulario
     this.newAdherente = new FormGroup({
       moviles_activos: new FormControl(0, Validators.required),
-      observaciones: new FormControl(null),
+      observaciones: new FormControl(null, Validators.maxLength(300)),
     });
-
-    //Listo para guardar nuevo Adherente: false
-    this.ready = false;
-    this.changes = false;
   }
 
-  listenNuevo(persona: Persona) {
+  listenNuevo(persona: Persona): void {
     //Recibe el objeto "persona" desde el evento del componente hijo
     this.persona = persona;
 
-    //Listo para guardar nuevo adherente: true
-    this.ready = true;
-    // console.log('Nueva Persona =>');
-    // console.table(this.persona);
+    //Se muestra el Modal para carga de datos extra
     this.triggerModal(this.extraModal);
   }
 
   triggerModal(content: TemplateRef<any>) {
-    this.modalRef = this.modalService
+    this.modalRef = this._modalService
       .open(content, {
         ariaLabelledBy: 'staticBackdropLabel',
         backdrop: 'static',
@@ -85,7 +75,7 @@ export class AdherenteNuevoComponent {
       // );
   }
 
-  confirmaGuardado() {
+  confirmaGuardado(): void {
     //Recibe el objeto con los datos adicionales del Adherente del form
     this.adherente = { ...this.newAdherente.value };    
 
@@ -94,10 +84,7 @@ export class AdherenteNuevoComponent {
       .fire({
         title: 'Guardar Datos',
         text: mensaje,
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'Confirmar',
-        cancelButtonText: 'Cancelar',
+        icon: 'question',        
       })
       .then((result) => {
         if (result.isConfirmed) {
@@ -110,23 +97,17 @@ export class AdherenteNuevoComponent {
   async saveAdherente() {    
     this.loading = true;
     let mensaje: string;
-    let result: any;
     
     //Crea un objeto "detalle" uniendo "persona" y "adherente"
     this.detalle = { ...this.persona, ...this.adherente };
-    console.table(this.detalle);
     
-    try {
-      //Envia el objeto "detalle" al servicio para guardar en la DB
-      result = await this._adherentesService.nuevoAdherenteFull(this.detalle);
-    } catch (error) {
-      result = error;
-    }
+    //Envia el objeto "detalle" al servicio para guardar en la DB
+    let result = await this._adherentesService.nuevoAdherenteFull(this.detalle);
 
     if (result instanceof HttpErrorResponse) {
-      mensaje = `${result['error']['message']} -- ${result['statusText']} -- No se guardaron datos.`;
+      mensaje = `${result.error['message']} -- No se guardaron datos.`;
       this._alertas.problemDialog.fire({
-        title: 'Algo falló',
+        title: `Algo falló (${result.error['status']})`,
         text: mensaje,
       });
     } else {
@@ -136,8 +117,7 @@ export class AdherenteNuevoComponent {
         title: 'Adherente Guardado!',
         text: mensaje,
         didOpen: () => {
-          this.ready = true;
-          this.changes = true;
+          //Se oculta el modal
           this.modalRef.close();
           this.route.navigateByUrl('/adherentes');
         },

@@ -2,8 +2,11 @@
   <div class="card animate__animated animate__fadeIn">
     <div class="card-header-form">
       <div class="h4 m-3 px-3 text-center text-white clearfix">
-        <button class="float-left btn btn-sm btn-outline-warning" [routerLink]="['/usuarios']">
-          Cancelar
+        <button
+          class="float-left btn btn-sm btn-outline-warning"
+          [routerLink]="['/usuarios']"
+        >
+          <i class="fas fa-angle-double-left"></i>&nbsp; Cancelar
         </button>
         Alta Nuevo Usuario
       </div>
@@ -33,14 +36,9 @@
                     <div class="form-group row">
                       <label for="rol_id" class="col-sm-4 col-form-label"
                         >Rol Usuario: &nbsp;<span *ngIf="rolUser.touched">
-                          <i
-                            *ngIf="rolUser.valid"
-                            class="fas fa-check-circle text-success"
-                          ></i>
-                          <i
-                            *ngIf="rolUser.invalid"
-                            class="fas fa-times-circle text-danger"
-                          ></i>
+                          <ng-container
+                            *ngIf="rolUser.valid; then valido; else invalido"
+                          ></ng-container>
                         </span>
                       </label>
                       <div class="col-sm-8">
@@ -68,14 +66,9 @@
                     <div class="form-group row">
                       <label for="alias" class="col-sm-4 col-form-label"
                         >Username:&nbsp;<span *ngIf="userName.touched">
-                          <i
-                            *ngIf="userName.valid"
-                            class="fas fa-check-circle text-success"
-                          ></i>
-                          <i
-                            *ngIf="userName.invalid"
-                            class="fas fa-times-circle text-danger"
-                          ></i>
+                          <ng-container
+                            *ngIf="userName.valid; then valido; else invalido"
+                          ></ng-container>
                         </span>
                       </label>
                       <div class="col-sm-8">
@@ -88,10 +81,8 @@
                             'border-danger':
                               userName.touched && userName.invalid
                           }"
-                        />
-                        <!-- aria-describedby="helpId" -->
-                        <small
-                          id="helpId"
+                        />                        
+                        <small                        
                           [ngClass]="{
                             'd-none': userName.untouched,
                             'text-danger': userName.touched && userName.invalid,
@@ -121,14 +112,10 @@
                     <div class="form-group row">
                       <label for="alias" class="col-sm-4 col-form-label"
                         >Confirmación: &nbsp;<span *ngIf="passConfirm.touched">
-                          <i
-                            *ngIf="passConfirm.valid && !newUsuario.errors?.nocoincide"
-                            class="fas fa-check-circle text-success"
-                          ></i>
-                          <i
-                            *ngIf="passConfirm.invalid || newUsuario.errors?.nocoincide"
-                            class="fas fa-times-circle text-danger"
-                          ></i>
+                          <ng-container
+                            *ngIf="passConfirm.valid &&
+                            !newUsuario.errors?.nocoincide; then valido; else invalido"
+                          ></ng-container>                          
                         </span>
                       </label>
                       <div class="col-sm-8">
@@ -174,8 +161,8 @@
                                 : 'fas fa-save'
                             "
                           ></i>
-                          <span *ngIf="!loading"> Guardar Usuario</span>
-                          <span *ngIf="loading"> Guardando...</span>
+                          <span *ngIf="!loading">&nbsp; Guardar Usuario</span>
+                          <span *ngIf="loading">&nbsp; Guardando...</span>
                         </button>
                       </div>
                     </div>
@@ -222,3 +209,10 @@
     </div>
   </div>
 </div>
+<!-- Templates para mostrar en validación del Formulario -->
+<ng-template #valido>
+  <i class="fas fa-check-circle text-success"></i>
+</ng-template>
+<ng-template #invalido>
+  <i class="fas fa-times-circle text-danger"></i>
+</ng-template>

@@ -11,6 +11,7 @@ export class UsuariosService {
   //Auxiliares
   user: any = {};
   userObs$: Subject<any>;
+  personaObs$: Subject<any>;
   turno: any;
   roles: any[] = [];
 
@@ -18,10 +19,9 @@ export class UsuariosService {
     private _conexion: RequestService,
     private _spinner: NgxSpinnerService
   ) {
-    //Instancia el objeto que será retornado como Observable
+    //Instancia los objetos que serán retornados como Observables
     this.userObs$ = new Subject();
-    //Chequea contra el servidor que haya un usuario logueado
-    // this.checkAuth(true);
+    this.personaObs$ = new Subject();
 
     console.log('Usuarios listo');
   }
@@ -129,37 +129,44 @@ export class UsuariosService {
       console.error(error);
       return error;
     }
-
-    // let usuario: any;
-    // await this._conexion
-    //   .request('GET', `${environment.serverUrl}/usuarios/detalle/${id}`)
-    //   .then((res: any) => {
-    //     // console.log(res);
-    //     usuario = res;
-    //   })
-    //   .catch((err) => {
-    //     usuario = err;
-    //   });
-    // return usuario[0];
   }
 
   async nuevoUsuarioFull(nuevo: any) {
-    let usuario: any;
-    await this._conexion
-      .request('POST', `${environment.serverUrl}/usuarios/nuevo`, nuevo)
-      .then((res) => (usuario = res))
-      .catch((err) => (usuario = err));
-    return usuario;
+    try {
+      let usuario = await this._conexion.request(
+        'POST',
+        `${environment.serverUrl}/usuarios`,
+        nuevo
+      );
+      //Se emiten los datos mediante el Observable para actualizar la lista
+      this.personaObs$.next(usuario);
+
+      return usuario;
+    } catch (error) {
+      console.error(error);
+      return error;
+    }
   }
 
   async updatePersona(origen: string, persona: any, id: Number) {
     try {
-      let pers = await this._conexion.request(
+      let result: any = await this._conexion.request(
         'PUT',
         `${environment.serverUrl}${origen}/detalle/${id}`,
         persona
       );
-      return pers;
+
+      //Se emiten los datos básicos para actualizar listas
+      let { apellido, nombre, persona_id } = persona;
+      let { action } = result;
+      this.personaObs$.next({
+        apellido,
+        nombre,
+        persona_id,
+        action,
+      });
+
+      return result;
     } catch (error) {
       console.error(error);
       return error;
@@ -168,12 +175,18 @@ export class UsuariosService {
 
   async updateUsuario(usuario: any, id: Number) {
     try {
-      let user = await this._conexion.request(
+      let result: any = await this._conexion.request(
         'PATCH',
         `${environment.serverUrl}/usuarios/detalle/${id}`,
         usuario
       );
-      return user;
+
+      //Se emiten los datos básicos para actualizar listas
+      let { alias, rol_id, persona_id } = usuario;
+      let { action } = result;
+
+      this.personaObs$.next({ alias, rol_id, persona_id, action });
+      return result;
     } catch (error) {
       console.error(error);
       return error;
@@ -183,21 +196,16 @@ export class UsuariosService {
   //Métodos auxiliares
   //*****************************
   async getRoles() {
-    let lista: any[] = [];
-    await this._conexion
-      .request('GET', `${environment.serverUrl}/usuarios/roles`)
-      .then((res: any[]) => {
-        lista = res.map((rol) => rol);
-      })
-      .catch((err: any) => {
-        lista = err;
-        console.log(err);
-      })
-      .finally(() => {
-        this.roles = lista;
-      });
-
-    return lista;
+    try {
+      const lista = await this._conexion.request(
+        'GET',
+        `${environment.serverUrl}/usuarios/roles`
+      );
+      this.roles = <any[]>lista;
+      return lista;
+    } catch (error) {
+      console.error('No se pudieron recuperar roles', error);
+    }
   }
 
   async getTurnoAbierto() {
@@ -236,10 +244,31 @@ export class UsuariosService {
     }
   }
 
+  // Reemplazar por la nueva función en Viajes e Histórico
   calcularFechaMaxima(fechaInicio: Date, horasSumadas: number): Date {
     let fechaMaxima = new Date(
       fechaInicio.valueOf() + 1000 * 60 * 60 * horasSumadas
     );
+    return fechaMaxima;
+  }
+
+  calculaFechaMax(fechaBase: Date, unidad: string, valor: number): Date {
+    let totalMilisegundos = 1000 * 60 * 60;
+    switch (unidad) {
+      case 'h':
+        totalMilisegundos *= valor;
+        break;
+      case 'd':
+        totalMilisegundos *= valor * 24;
+        break;
+      case 'm':
+        totalMilisegundos *= valor * 30 * 24;
+        break;
+      case 'y':
+        totalMilisegundos *= valor * 365 * 24;
+    }
+
+    let fechaMaxima = new Date(fechaBase.getTime() + totalMilisegundos);
     return fechaMaxima;
   }
 }

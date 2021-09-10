@@ -10,9 +10,9 @@
 >
 
 <!-- Inicio componente -->
-<div *ngIf="!loading" class="container-fluid mb-3 rounded">
+<div class="container-fluid mb-3 rounded">
   <!-- Contenido -->
-  <div *ngIf="errorMessage === ''" class="row">
+  <div *ngIf="ready && errorMessage == ''" class="row">
     <div class="col">
       <div class="card animate__animated animate__fadeIn">
         <div class="card-header-form">
@@ -37,32 +37,6 @@
               <i class="fas fa-user-edit"></i>&nbsp; Usuario
             </button>
           </div>
-
-          <!-- <div class="row">
-            <div class="col-md-5 h4 mt-3 text-center text-white">Detalles</div>
-            <div class="col-md-3 mt-2">
-              <button
-                (click)="activarEdicion()"
-                class="btn btn-info btn-block"
-                [disabled]="!isAdmin && !isOwner"
-              >
-                <i class="fas fa-id-card"></i>
-                &nbsp; Editar
-              </button>
-            </div>
-            <div class="col-md-3 mt-2">
-              <button
-                type="button"
-                #toggleModal
-                data-toggle="modal"
-                data-target="#editUsuario"
-                class="btn btn-success btn-block"
-                [disabled]="!isAdmin && !isOwner"
-              >
-                <i class="fas fa-user-edit"></i>&nbsp; Usuario
-              </button>
-            </div>
-          </div> -->
         </div>
         <div class="card-body back-form shadow-effect">
           <!-- Aquí se renderiza el componente con el form datosPersona -->
@@ -76,236 +50,10 @@
         </div>
       </div>
       <!-- Fin Contenido -->
-
-      <!-- Modal -->
-      <div
-        class="modal fade"
-        id="editUsuario"
-        data-backdrop="static"
-        data-keyboard="false"
-        tabindex="-1"
-        aria-labelledby="staticBackdropLabel"
-        aria-hidden="true"
-      >
-        <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title text-center" id="staticBackdropLabel">
-                Editar Datos de Usuario
-              </h5>
-              <button
-                type="button"
-                class="close"
-                data-dismiss="modal"
-                aria-label="Close"
-              >
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body">
-              <div class="container justify-content-between">
-                <form [formGroup]="editUsuario">
-                  <div class="form-row form-group">
-                    <label for="rol_id" class="col-sm-5 col-form-label"
-                      >Rol Usuario:
-                    </label>
-                    <div *ngIf="!isAdmin" class="col-sm-7">
-                      <span class="form-control">
-                        {{ usuario.rol_id | nomElem: "rol_id":roles }}
-                      </span>
-                    </div>
-                    <div *ngIf="isAdmin" class="col-sm-7">
-                      <select
-                        class="form-control"
-                        formControlName="rol_id"
-                        [disabled]="!isAdmin"
-                      >
-                        <option
-                          *ngFor="let rol of roles"
-                          [value]="rol.rol_id"
-                          [selected]="rol.rol_id == usuario.rol_id"
-                        >
-                          {{ rol.nombre }}
-                        </option>
-                      </select>
-                    </div>
-                  </div>
-                  <div class="form-row form-group">
-                    <label for="alias" class="col-sm-5 col-form-label"
-                      >Username:&nbsp;<span *ngIf="userName.touched">
-                        <i
-                          *ngIf="userName.valid"
-                          class="fas fa-check-circle text-success"
-                        ></i>
-                        <i
-                          *ngIf="userName.invalid"
-                          class="fas fa-times-circle text-danger"
-                        ></i>
-                      </span>
-                    </label>
-                    <div class="col-sm-7">
-                      <input
-                        type="text"
-                        formControlName="alias"
-                        class="form-control"
-                        [ngClass]="{
-                          'border-danger': userName.touched && userName.invalid
-                        }"
-                        aria-describedby="helpId"
-                        placeholder="Introduzca un Nombre de Usuario"
-                      />
-                      <small
-                        id="helpId"
-                        [ngClass]="{
-                          'd-none': userName.untouched,
-                          'text-danger':
-                            (userName.touched || userName.dirty) &&
-                            userName.invalid,
-                          'text-success': userName.valid
-                        }"
-                        >Entre 5 y 20 caracteres&nbsp;
-                        <i
-                          *ngIf="userName.touched && userName.valid"
-                          class="far fa-check-circle"
-                        ></i
-                      ></small>
-                    </div>
-                  </div>
-                  <div class="form-row form-group">
-                    <label for="alias" class="col-sm-5 col-form-label"
-                      >Password Actual: &nbsp;<span
-                        *ngIf="passAnterior.touched"
-                      >
-                        <i
-                          *ngIf="passAnterior.valid"
-                          class="fas fa-check-circle text-success"
-                        ></i>
-                        <i
-                          *ngIf="passAnterior.invalid"
-                          class="fas fa-times-circle text-danger"
-                        ></i>
-                      </span>
-                    </label>
-                    <div class="col-sm-7">
-                      <input
-                        type="password"
-                        formControlName="passwordAnterior"
-                        class="form-control"
-                        [ngClass]="{
-                          'border-danger':
-                            passAnterior.touched && passAnterior.invalid
-                        }"
-                        placeholder="Ingrese su Password actual"
-                      />
-                      <small
-                        [ngClass]="{
-                          'd-none': passAnterior.untouched,
-                          'text-danger':
-                            (passAnterior.touched || passAnterior.dirty) &&
-                            passAnterior.invalid,
-                          'text-success': passAnterior.valid
-                        }"
-                        >Entre 5 y 35 caracteres</small
-                      >
-                    </div>
-                  </div>
-                  <div class="form-row form-group">
-                    <label for="alias" class="col-sm-5 col-form-label"
-                      >Nuevo Password:
-                    </label>
-                    <div class="col-sm-7">
-                      <input
-                        type="password"
-                        formControlName="password"
-                        class="form-control"
-                        [ngClass]="{
-                          'border-danger':
-                            (pass.touched || pass.dirty) && pass.invalid
-                        }"
-                        placeholder="Ingrese su Nuevo Password"
-                      />
-                    </div>
-                  </div>
-                  <div class="form-row form-group">
-                    <label for="alias" class="col-sm-5 col-form-label"
-                      >Confirmar Password: &nbsp;<span
-                        *ngIf="passConfirm.touched"
-                      >
-                        <i
-                          *ngIf="passConfirm.valid"
-                          class="fas fa-check-circle text-success"
-                        ></i>
-                        <i
-                          *ngIf="passConfirm.invalid"
-                          class="fas fa-times-circle text-danger"
-                        ></i>
-                      </span>
-                    </label>
-                    <div class="col-sm-7">
-                      <input
-                        type="password"
-                        formControlName="passwordConfirm"
-                        class="form-control"
-                        [ngClass]="{
-                          'border-danger':
-                            (passConfirm.touched || passConfirm.dirty) &&
-                            passConfirm.invalid
-                        }"
-                        placeholder="Vuelva a ingresar su Nuevo Password"
-                      />
-                      <small
-                        *ngIf="
-                          editUsuario.errors?.nocoincide &&
-                          (passConfirm.touched || passConfirm.dirty)
-                        "
-                        class="text-danger"
-                        >Los Password no coinciden
-                      </small>
-                    </div>
-                  </div>
-                </form>
-              </div>
-            </div>
-
-            <div class="modal-footer">
-              <div class="container justify-content-center">
-                <div class="form-row form-group">
-                  <div class="col-sm-6">
-                    <button
-                      type="button"
-                      class="btn btn-secondary btn-block"
-                      data-dismiss="modal"
-                    >
-                      Descartar Cambios
-                    </button>
-                  </div>
-                  <div class="col-sm-6">
-                    <button
-                      type="button"
-                      (click)="confirmaGuardado()"
-                      class="btn btn-primary btn-block"
-                      [disabled]="loading || editUsuario.invalid"
-                    >
-                      <i
-                        [ngClass]="
-                          loading ? 'fas fa-sync-alt fa-spin' : 'fas fa-save'
-                        "
-                      ></i>
-                      <span *ngIf="!loading">&nbsp; Guardar Cambios</span>
-                      <span *ngIf="loading">&nbsp; Guardando...</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- Fin Modal -->
     </div>
   </div>
   <!-- Mensajes de Error -->
-  <div *ngIf="errorMessage != ''" class="row">
+  <div *ngIf="!loading && errorMessage != ''" class="row">
     <div class="col">
       <app-error
         [origin]="nombreComponente"
@@ -313,15 +61,219 @@
       ></app-error>
       <button
         class="
-          btn btn-sm btn-warning
+          btn btn-warning
           animate__animated animate__fadeIn animate__delay-1s
         "
         [routerLink]="['/usuarios']"
       >
         <i class="fas fa-angle-double-left"></i>
-        &nbsp; Volver
+        &nbsp; Regresar
       </button>
     </div>
   </div>
   <!-- Fin Mensajes de Error -->
 </div>
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="editUsuario"
+  data-backdrop="static"
+  data-keyboard="false"
+  tabindex="-1"
+  aria-labelledby="staticBackdropLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title text-center" id="staticBackdropLabel">
+          Editar Datos de Usuario
+        </h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="container justify-content-between">
+          <form [formGroup]="editUsuario">
+            <div class="form-row form-group">
+              <label for="rol_id" class="col-sm-5 col-form-label"
+                >Rol Usuario:
+              </label>
+              <div *ngIf="!isAdmin" class="col-sm-7">
+                <span class="form-control">
+                  {{ usuario.rol_id | nomElem: "rol_id":roles }}
+                </span>
+              </div>
+              <div *ngIf="isAdmin" class="col-sm-7">
+                <select class="form-control" formControlName="rol_id">
+                  <option
+                    *ngFor="let rol of roles"
+                    [value]="rol.rol_id"
+                    [selected]="rol.rol_id == usuario.rol_id"
+                  >
+                    {{ rol.nombre }}
+                  </option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row form-group">
+              <label for="alias" class="col-sm-5 col-form-label"
+                >Username:&nbsp;<span *ngIf="userName.touched">
+                  <ng-container
+                    *ngIf="userName.valid; then valido; else invalido"
+                  ></ng-container>
+                </span>
+              </label>
+              <div class="col-sm-7">
+                <input
+                  type="text"
+                  formControlName="alias"
+                  class="form-control"
+                  [ngClass]="{
+                    'border-danger': userName.touched && userName.invalid
+                  }"
+                  aria-describedby="helpId"
+                  placeholder="Introduzca un Nombre de Usuario"
+                />
+                <small
+                  id="helpId"
+                  [ngClass]="{
+                    'd-none': userName.untouched,
+                    'text-danger':
+                      (userName.touched || userName.dirty) && userName.invalid,
+                    'text-success': userName.valid
+                  }"
+                  >Entre 5 y 20 caracteres&nbsp; ></small
+                >
+              </div>
+            </div>
+            <div class="form-row form-group">
+              <label for="alias" class="col-sm-5 col-form-label"
+                >Password Actual: &nbsp;<span *ngIf="passAnterior.touched">
+                  <ng-container
+                    *ngIf="passAnterior.valid; then valido; else invalido"
+                  ></ng-container>
+                </span>
+              </label>
+              <div class="col-sm-7">
+                <input
+                  type="password"
+                  formControlName="passwordAnterior"
+                  class="form-control"
+                  [ngClass]="{
+                    'border-danger':
+                      passAnterior.touched && passAnterior.invalid
+                  }"
+                  placeholder="Ingrese su Password actual"
+                />
+                <small
+                  [ngClass]="{
+                    'd-none': passAnterior.untouched,
+                    'text-danger':
+                      (passAnterior.touched || passAnterior.dirty) &&
+                      passAnterior.invalid,
+                    'text-success': passAnterior.valid
+                  }"
+                  >Entre 5 y 35 caracteres</small
+                >
+              </div>
+            </div>
+            <div class="form-row form-group">
+              <label for="alias" class="col-sm-5 col-form-label"
+                >Nuevo Password:
+              </label>
+              <div class="col-sm-7">
+                <input
+                  type="password"
+                  formControlName="password"
+                  class="form-control"
+                  [ngClass]="{
+                    'border-danger':
+                      (pass.touched || pass.dirty) && pass.invalid
+                  }"
+                  placeholder="Ingrese su Nuevo Password"
+                />
+              </div>
+            </div>
+            <div class="form-row form-group">
+              <label for="alias" class="col-sm-5 col-form-label"
+                >Confirmar Password: &nbsp;<span *ngIf="passConfirm.touched">
+                  <ng-container
+                    *ngIf="passConfirm.valid; then valido; else invalido"
+                  ></ng-container>
+                </span>
+              </label>
+              <div class="col-sm-7">
+                <input
+                  type="password"
+                  formControlName="passwordConfirm"
+                  class="form-control"
+                  [ngClass]="{
+                    'border-danger':
+                      (passConfirm.touched || passConfirm.dirty) &&
+                      passConfirm.invalid
+                  }"
+                  placeholder="Vuelva a ingresar su Nuevo Password"
+                />
+                <small
+                  *ngIf="
+                    editUsuario.errors?.nocoincide &&
+                    (passConfirm.touched || passConfirm.dirty)
+                  "
+                  class="text-danger"
+                  >Los Password no coinciden
+                </small>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <div class="container justify-content-center">
+          <div class="form-row form-group">
+            <div class="col-sm-6">
+              <button
+                type="button"
+                class="btn btn-secondary btn-block"
+                data-dismiss="modal"
+              >
+                Descartar Cambios
+              </button>
+            </div>
+            <div class="col-sm-6">
+              <button
+                type="button"
+                (click)="confirmaGuardado()"
+                class="btn btn-primary btn-block"
+                [disabled]="loading || editUsuario.invalid"
+              >
+                <i
+                  [ngClass]="
+                    loading ? 'fas fa-sync-alt fa-spin' : 'fas fa-save'
+                  "
+                ></i>
+                <span *ngIf="!loading">&nbsp; Guardar Cambios</span>
+                <span *ngIf="loading">&nbsp; Guardando...</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Fin Modal -->
+<!-- Templates para mostrar en validación del Formulario -->
+<ng-template #valido>
+  <i class="fas fa-check-circle text-success"></i>
+</ng-template>
+<ng-template #invalido>
+  <i class="fas fa-times-circle text-danger"></i>
+</ng-template>

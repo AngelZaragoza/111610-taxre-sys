@@ -28,11 +28,12 @@ class Usuario {
       // let sql = 'SELECT * FROM comprobantes';
 
       // --- Sentencia correcta ---
-      let sql = `SELECT p.apellido, p.nombre, p.fecha_nac, u.usuario_id, u.alias, r.nombre AS rol
-        FROM personas p JOIN usuarios u
-          ON p.persona_id = u.persona_id
-        JOIN roles r
-          ON u.rol_id = r.rol_id`;
+      let sql = `SELECT p.persona_id, p.apellido, p.nombre, 
+                        u.usuario_id, u.alias, r.rol_id, r.nombre AS rol
+                   FROM personas p JOIN usuarios u
+                     ON p.persona_id = u.persona_id
+                   JOIN roles r
+                     ON u.rol_id = r.rol_id`;
 
       const lista = await conexion.query(sql);
 
@@ -112,8 +113,15 @@ class Usuario {
       ]);
       console.log("CALL =>", results);
 
-      let user = { apellido, nombre, alias, usuario_id: results[0][0]["usuario_id"] };
-      return res.status(201).json({ success: true, action: "added", user });
+      const created = {
+        alias,
+        apellido,
+        nombre,
+        rol_id,
+        usuario_id: results[0][0]["usuario_id"],
+        persona_id: results[0][0]["persona_id"],
+      };
+      return res.status(201).json({ success: true, action: "added", created });
     } catch (error) {
       next(error);
     }

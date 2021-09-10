@@ -58,7 +58,7 @@ export class AdherenteEditarComponent {
       this.ready = false;
 
       this.detalleAdherente(this.idParam).finally(() => {
-        if (this.ready) {          
+        if (this.ready) {
           this.editAdherente.setValue(this.adherente);
         } else {
           console.warn(this.errorMessage);
@@ -88,7 +88,7 @@ export class AdherenteEditarComponent {
   //Métodos del componente
   //**********************
   async detalleAdherente(id) {
-    this.loading = true;    
+    this.loading = true;
     this._usuariosService.mostrarSpinner(this.loading, this.nombreComponente);
 
     this.detalle = await this._adherentesService.detalleAdherente(id);
@@ -133,9 +133,9 @@ export class AdherenteEditarComponent {
     );
 
     if (result instanceof HttpErrorResponse) {
-      mensaje = `${result.error['message']} -- ${result.error['status']} -- No se guardaron datos.`;
+      mensaje = `${result.error['message']} -- No se guardaron datos.`;
       this._alertas.problemDialog.fire({
-        title: 'Algo falló',
+        title: `Algo falló (${result.error['status']})`,
         text: mensaje,
       });
     } else {
@@ -180,9 +180,9 @@ export class AdherenteEditarComponent {
     );
 
     if (result instanceof HttpErrorResponse) {
-      mensaje = `${result.error['message']} -- ${result.error['status']} -- No se guardaron datos.`;
+      mensaje = `${result.error['message']} -- No se guardaron datos.`;
       this._alertas.problemDialog.fire({
-        title: 'Algo falló',
+        title: `Algo falló (${result.error['status']})`,
         text: mensaje,
       });
     } else {
