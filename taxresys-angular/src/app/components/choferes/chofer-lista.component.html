@@ -5,7 +5,7 @@
   color="#f5627c"
   type="ball-atom"
   [fullScreen]="true"
-  name="chofer_lista"
+  [name]="nombreComponente"
   ><p style="color: white">Cargando...</p></ngx-spinner
 >
 
@@ -33,20 +33,29 @@
             <table class="table table-hover">
               <thead class="list-group-item-secondary">
                 <tr>
-                  <th scope="col">Apellido</th>
-                  <th scope="col">Nombre</th>
-                  <th scope="col">Activo</th>
+                  <th scope="col" class="text-nowrap">
+                    <i class="fas fa-sort" role="button" (click)="ordenarPor('apellido')"></i>
+                    &nbsp; Apellido                    
+                  </th>
+                  <th scope="col" class="text-nowrap">
+                    <i class="fas fa-sort" role="button" (click)="ordenarPor('nombre')"></i>
+                    &nbsp; Nombre                     
+                  </th>
+                  <th scope="col" class="text-nowrap">
+                    <i class="fas fa-sort" role="button" (click)="ordenarPor('habilitado')"></i>
+                    &nbsp; Activo                    
+                  </th>
                   <th scope="col">Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 <tr *ngFor="let chofer of lista">
-                  <th scope="row">{{ chofer.apellido }}</th>
+                  <td>{{ chofer.apellido }}</td>
                   <td>{{ chofer.nombre }}</td>
-                  <td>{{ chofer.habilitado === 1 ? 'Sí' : 'No' }}</td>
+                  <td class="text-center">{{ chofer.habilitado === 1 ? "Sí" : "No" }}</td>
                   <td>
                     <a
-                      class="btn btn-sm btn-warning"
+                      class="btn btn-sm btn-warning text-nowrap"
                       [routerLink]="['detalle', chofer.chofer_id]"
                       ><i class="fas fa-info-circle"></i>&nbsp; Detalles</a
                     >

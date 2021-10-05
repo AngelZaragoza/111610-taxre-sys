@@ -88,8 +88,12 @@ export class ChoferNuevoComponent implements OnInit {
   //**********************
   //Recupera la lista de Adherentes
   async getAdherentes() {
-    try {
+    // Si el listado en el servicio está vacío, se realiza el llamado a la BD
+    if(!this._choferesService.listaAdherentes.length) {
       this.lista = await this._adherentesService.getAdherentes();
+      
+    }
+    try {
       this.errorMessage = '';
       this.ready = true;
     } catch (error) {

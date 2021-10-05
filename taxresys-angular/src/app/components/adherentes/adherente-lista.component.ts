@@ -3,6 +3,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { RouterEvent } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AdherentesService } from 'src/app/services/adherentes.service';
+import { ListadoService } from 'src/app/services/listado.service';
 import { UsuariosService } from 'src/app/services/usuarios.service';
 
 @Component({
@@ -25,7 +26,8 @@ export class AdherenteListaComponent implements OnInit, OnDestroy {
 
   constructor(
     private _adherentesService: AdherentesService,
-    private _usuariosService: UsuariosService
+    private _usuariosService: UsuariosService,
+    private _listadoService: ListadoService
   ) {
     this.errorMessage = '';
     this.nombreComponente = 'adh_lista';
@@ -74,11 +76,7 @@ export class AdherenteListaComponent implements OnInit, OnDestroy {
       switch (action) {
         case 'added':
           this.lista.push(valores['created']);
-          this.lista.sort((a, b) => {
-            if (a.apellido.toLowerCase() < b.apellido.toLowerCase()) return -1;
-            if (a.apellido.toLowerCase() > b.apellido.toLowerCase()) return 1;
-            return 0;
-          });
+          this._listadoService.ordenarListado(this.lista,'apellido', 'asc');          
           break;
         case 'updated':
           let index = this.lista.findIndex(
@@ -89,6 +87,8 @@ export class AdherenteListaComponent implements OnInit, OnDestroy {
               this.lista[index][key] = valores[key];
             }
           }
+          // this.lista = this._listadoService.ordenarListado(this.lista,'apellido', 'asc');
+          this._listadoService.ordenarListado(this.lista,'apellido', 'asc');
           break;
       }
     });

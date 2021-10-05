@@ -5,12 +5,16 @@ const authGuard = require("../lib/authguard.middleware"); //Chequeo antes de cad
 const choferesController = require("../controllers/choferes.controller");
 const personasController = require("../controllers/personas.controller");
 
-router.route("/").get(authGuard, choferesController.listaChoferes);
-
 router
-  .route("/nuevo")
+  .route("/")
+  .get(authGuard, choferesController.listaChoferes)
   .post(authGuard, choferesController.nuevoChoferFull)
   .put(authGuard, choferesController.nuevoChoferDesdeAdh);
+
+// router
+//   .route("/nuevo")
+//   .post(authGuard, choferesController.nuevoChoferFull)
+//   .put(authGuard, choferesController.nuevoChoferDesdeAdh);
 
 router
   .route("/detalle/:id")

@@ -46,7 +46,7 @@ export class ChoferesService {
       this.choferesObs$.next(lista);
       return lista;
     } catch (error) {
-      console.log(error);
+      console.error(error);
       return error;
     }
   }
@@ -59,69 +59,49 @@ export class ChoferesService {
       );
       return chofer[0];
     } catch (error) {
-      console.log(error);
-      throw error;
+      console.error(error);
+      return error;
     }
   }
-  // async detalleChofer(id: Number) {
-  //   let chofer: any;
-  //   await this._conexion
-  //     .request('GET', `${environment.serverUrl}/choferes/detalle/${id}`)
-  //     .then((res: any) => {
-  //       chofer = res;
-  //     })
-  //     .catch((err) => (chofer = err));
-  //   return chofer[0];
-  // }
 
   async nuevoChofer(detalle: any, nuevo: boolean) {
-    let chofer: any;
+    try {
+      //Si 'nuevo' es true, se llama la ruta de POST que invoca un SP
+      //Si nuevo es false, se llama la ruta de PUT que invoca otro SP
+      let method: string = nuevo ? 'POST' : 'PUT';
 
-    //Si 'nuevo' es true, se llama la ruta de POST que invoca el SP
-    //Si nuevo es false, se llama la ruta de PUT que ejecuta un INSERT común
-    let method: string = nuevo ? 'POST' : 'PUT';
+      let chofer = await this._conexion.request(
+        method,
+        `${environment.serverUrl}/choferes/nuevo`,
+        detalle
+      );
+      // .then((res) => {
+      //   chofer = res;
+      //   this.getChoferes();
+      // })
+      // .catch((err) => (chofer = err));
+      //Se emiten los datos mediante el Observable para actualizar la lista
+      this._usuarios.personaObs$.next(chofer);
 
-    await this._conexion
-      .request(method, `${environment.serverUrl}/choferes/nuevo`, detalle)
-      .then((res) => {
-        chofer = res;
-        this.getChoferes();
-      })
-      .catch((err) => (chofer = err));
-    return chofer;
-  }
-
-  // ** Refactorear **
-  async updatePersona(persona: any, id: Number) {
-    let pers: any;
-    await this._conexion
-      .request(
-        'PUT',
-        `${environment.serverUrl}/choferes/detalle/${id}`,
-        persona
-      )
-      .then((res) => {
-        pers = res;
-        this.getChoferes();
-      })
-      .catch((err) => (pers = err));
-
-    return pers;
+      return chofer;
+    } catch (error) {
+      console.error(error);
+      return error;
+    }
   }
 
   async updateChofer(chofer: any, id: Number) {
-    let chof: any;
-    await this._conexion
-      .request(
+    try {
+      let chof = await this._conexion.request(
         'PATCH',
         `${environment.serverUrl}/choferes/detalle/${id}`,
         chofer
-      )
-      .then((res) => {
-        chof = res;
-        this.getChoferes();
-      })
-      .catch((err) => (chof = err));
-    return chof;
+      );
+
+      return chof;
+    } catch (error) {
+      console.error(error);
+      return error;
+    }
   }
 }

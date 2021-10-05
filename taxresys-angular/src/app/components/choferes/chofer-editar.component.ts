@@ -21,12 +21,12 @@ import { AlertasService } from 'src/app/services/alertas.service';
 export class ChoferEditarComponent implements OnInit {
   //Crea una referencia a un elemento del DOM
   @ViewChild('toggleModal', { read: ElementRef }) llamaModal: ElementRef;
-  
+
   //Clases modelo para los objetos
   detalle: any = {};
   persona: Persona = new Persona();
   chofer: Chofer = new Chofer();
-  
+
   //Formulario de edición
   editChofer: FormGroup;
 
@@ -36,15 +36,18 @@ export class ChoferEditarComponent implements OnInit {
   loading: boolean = true;
   ready: boolean;
   errorMessage: string = '';
+  nombreComponente: string;
 
   constructor(
     private _choferesService: ChoferesService,
     private _usuariosService: UsuariosService,
     private _alertas: AlertasService,
-    private formBuilder: FormBuilder,    
+    private formBuilder: FormBuilder,
     private activatedRoute: ActivatedRoute
   ) {
-    this.ready = false;
+    this.nombreComponente = 'chf_detalle';
+
+    //Inicializar los controles del Form
     this.initForm();
     //Se ejecuta con cada llamada a la ruta que renderiza este componente
     //excepto cuando el parámetro que viene con la ruta no cambia.
@@ -52,15 +55,15 @@ export class ChoferEditarComponent implements OnInit {
     this.activatedRoute.params.subscribe((params) => {
       this.idParam = params['chofer_id'];
       this.editar = false;
+      this.ready = false;
 
       this.detalleChofer(this.idParam).finally(() => {
-        if(this.ready) {
-          console.table(this.chofer);
-          console.table(this.persona);
+        if (this.ready) {
+          // console.table(this.chofer);
+          // console.table(this.persona);
           this.editChofer.setValue(this.chofer);
-        }
-        else {
-          console.log('No pasó nada')
+        } else {
+          console.warn(this.errorMessage);
         }
       });
     });
@@ -101,17 +104,18 @@ export class ChoferEditarComponent implements OnInit {
   get vencimiento() {
     return this.editChofer.get('carnet_vence');
   }
-  
+
   //Métodos del componente
   //**********************
   async detalleChofer(id: number) {
     this.loading = true;
-    this.ready = false;
+    this._usuariosService.mostrarSpinner(this.loading, this.nombreComponente);
 
-    this._usuariosService.mostrarSpinner(this.loading, 'chofer_detalle');
-    
-    try {
-      this.detalle = await this._choferesService.detalleChofer(id);
+    this.detalle = await this._choferesService.detalleChofer(id);
+    if (this.detalle instanceof HttpErrorResponse) {
+      this.ready = false;
+      this.errorMessage = this.detalle.error['message'];
+    } else {
       for (let field in this.detalle) {
         //Toma los campos del detalle y los divide en sus respectivos objetos
         if (this.chofer[field] !== undefined)
@@ -121,14 +125,10 @@ export class ChoferEditarComponent implements OnInit {
       }
       this.ready = true;
       this.errorMessage = '';
-      
-    } catch (error) {
-      this.ready = false;      
-      this.errorMessage = error.error?.message;
     }
 
     this.loading = false;
-    this._usuariosService.mostrarSpinner(this.loading, 'chofer_detalle');
+    this._usuariosService.mostrarSpinner(this.loading, this.nombreComponente);
   }
 
   activarEdicion() {
@@ -143,23 +143,19 @@ export class ChoferEditarComponent implements OnInit {
 
   async updatePersona() {
     this.loading = true;
-    this._usuariosService.mostrarSpinner(this.loading, 'chofer_detalle');
+    this._usuariosService.mostrarSpinner(this.loading, this.nombreComponente);
     let mensaje: string;
-    let result: any;
 
-    try {
-      result = await this._choferesService.updatePersona(
-        this.persona,
-        this.persona.persona_id
-      );      
-    } catch (error) {
-      result = error;
-    }
+    let result = await this._usuariosService.updatePersona(
+      '/choferes',
+      this.persona,
+      this.persona.persona_id
+    );
 
     if (result instanceof HttpErrorResponse) {
-      mensaje = `${result['error']['message']} -- ${result['statusText']} -- No se guardaron datos.`;
+      mensaje = `${result.error['message']} -- No se guardaron datos.`;
       this._alertas.problemDialog.fire({
-        title: 'Algo falló',
+        title: `Algo falló (${result.error['status']})`,
         text: mensaje,
       });
     } else {
@@ -172,10 +168,9 @@ export class ChoferEditarComponent implements OnInit {
         },
       });
     }
-    
+
     this.loading = false;
-    this._usuariosService.mostrarSpinner(this.loading, 'chofer_detalle');
-    this.ready = true;    
+    this._usuariosService.mostrarSpinner(this.loading, this.nombreComponente);
   }
 
   confirmaGuardado() {
@@ -184,10 +179,7 @@ export class ChoferEditarComponent implements OnInit {
       .fire({
         title: 'Datos de Chofer',
         text: mensaje,
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'Confirmar',
-        cancelButtonText: 'Cancelar',
+        icon: 'question',        
       })
       .then((result) => {
         if (result.isConfirmed) {
@@ -196,26 +188,21 @@ export class ChoferEditarComponent implements OnInit {
         }
       });
   }
-  
+
   async updateChofer() {
     this.loading = true;
     let mensaje: string;
-    let result: any;
     this.chofer = this.editChofer.value;
-
-    try {
-      result = await this._choferesService.updateChofer(
-        this.chofer,
-        this.chofer.chofer_id
-      );
-    } catch (error) {
-      result = error;
-    }
-
+    
+    let result = await this._choferesService.updateChofer(
+      this.chofer,
+      this.chofer.chofer_id
+    );
+    
     if (result instanceof HttpErrorResponse) {
-      mensaje = `${result['error']['message']} -- ${result['statusText']} -- No se guardaron datos.`;
+      mensaje = `${result.error['message']} -- No se guardaron datos.`;
       this._alertas.problemDialog.fire({
-        title: 'Algo falló',
+        title: `Algo falló (${result.error['status']})`,
         text: mensaje,
       });
     } else {
@@ -228,7 +215,7 @@ export class ChoferEditarComponent implements OnInit {
           //Se oculta el modal
           this.llamaModal.nativeElement.dispatchEvent(
             new Event('click', { bubbles: true })
-          );          
+          );
         },
       });
     }
