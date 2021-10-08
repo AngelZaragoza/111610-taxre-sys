@@ -11,11 +11,6 @@ router
   .post(authGuard, choferesController.nuevoChoferFull)
   .put(authGuard, choferesController.nuevoChoferDesdeAdh);
 
-// router
-//   .route("/nuevo")
-//   .post(authGuard, choferesController.nuevoChoferFull)
-//   .put(authGuard, choferesController.nuevoChoferDesdeAdh);
-
 router
   .route("/detalle/:id")
   .get(authGuard, choferesController.detalleChofer)

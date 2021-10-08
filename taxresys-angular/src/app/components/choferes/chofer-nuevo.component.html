@@ -6,28 +6,17 @@
           class="float-left btn btn-sm btn-outline-warning"
           [routerLink]="['/choferes']"
         >
-          Cancelar
+          <i class="fas fa-angle-double-left"></i>&nbsp; Cancelar
         </button>
         Alta de Nuevo Chofer
       </div>
-
-      <!-- <div class="row">        
-        <div class="col-md-2 offset-md-1 mt-2">
-          <a class="btn btn-outline-warning" [routerLink]="['/choferes']"
-            >Cancelar</a
-          >
-        </div>
-        <div class="col-md-8 h4 mt-3 text-center text-white">
-          Alta de Nuevo Chofer
-        </div>
-      </div> -->
     </div>
     <div class="card-body back-form shadow-effect">
       <div class="row justify-content-around shadow-effect p-2">
         <button
           (click)="nuevoDesdeCero()"
           class="btn btn-outline-success"
-          [ngClass]="{ active: nuevo && eleccion }"
+          [ngClass]="{ active: cargaFull && eleccion }"
         >
           <i class="fas fa-user-plus"></i>
           Cargar todos los Datos
@@ -35,40 +24,51 @@
         <button
           (click)="nuevoDesdeAdh()"
           class="btn btn-outline-info"
-          [ngClass]="{ active: !nuevo && eleccion }"
+          [ngClass]="{ active: !cargaFull && eleccion }"
         >
           <i class="fas fa-id-card"></i>
           Cargar desde un Adherente
         </button>
       </div>
 
-      <!-- Si se carga desde cero los datos -->
-      <div *ngIf="nuevo && eleccion">
-        <div class="row justify-content-center">
-          <div class="col-md-12">
-            <app-form-persona
-              [nuevo]="true"
-              (emitPersona)="listenNuevo($event)"
-            ></app-form-persona>
-          </div>
+      <div class="row justify-content-center">
+        <!-- Si se carga desde cero los datos -->
+        <div
+          *ngIf="cargaFull && eleccion"
+          class="col-md-12 animate__animated animate__fadeIn animate__faster"
+        >
+          <app-form-persona
+            [nuevo]="true"
+            (emitPersona)="listenNuevo($event)"
+          ></app-form-persona>
         </div>
-      </div>
 
-      <!-- Si se carga a partir de un Adherente existente -->
-      <div *ngIf="!nuevo && eleccion" class="container m-3">
-        <div class="row justify-content-center">
-          <div class="col-md-9">
+        <!-- Si se carga a partir de un Adherente existente -->
+        <div
+          *ngIf="!cargaFull && eleccion"
+          class="col-md-9 animate__animated animate__fadeIn animate__faster"
+        >
+          <div *ngIf="errorMessage !== ''">
+            <app-error
+              [origin]="'chf_nuevo'"
+              [errorMessage]="errorMessage"
+            ></app-error>
+          </div>
+          <div *ngIf="errorMessage === ''" class="container mt-4">
             <form>
-              <div class="form-group row">
-                <label for="rol_id" class="col-sm-3 col-form-label"
-                  >Adherentes:
+              <div class="form-group row py-3">
+                <label for="rol_id" class="col-sm-4 col-form-label"
+                  >Adh. Disponibles:
                 </label>
-                <div class="col-sm-9">
+                <div class="col-sm-8">
                   <select #comboAdh class="form-control">
                     <option value="" selected>
                       -- Seleccione un Adherente --
                     </option>
-                    <option *ngFor="let adh of lista" [value]="adh.persona_id">
+                    <option
+                      *ngFor="let adh of listaAdherentes"
+                      [value]="adh.persona_id"
+                    >
                       {{ adh.apellido }}, {{ adh.nombre }} - Móviles:
                       {{ adh.moviles_activos }}
                     </option>
@@ -78,21 +78,26 @@
             </form>
           </div>
         </div>
-      </div>
-      <div *ngIf="eleccion" class="container m-3">
-        <div class="row justify-content-center">
-          <div class="col-lg-9">
-            <button
-              (click)="modalCarnet($event)"
-              #formCarnet
-              type="button"
-              data-toggle="modal"
-              data-target="#datosCarnet"
-              class="btn btn-info btn-block"
-              [ngClass]="{ 'd-none': nuevo && eleccion }"
-            >
-              Confirmar y cargar datos Carnet
-            </button>
+        <div class="container m-3">
+          <div *ngIf="eleccion" class="row justify-content-center">
+            <div class="col-lg-9">
+              <button
+                (click)="modalCarnet($event)"
+                #formCarnet
+                type="button"
+                data-toggle="modal"
+                data-target="#datosCarnet"
+                class="btn btn-info btn-block"
+                [disabled]="!cargaFull && !listaAdherentes.length"
+                [ngClass]="
+                  cargaFull && eleccion
+                    ? 'd-none'
+                    : 'animate__animated animate__fadeIn animate__faster'
+                "
+              >
+                Confirmar y cargar datos Carnet
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -129,44 +134,53 @@
           <div class="container justify-content-between">
             <form [formGroup]="newChofer">
               <div class="form-group row">
-                <label for="carnet_nro" class="col-md-5 col-form-label"
-                  >Tipo Carnet - Nro.:
+                <label for="carnet_nro" class="col-md-6 col-form-label"
+                  >Tipo y Nro. Carnet: &nbsp;
+                  <span *ngIf="carnet.dirty">
+                    <ng-container
+                      *ngIf="carnet.valid; then valido; else invalido"
+                    ></ng-container>
+                  </span>
                 </label>
-                <div class="col-md-7">
+                <div class="col-md-6">
                   <input
                     type="text"
                     formControlName="carnet_nro"
                     class="form-control"
                     aria-describedby="helpId"
                     [ngClass]="{
-                      'border-danger': carnet.touched && carnet.invalid
+                      'border-danger': carnet.dirty && carnet.invalid
                     }"
                   />
                   <small id="helpId" class="text-muted"
-                    >Ejemplo: "D1-25666666" (Sin las comillas)</small
+                    >Ej: "D1-25666666" (Sin comillas)</small
                   >
                 </div>
               </div>
               <div class="form-group row">
-                <label for="carnet_vence" class="col-md-5 col-form-label"
-                  >Fecha Vencimiento:</label
-                >
-                <div class="col-md-7">
+                <label for="carnet_vence" class="col-md-6 col-form-label"
+                  >Fecha Vencimiento: &nbsp;
+                  <span *ngIf="vencimiento.dirty">
+                    <ng-container
+                      *ngIf="vencimiento.valid; then valido; else invalido"
+                    ></ng-container>
+                  </span>
+                </label>
+                <div class="col-md-6">
                   <input
-                        [owlDateTime]="venceCarnet"
-                        [owlDateTimeTrigger]="venceCarnet"
-                        class="form-control"
-                        formControlName="carnet_vence"
-                        placeholder="Vencim. Carnet"
-                        [ngClass]="{
-                          'border-danger':
-                            vencimiento.touched && vencimiento.invalid
-                        }"
-                      />
-                      <owl-date-time
-                        [pickerType]="'calendar'"
-                        #venceCarnet
-                      ></owl-date-time>
+                    [owlDateTime]="venceCarnet"
+                    [owlDateTimeTrigger]="venceCarnet"
+                    class="form-control"
+                    formControlName="carnet_vence"
+                    placeholder="Vencim. Carnet"
+                    [ngClass]="{
+                      'border-danger': vencimiento.dirty && vencimiento.invalid
+                    }"
+                  />
+                  <owl-date-time
+                    [pickerType]="'calendar'"
+                    #venceCarnet
+                  ></owl-date-time>
                 </div>
               </div>
             </form>
@@ -194,3 +208,11 @@
     </div>
   </div>
 </div>
+<!-- Fin Modal -->
+<!-- Templates para mostrar en validación del Formulario -->
+<ng-template #valido>
+  <i class="fas fa-check-circle text-success"></i>
+</ng-template>
+<ng-template #invalido>
+  <i class="fas fa-times-circle text-danger"></i>
+</ng-template>

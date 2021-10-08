@@ -58,9 +58,7 @@ export class ChoferEditarComponent implements OnInit {
       this.ready = false;
 
       this.detalleChofer(this.idParam).finally(() => {
-        if (this.ready) {
-          // console.table(this.chofer);
-          // console.table(this.persona);
+        if (this.ready) {          
           this.editChofer.setValue(this.chofer);
         } else {
           console.warn(this.errorMessage);
@@ -79,6 +77,7 @@ export class ChoferEditarComponent implements OnInit {
         Validators.required,
         Validators.minLength(5),
         Validators.maxLength(22),
+        Validators.pattern('^[\\w]+[-\\w]+[\\w]$'),
       ]),
       carnet_vence: new FormControl('', Validators.required),
       habilitado: new FormControl(1),

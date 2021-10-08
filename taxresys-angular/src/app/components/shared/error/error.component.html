@@ -42,8 +42,14 @@
               role="alert"
             >
               <div class="text-center my-3" style="color: #4db8c8">
-                <i *ngIf="origin === 'turno-jrn'" class="fas fa-business-time fa-7x"></i>
-                <i *ngIf="origin === 'turno-pln'" class="fas fa-user-shield fa-7x"></i>
+                <i
+                  *ngIf="origin === 'turno-jrn'"
+                  class="fas fa-business-time fa-7x"
+                ></i>
+                <i
+                  *ngIf="origin === 'turno-pln'"
+                  class="fas fa-user-shield fa-7x"
+                ></i>
               </div>
               <h5 class="text-center my-3">
                 {{ errorMessage }}
@@ -69,10 +75,23 @@
       <div class="text-center my-3" style="color: #4db8c8">
         <i class="far fa-folder-open fa-7x"></i>
         <i
-          *ngIf="origin === 'usr_detalle' || origin === 'adh_detalle' || origin === 'chf_detalle'"
+          *ngIf="
+            origin === 'usr_detalle' ||
+            origin === 'adh_detalle' ||
+            origin === 'chf_detalle' ||
+            origin === 'chf_nuevo'
+          "
           class="fas fa-search-minus fa-4x"
-        ></i>&nbsp;
-        <i *ngIf="origin === 'usr_lista' || origin === 'adh_lista'|| origin === 'chf_lista'" class="far fa-file-excel fa-5x"></i>
+        ></i
+        >&nbsp;
+        <i
+          *ngIf="
+            origin === 'usr_lista' ||
+            origin === 'adh_lista' ||
+            origin === 'chf_lista'
+          "
+          class="far fa-file-excel fa-5x"
+        ></i>
       </div>
       <h5 class="text-center my-3">
         {{ errorMessage }}

@@ -93,14 +93,8 @@ class Chofer {
         habilitado,
       ]);
       console.log("CALL =>", results);
-
-      const created = {
-        apellido,
-        nombre,
-        habilitado,
-        chofer_id: results[0][0]["chofer_id"],
-        persona_id: results[0][0]["persona_id"],
-      };
+      
+      const [created] = [results[0][0]];      
       res.status(201).json({ success: true, action: "added", created });
     } catch (error) {
       next(error);

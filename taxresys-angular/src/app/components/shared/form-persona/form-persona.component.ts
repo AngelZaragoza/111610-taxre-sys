@@ -145,6 +145,7 @@ export class FormPersonaComponent implements OnInit, OnDestroy {
 
     //Emite el objeto persona para que lo tome el componente padre
     this.emitPersona.emit(this.persona);
+    this.datosPersona.reset(this.persona);
   }
 
   ngOnDestroy(): void {

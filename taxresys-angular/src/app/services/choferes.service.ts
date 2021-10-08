@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import { environment } from '../../environments/environment';
@@ -42,6 +43,7 @@ export class ChoferesService {
         'GET',
         `${environment.serverUrl}/choferes`
       );
+      this.listaChoferes = <any[]> lista;
       //Emite la lista de Choferes para actualizar cualquier suscriptor
       this.choferesObs$.next(lista);
       return lista;
@@ -64,22 +66,17 @@ export class ChoferesService {
     }
   }
 
-  async nuevoChofer(detalle: any, nuevo: boolean) {
+  async nuevoChofer(nuevo: any, full: boolean) {
     try {
-      //Si 'nuevo' es true, se llama la ruta de POST que invoca un SP
-      //Si nuevo es false, se llama la ruta de PUT que invoca otro SP
-      let method: string = nuevo ? 'POST' : 'PUT';
+      //Si 'full' es true, se llama la ruta de POST 
+      //Si full es false, se llama la ruta de PUT
+      let method: string = full ? 'POST' : 'PUT';
 
       let chofer = await this._conexion.request(
         method,
-        `${environment.serverUrl}/choferes/nuevo`,
-        detalle
-      );
-      // .then((res) => {
-      //   chofer = res;
-      //   this.getChoferes();
-      // })
-      // .catch((err) => (chofer = err));
+        `${environment.serverUrl}/choferes`,
+        nuevo
+      );      
       //Se emiten los datos mediante el Observable para actualizar la lista
       this._usuarios.personaObs$.next(chofer);
 

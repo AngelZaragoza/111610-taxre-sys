@@ -103,29 +103,39 @@
         <div class="container justify-content-between">
           <form [formGroup]="editChofer">
             <div class="form-group row">
-              <label for="carnet_nro" class="col-sm-5 col-form-label"
-                >Tipo Carnet - Nro.:
+              <label for="carnet_nro" class="col-md-6 col-form-label"
+                >Tipo y Nro. Carnet: &nbsp;
+                <span *ngIf="carnet.dirty">
+                  <ng-container
+                    *ngIf="carnet.valid; then valido; else invalido"
+                  ></ng-container>
+                </span>
               </label>
-              <div class="col-sm-7">
+              <div class="col-md-6">
                 <input
                   type="text"
                   formControlName="carnet_nro"
                   class="form-control"
                   aria-describedby="helpId"
                   [ngClass]="{
-                    'border-danger': carnet.touched && carnet.invalid
+                    'border-danger': carnet.dirty && carnet.invalid
                   }"
                 />
                 <small id="helpId" class="text-muted"
-                  >Ejemplo: "D1-25666666" (Sin las comillas)</small
+                  >Ej: "D1-25666666" (Sin comillas)</small
                 >
               </div>
             </div>
             <div class="form-group row">
-              <label for="carnet_vence" class="col-sm-5 col-form-label"
-                >Fecha Vencimiento:</label
-              >
-              <div class="col-sm-7">
+              <label for="carnet_vence" class="col-md-6 col-form-label"
+                >Fecha Vencimiento: &nbsp;
+                <span *ngIf="vencimiento.dirty">
+                  <ng-container
+                    *ngIf="vencimiento.valid; then valido; else invalido"
+                  ></ng-container>
+                </span>
+              </label>
+              <div class="col-md-6">
                 <input
                   [owlDateTime]="venceCarnet"
                   [owlDateTimeTrigger]="venceCarnet"
@@ -133,7 +143,7 @@
                   formControlName="carnet_vence"
                   placeholder="Vencim. Carnet"
                   [ngClass]="{
-                    'border-danger': vencimiento.touched && vencimiento.invalid
+                    'border-danger': vencimiento.dirty && vencimiento.invalid
                   }"
                 />
                 <owl-date-time
@@ -166,3 +176,10 @@
   </div>
 </div>
 <!-- Fin Modal -->
+<!-- Templates para mostrar en validación del Formulario -->
+<ng-template #valido>
+  <i class="fas fa-check-circle text-success"></i>
+</ng-template>
+<ng-template #invalido>
+  <i class="fas fa-times-circle text-danger"></i>
+</ng-template>

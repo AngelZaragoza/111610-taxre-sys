@@ -24,7 +24,8 @@ export class ChoferNuevoComponent implements OnInit {
   @ViewChild('comboAdh', { read: ElementRef }) comboAdh: ElementRef;
   @ViewChild('formCarnet', { read: ElementRef }) formCarnet: ElementRef;
 
-  lista: any[] = [];
+  //Listado
+  listaAdherentes: any[] = [];
 
   //Clases modelo para los objetos
   detalle: any = {};
@@ -35,8 +36,8 @@ export class ChoferNuevoComponent implements OnInit {
   newChofer: FormGroup;
 
   //Auxiliares
-  ready: boolean;
-  nuevo: boolean;
+  cantAdherentes: number;
+  cargaFull: boolean;
   loading: boolean;
   eleccion: boolean;
   errorMessage: string;
@@ -48,9 +49,9 @@ export class ChoferNuevoComponent implements OnInit {
     private _alertas: AlertasService,
     private route: Router
   ) {
-    //Listo para guardar nuevo Chofer: false
-    this.ready = false;
-    this.nuevo = false;
+    // Listo para guardar nuevo Chofer: false
+    this.cantAdherentes = 0;
+    this.cargaFull = false;
     this.eleccion = false;
     this.errorMessage = '';
   }
@@ -63,11 +64,12 @@ export class ChoferNuevoComponent implements OnInit {
   //Inicializa el formulario con valores por defecto
   initForm() {
     this.newChofer = this.formBuilder.group({
-      persona_id: new FormControl(0),
+      persona_id: new FormControl(''),
       carnet_nro: new FormControl('', [
         Validators.required,
         Validators.minLength(5),
         Validators.maxLength(22),
+        Validators.pattern('^[\\w]+[-\\w]+[\\w]$'),
       ]),
       carnet_vence: new FormControl('', Validators.required),
       habilitado: new FormControl(1),
@@ -88,28 +90,43 @@ export class ChoferNuevoComponent implements OnInit {
   //**********************
   //Recupera la lista de Adherentes
   async getAdherentes() {
+    let listado: any[];
+
     // Si el listado en el servicio está vacío, se realiza el llamado a la BD
-    if(!this._choferesService.listaAdherentes.length) {
-      this.lista = await this._adherentesService.getAdherentes();
-      
+    if (!this._choferesService.listaAdherentes.length) {
+      listado = await this._adherentesService.getAdherentes();
+    } else {
+      listado = this._choferesService.listaAdherentes;
     }
-    try {
-      this.errorMessage = '';
-      this.ready = true;
-    } catch (error) {
-      this.errorMessage = error.error?.message;
+
+    if (listado instanceof HttpErrorResponse) {
+      this.errorMessage = listado.error['message'];
+      return;
     }
+    // Se filtra la lista de Adherentes para mostrar solamente
+    // aquellos que no tienen un Chofer asociado en el combo
+    this.listaAdherentes = listado.filter((adherente) => {
+      return !this._choferesService.listaChoferes.some(
+        (chofer) => chofer['persona_id'] === adherente['persona_id']
+      );
+    });
+
+    // Se setea el mensaje de error según el resultado del filtro
+    this.errorMessage =
+      this.listaAdherentes.length > 0
+        ? ''
+        : 'No hay Adherentes cargados cuyos datos puedan usarse para crear un Chofer';
   }
 
   nuevoDesdeCero() {
-    this.nuevo = true;
+    this.cargaFull = true;
     this.eleccion = true;
     this.newChofer.reset();
     this.initForm();
   }
 
   nuevoDesdeAdh() {
-    this.nuevo = false;
+    this.cargaFull = false;
     this.eleccion = true;
     this.newChofer.reset();
     this.initForm();
@@ -117,9 +134,9 @@ export class ChoferNuevoComponent implements OnInit {
 
   listenNuevo(persona: Persona) {
     //Recibe el objeto "persona" desde el evento del componente hijo
-    this.persona = persona;    
+    this.persona = persona;
 
-    //Invoca el click en el botón oculto    
+    //Invoca el click en el botón oculto
     this.formCarnet.nativeElement.dispatchEvent(
       new Event('click', { bubbles: true, cancelable: true })
     );
@@ -127,26 +144,30 @@ export class ChoferNuevoComponent implements OnInit {
 
   //Muestra el modal con el formulario para los datos del Carnet
   modalCarnet(event?: Event) {
-    let persona_id;
-    // console.log('Evento =>', event);
+    // Chequea si se carga desde un Adherente o una carga Completa
+    if (!this.cargaFull) {
+      // Chequea si existe el combo (Adherentes disponibles)
+      if (!this.comboAdh) {
+        // Se impide la apertura del modal interrumpiendo el evento del botón
+        event.stopImmediatePropagation();
+        return;
+      }
 
-    if (!this.nuevo) {
-      persona_id = this.comboAdh.nativeElement.value;
-      console.log('Combo value => ', persona_id);
-
-      //Si el usuario no seleccionó un Adherente del combo...
+      // Chequea si el usuario seleccionó un Adherente del combo
+      let persona_id = this.comboAdh.nativeElement.value;
       if (persona_id === '') {
-        //Se impide la apertura del modal interrumpiendo el botón
+        // Se impide la apertura del modal interrumpiendo el evento del botón
         event.stopImmediatePropagation();
 
         this._alertas.problemDialog.fire({
           title: 'Error',
           text: 'Debe seleccionar un Adherente',
         });
-      } else {
-        //Setea el valor en el campo correspondiente del form y abre el modal
-        this.newChofer.get('persona_id').setValue(persona_id);
+        return;
       }
+
+      // Setea el valor del campo del form y permite la apertura del modal
+      this.newChofer.get('persona_id').setValue(persona_id);
     }
   }
 
@@ -154,15 +175,12 @@ export class ChoferNuevoComponent implements OnInit {
     //Recibe el objeto con los datos adicionales del Chofer del form
     this.chofer = { ...this.newChofer.value };
 
-    let mensaje = `¿Guarda el Nuevo Chofer: ${this.persona.apellido}, ${this.persona.nombre}?`;
+    let mensaje = `¿Guarda el Nuevo Chofer?`;
     this._alertas.confirmDialog
       .fire({
         title: 'Guardar Datos',
         text: mensaje,
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'Confirmar',
-        cancelButtonText: 'Cancelar',
+        icon: 'question',        
       })
       .then((result) => {
         if (result.isConfirmed) {
@@ -178,19 +196,18 @@ export class ChoferNuevoComponent implements OnInit {
     let result: any;
 
     try {
-      //Si nuevo es true, se crea un objeto "detalle" uniendo "persona" y "chofer" y se envía al servicio
-      if (this.nuevo) {
-        this.detalle = { ...this.persona, ...this.chofer };
-        // console.table(this.detalle);
+      // Si cargaFull es true, se crea un objeto "detalle" uniendo "persona" y "chofer" y se envía al servicio
+      if (this.cargaFull) {
+        this.detalle = { ...this.persona, ...this.chofer };        
         result = await this._choferesService.nuevoChofer(
           this.detalle,
-          this.nuevo
+          this.cargaFull
         );
       } else {
-        //Si nuevo es false, se envía solamente el objeto "chofer" al servicio
+        //Si cargaFull es false, se envía solamente el objeto "chofer" al servicio
         result = await this._choferesService.nuevoChofer(
           this.chofer,
-          this.nuevo
+          this.cargaFull
         );
       }
     } catch (error) {
@@ -198,9 +215,9 @@ export class ChoferNuevoComponent implements OnInit {
     }
 
     if (result instanceof HttpErrorResponse) {
-      mensaje = `${result['error']['message']} -- ${result['statusText']} -- No se guardaron datos.`;
+      mensaje = `${result.error['message']} -- No se guardaron datos.`;
       this._alertas.problemDialog.fire({
-        title: 'Algo falló',
+        title: `Algo falló (${result.error['status']})`,
         text: mensaje,
       });
     } else {
@@ -210,7 +227,7 @@ export class ChoferNuevoComponent implements OnInit {
         title: 'Chofer Guardado!',
         text: mensaje,
         didOpen: () => {
-          this.ready = false;
+          // this.cantAdherentes = false;
           this.formCarnet.nativeElement.dispatchEvent(
             new Event('click', { bubbles: true })
           );

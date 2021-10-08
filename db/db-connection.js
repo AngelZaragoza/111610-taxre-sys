@@ -99,12 +99,17 @@ class ConexionDB {
     }).catch((err) => {
       // Convierte los errores de mysql a codigos de estado http
       console.log(Object.entries(err));
-      const mysqlErrorList = Object.keys(HttpStatusCodes);      
-      let status = mysqlErrorList.includes(err.code)
-        ? HttpStatusCodes[err.code]
-        : 500;
+      let status, message;
+      const mysqlErrorList = Object.keys(HttpStatusCodes);
+      if (mysqlErrorList.includes(err.code)) {
+        status = HttpStatusCodes[err.code];
+        message = err.sqlMessage;
+      } else {
+        status = 500;
+        message = 'Error interno de la BD';
+      }      
       
-      throw new HttpException(status, 'Error interno de la BD', err);
+      throw new HttpException(status, message, err);
     });
   };
 }

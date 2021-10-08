@@ -35,7 +35,7 @@ textarea {
   margin: -15px -10px 0px -10px;
   /* height: 60px; */
   min-height: 3.5em;
-  background: linear-gradient(-90deg, #A60E2B, #F0A032);
+  background: linear-gradient(90deg, #A60E2B, #F0A032);
 }
 
 /*Efecto de sombra para todas las tarjetas*/

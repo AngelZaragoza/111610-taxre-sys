@@ -23,7 +23,6 @@ export class ChoferListaComponent implements OnInit, OnDestroy {
   errorMessage: string;
   nombreComponente: string;
   ultimoOrden: string;
-  // listaSub: Subscription;
 
   constructor(
     private _choferesService: ChoferesService,
@@ -66,19 +65,18 @@ export class ChoferListaComponent implements OnInit, OnDestroy {
     }
     this.loading = false;
     this._usuariosService.mostrarSpinner(this.loading, this.nombreComponente);
-
-  }  
+  }
 
   ordenarPor(campo: string): void {
     let orden: string;
-    if(this.ultimoOrden === campo) {
+    if (this.ultimoOrden === campo) {
       orden = 'desc';
       this.ultimoOrden = '';
     } else {
       orden = 'asc';
       this.ultimoOrden = campo;
     }
-    this._listadoService.ordenarListado(this.lista, campo, orden);    
+    this._listadoService.ordenarListado(this.lista, campo, orden);
   }
 
   listenUpdates(): void {
@@ -101,16 +99,7 @@ export class ChoferListaComponent implements OnInit, OnDestroy {
           }
           break;
       }
-
       this.ordenarPor('apellido');
-
-      // this.listaSub = this._choferesService.choferesObs$.subscribe((lista) => {
-      //   if (lista[0] instanceof HttpErrorResponse) {
-      //     this.errorMessage = lista[0]['error']['message'];
-      //   }  else {
-      //     this.errorMessage = '';
-      //   }
-      //   this.lista = lista;
     });
   }
 
