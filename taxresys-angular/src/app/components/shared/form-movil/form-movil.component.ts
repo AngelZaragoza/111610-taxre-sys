@@ -13,11 +13,12 @@ import {
   Validators,
   FormBuilder,
 } from '@angular/forms';
+import { CustomValidators } from 'src/app/classes/custom.validator';
+
 import { Movil } from 'src/app/classes/movil';
+import { RangoFechas } from 'src/app/classes/rango-fechas';
 import { MovilesService } from 'src/app/services/moviles.service';
 import { UsuariosService } from 'src/app/services/usuarios.service';
-import { HttpErrorResponse } from '@angular/common/http';
-import { RangoFechas } from 'src/app/classes/rango-fechas';
 import { AlertasService } from 'src/app/services/alertas.service';
 
 @Component({
@@ -40,7 +41,6 @@ export class FormMovilComponent implements OnInit, DoCheck, OnDestroy {
 
   //Formulario y listas para llenar los combos
   datosMovil: FormGroup;
-  minMaxITV: string[] = new Array(2);
 
   //Auxiliares
   errorMessage: string = '';
@@ -63,43 +63,8 @@ export class FormMovilComponent implements OnInit, DoCheck, OnDestroy {
 
   ngOnInit(): void {
     this.loading = true;
-    this.getFechasITV();
     this.initForm();
     this.loading = false;
-  }
-
-  async getDatosCombos() {
-    //Controlar como se ve si no hay adherentes cargados...
-    try {
-      await Promise.all([
-        this._movilesService
-          .getLista('/adherentes')
-          .then((lista) => (this.listaAdherentes = lista)),
-        this._movilesService
-          .getLista('/choferes')
-          .then((lista) => (this.listaChoferes = lista)),
-        this._movilesService
-          .getLista('/moviles/tipos')
-          .then((lista) => (this.listaTipos = lista)),
-      ]);
-    } catch (error) {
-      this.errorMessage = 'No se pudieron recuperar las Listas';
-      console.log(this.errorMessage);
-      this.ready = false;
-    }
-
-    /*
-    this.listaAdherentes = await this._movilesService.getLista('/adherentes');
-
-    //Si no hay adherentes cargados, no se hacen los otros llamados
-    if (this.listaAdherentes[0] instanceof HttpErrorResponse) {
-      this.errorMessage = this.listaAdherentes[0]['error']['message'];
-      this.ready = false;
-    } else {
-      this.listaChoferes = await this._movilesService.getLista('/choferes');
-      this.listaTipos = await this._movilesService.getLista('/moviles/tipos');
-    }
-    */
   }
 
   ngDoCheck(): void {
@@ -115,44 +80,51 @@ export class FormMovilComponent implements OnInit, DoCheck, OnDestroy {
       movil_id: new FormControl(''),
       adherente_id: new FormControl('', Validators.required),
       tipo_movil_id: new FormControl('', Validators.required),
-      // tipo_movil_id: new FormGroup({
-      //   []
-      // }) ,
       marca: new FormControl('', [
         Validators.required,
         Validators.minLength(3),
         Validators.maxLength(15),
+        Validators.pattern(CustomValidators.ALFANUM_NO_SIMBOLOS),
       ]),
       modelo: new FormControl('', [
         Validators.required,
         Validators.minLength(3),
         Validators.maxLength(20),
+        Validators.pattern(CustomValidators.ALFANUM_NO_SIMBOLOS),
       ]),
       descripcion: new FormControl('', [
         Validators.required,
         Validators.minLength(5),
         Validators.maxLength(60),
+        Validators.pattern(CustomValidators.ALFANUM_NO_SIMBOLOS),
       ]),
       dominio: new FormControl('', [
         Validators.required,
         Validators.minLength(6),
         Validators.maxLength(9),
+        CustomValidators.validaPatente,
       ]),
       nro_habilitacion: new FormControl('', [
         Validators.required,
         Validators.maxLength(4),
+        Validators.pattern(CustomValidators.NUMERICO),
       ]),
       nro_interno: new FormControl('', [
         Validators.required,
         Validators.maxLength(3),
+        Validators.pattern(CustomValidators.NUMERICO),
       ]),
       anio_fabr: new FormControl('', [
         Validators.required,
         Validators.maxLength(4),
+        Validators.pattern(CustomValidators.NUMERICO),
       ]),
       chofer_pref: new FormControl(''),
       fecha_itv: new FormControl(''),
-      seguro: new FormControl('', Validators.maxLength(50)),
+      seguro: new FormControl('', [
+        Validators.maxLength(50),
+        Validators.pattern(CustomValidators.ALFANUM_NO_SIMBOLOS),
+      ]),
     });
   }
 
@@ -164,11 +136,6 @@ export class FormMovilComponent implements OnInit, DoCheck, OnDestroy {
 
   get fechasITV(): RangoFechas {
     return this._movilesService.fechasITV;
-  }
-
-  getFechasITV(): void {
-    this.minMaxITV[0] = this.fechasITV.minimo.toISOString().slice(0, 10);
-    this.minMaxITV[1] = this.fechasITV.maximo.toISOString().slice(0, 10);
   }
 
   //Accesores del Form
@@ -209,19 +176,22 @@ export class FormMovilComponent implements OnInit, DoCheck, OnDestroy {
     return this.datosMovil.get('nro_interno');
   }
 
+  get seguro() {
+    return this.datosMovil.get('seguro');
+  }
+
   //Métodos del componente
   //**********************
   cancelEdit(): void {
-    //Setea "editar" en false y lo emite hacia el componente padre
-    this.editar = false;
-
     if (this.nuevo) {
       this.datosMovil.reset();
       this.initForm();
     } else {
       this.datosMovil.reset(this.movil);
+      // Setea "editar" en false y lo emite hacia el componente padre
+      this.editar = false;
+      this.emitEstado.emit(this.editar);
     }
-    this.emitEstado.emit(this.editar);
   }
 
   confirmaGuardado() {
@@ -233,9 +203,6 @@ export class FormMovilComponent implements OnInit, DoCheck, OnDestroy {
         title: 'Guardar Móvil',
         text: mensaje,
         icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'Confirmar',
-        cancelButtonText: 'Cancelar',
       })
       .then((result) => {
         if (result.isConfirmed) {
@@ -246,7 +213,7 @@ export class FormMovilComponent implements OnInit, DoCheck, OnDestroy {
   }
 
   saveMovil(): void {
-    //Recorre los campos del form y asigna los valores al objeto Móvil
+    // Recorre los campos del form y asigna los valores al objeto 'movil'
     for (const key in this.datosMovil.value) {
       let value = this.datosMovil.value[key];
       if (value === '' || value === null) {
@@ -255,9 +222,9 @@ export class FormMovilComponent implements OnInit, DoCheck, OnDestroy {
         this.movil[key] = value;
       }
     }
-    console.table(this.movil);
-    //Emite el objeto movil para que lo tome el componente padre
+    // Emite el objeto 'movil' para que lo tome el componente padre
     this.emitMovil.emit(this.movil);
+    this.datosMovil.reset(this.movil);
   }
 
   ngOnDestroy(): void {

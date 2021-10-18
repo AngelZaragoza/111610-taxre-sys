@@ -9,10 +9,9 @@
   ><p style="color: white">Cargando...</p></ngx-spinner
 >
 
-<!-- Contenido -->
-<div *ngIf="lista.length > 0" class="container-fluid p-3 mb-3 rounded">
-  <!-- Inicio componente -->
-  <div *ngIf="lista.length > 0 && !loading && errorMessage == ''" class="row">
+<!-- Inicio componente -->
+<div *ngIf="!loading" class="container-fluid p-3 mb-3 rounded">
+  <div class="row">
     <div class="col-md-5">
       <div class="card animate__animated animate__fadeInLeft animate__faster">
         <div class="card-header-list">
@@ -29,21 +28,34 @@
           </div>
         </div>
         <div class="card-body back-form shadow-effect">
-          <div class="table-responsive">
+          <!-- Contenido -->
+          <div *ngIf="errorMessage === ''" class="table-responsive">
             <table class="table table-hover">
               <thead class="list-group-item-secondary">
                 <tr>
                   <th scope="col" class="text-nowrap">
-                    <i class="fas fa-sort" role="button" (click)="ordenarPor('apellido')"></i>
-                    &nbsp; Apellido                    
+                    <i
+                      class="fas fa-sort"
+                      role="button"
+                      (click)="ordenarPor('apellido')"
+                    ></i>
+                    &nbsp; Apellido
                   </th>
                   <th scope="col" class="text-nowrap">
-                    <i class="fas fa-sort" role="button" (click)="ordenarPor('nombre')"></i>
-                    &nbsp; Nombre                     
+                    <i
+                      class="fas fa-sort"
+                      role="button"
+                      (click)="ordenarPor('nombre')"
+                    ></i>
+                    &nbsp; Nombre
                   </th>
                   <th scope="col" class="text-nowrap">
-                    <i class="fas fa-sort" role="button" (click)="ordenarPor('habilitado')"></i>
-                    &nbsp; Activo                    
+                    <i
+                      class="fas fa-sort"
+                      role="button"
+                      (click)="ordenarPor('habilitado')"
+                    ></i>
+                    &nbsp; Activo
                   </th>
                   <th scope="col">Acciones</th>
                 </tr>
@@ -52,7 +64,9 @@
                 <tr *ngFor="let chofer of lista">
                   <td>{{ chofer.apellido }}</td>
                   <td>{{ chofer.nombre }}</td>
-                  <td class="text-center">{{ chofer.habilitado === 1 ? "Sí" : "No" }}</td>
+                  <td class="text-center">
+                    {{ chofer.habilitado === 1 ? "Sí" : "No" }}
+                  </td>
                   <td>
                     <a
                       class="btn btn-sm btn-warning text-nowrap"
@@ -64,6 +78,14 @@
               </tbody>
             </table>
           </div>
+          <!-- Fin Contenido -->
+          <!-- Mensajes de Error -->
+          <app-error
+            *ngIf="errorMessage !== ''"
+            [origin]="nombreComponente"
+            [errorMessage]="errorMessage"
+          ></app-error>
+          <!-- Fin Mensajes de Error -->
         </div>
       </div>
     </div>
@@ -72,36 +94,4 @@
       <router-outlet></router-outlet>
     </div>
   </div>
-  <!-- Mensajes de Error -->
-  <div *ngIf="!loading && errorMessage != ''" class="row">
-    <div class="col">
-      <div
-        class="
-          form-group
-          align-middle
-          alert alert-info
-          animate__animated animate__fadeIn
-        "
-        role="alert"
-      >
-        <div class="text-center" style="color: #4db8c8">
-          <i class="far fa-folder-open fa-7x"></i>
-        </div>
-        <h5 class="text-center">
-          {{ errorMessage }}
-        </h5>
-        <button
-          *ngIf="isAdmin || isManager"
-          class="float-right btn btn-sm btn-success"
-          [routerLink]="['nuevo']"
-        >
-          <i class="fas fa-user-plus"></i>
-          &nbsp; Nuevo...
-        </button>
-      </div>
-    </div>
-  </div>
-  <!-- Fin Mensajes de Error -->
 </div>
-
-<!-- <h4 *ngIf="!loading && errorMessage !== ''">{{ errorMessage }}</h4> -->

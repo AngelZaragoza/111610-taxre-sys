@@ -15,30 +15,21 @@
                 </span>
               </label>
               <select
-                *ngIf="nuevo"
                 class="form-control"
                 formControlName="tipo_movil_id"
                 [ngClass]="{
                   'border-danger': tipoMovil.touched && !tipoMovil.valid
                 }"
               >
-                <option value="" selected>-- Seleccione uno --</option>
-                <option
-                  *ngFor="let tipo of listaTipos"
-                  [value]="tipo.tipo_movil_id"
-                >
-                  {{ tipo.nombre }}
+                <option value="" [selected]="nuevo">
+                  -- Seleccione uno --
                 </option>
-              </select>
-              <select
-                *ngIf="!nuevo"
-                class="form-control"
-                formControlName="tipo_movil_id"
-              >
                 <option
                   *ngFor="let tipo of listaTipos"
                   [value]="tipo.tipo_movil_id"
-                  [selected]="tipo.tipo_movil_id == movil.tipo_movil_id"
+                  [selected]="
+                    !nuevo && tipo.tipo_movil_id == movil.tipo_movil_id
+                  "
                 >
                   {{ tipo.nombre }}
                 </option>
@@ -61,31 +52,19 @@
                 </span>
               </label>
               <select
-                *ngIf="nuevo"
                 class="form-control"
                 formControlName="adherente_id"
                 [ngClass]="{
                   'border-danger': adherente.touched && !adherente.valid
                 }"
               >
-                <option value="" selected>-- Seleccione uno --</option>
-                <option
-                  *ngFor="let adh of listaAdherentes"
-                  [value]="adh.adherente_id"
-                >
-                  {{ adh.apellido }}, {{ adh.nombre }} - Móviles:
-                  {{ adh.moviles_activos }}
+                <option value="" [selected]="nuevo">
+                  -- Seleccione uno --
                 </option>
-              </select>
-              <select
-                *ngIf="!nuevo"
-                class="form-control"
-                formControlName="adherente_id"
-              >
                 <option
                   *ngFor="let adh of listaAdherentes"
                   [value]="adh.adherente_id"
-                  [selected]="adh.adherente_id == movil.adherente_id"
+                  [selected]="!nuevo && adh.adherente_id == movil.adherente_id"
                 >
                   {{ adh.apellido }}, {{ adh.nombre }} - Móviles:
                   {{ adh.moviles_activos }}
@@ -112,27 +91,19 @@
                 </span>
               </label>
               <select
-                *ngIf="nuevo"
                 class="form-control"
                 formControlName="anio_fabr"
                 [ngClass]="{
                   'border-danger': fabricado.touched && !fabricado.valid
                 }"
               >
-                <option value="" selected>-- Seleccione uno --</option>
-                <option *ngFor="let anio of aniosFabr" [value]="anio">
-                  {{ anio }}
+                <option value="" [selected]="nuevo">
+                  -- Seleccione uno --
                 </option>
-              </select>
-              <select
-                *ngIf="!nuevo"
-                class="form-control"
-                formControlName="anio_fabr"
-              >
                 <option
                   *ngFor="let anio of aniosFabr"
                   [value]="anio"
-                  [selected]="anio == movil.anio_fabr"
+                  [selected]="!nuevo && anio == movil.anio_fabr"
                 >
                   {{ anio }}
                 </option>
@@ -328,8 +299,13 @@
               <!-- Input Información de Aseguradora -->
               <div class="form-group col-md-4">
                 <label for="seguro" class="col-form-label text-wrap"
-                  >Información de Aseguradora</label
-                >
+                  >Información de Aseguradora &nbsp;
+                  <span *ngIf="seguro.touched">
+                    <ng-container
+                      *ngIf="seguro.valid; then valido; else invalido"
+                    ></ng-container>
+                  </span>
+                </label>
                 <input
                   type="text"
                   class="form-control"
@@ -342,33 +318,30 @@
                 <label for="chofer_pref" class="col-form-label text-wrap"
                   >Chofer Preferido -- Por defecto al iniciar la Jornada</label
                 >
-                <select
-                  *ngIf="nuevo"
-                  class="form-control"
-                  formControlName="chofer_pref"
-                >
-                  <option value="" selected>-- Seleccione uno --</option>
-                  <option
-                    *ngFor="let chofer of listaChoferes"
-                    [value]="chofer.chofer_id"
-                  >
-                    {{ chofer.apellido }}, {{ chofer.nombre }}
-                  </option>
-                </select>
-                <select
-                  *ngIf="!nuevo"
-                  class="form-control"
-                  formControlName="chofer_pref"
-                >
-                  <option value="" selected>-- Seleccione uno --</option>
-                  <option
-                    *ngFor="let chofer of listaChoferes"
-                    [value]="chofer.chofer_id"
-                    [selected]="chofer.chofer_id == movil.chofer_pref"
-                  >
-                    {{ chofer.apellido }}, {{ chofer.nombre }}
-                  </option>
-                </select>
+                <ng-container *ngIf="listaChoferes.length; else elseTemplate">
+                  <select class="form-control" formControlName="chofer_pref">
+                    <option value="" [selected]="nuevo">
+                      -- Seleccione uno --
+                    </option>
+                    <option
+                      *ngFor="let chofer of listaChoferes"
+                      [value]="chofer.chofer_id"
+                      [selected]="
+                        !nuevo && chofer.chofer_id == movil.chofer_pref
+                      "
+                    >
+                      {{ chofer.apellido }}, {{ chofer.nombre }}
+                    </option>
+                  </select>
+                </ng-container>
+                <ng-template #elseTemplate>
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="No hay choferes cargados"
+                    readonly
+                  />
+                </ng-template>
               </div>
             </div>
           </fieldset>
@@ -376,6 +349,7 @@
           <div *ngIf="editar" class="form-group row">
             <div class="col-sm-6">
               <button
+                type="button"
                 (click)="cancelEdit()"
                 class="btn btn-secondary btn-block"
               >
@@ -403,8 +377,6 @@
     </div>
   </div>
 </div>
-
-<!-- <pre> {{ datosMovil.value | json }}  </pre> -->
 
 <!-- Templates para mostrar en validación del Formulario -->
 <ng-template #valido>

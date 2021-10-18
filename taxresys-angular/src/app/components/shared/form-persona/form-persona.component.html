@@ -144,8 +144,8 @@
               <input
                 [owlDateTime]="fechaNac"
                 [owlDateTimeTrigger]="fechaNac"
-                [min]="fechaMin"
-                [max]="fechaMax"
+                [min]="nacidoEn.minimo"
+                [max]="nacidoEn.maximo"
                 class="form-control"
                 formControlName="fecha_nac"
                 placeholder="Fecha de Nacimiento"
@@ -163,18 +163,10 @@
             <div class="col-sm-6">
               <button
                 type="button"
-                *ngIf="!nuevo"
                 (click)="cancelEdit()"
                 class="btn btn-secondary btn-block"
               >
-                Descartar cambios
-              </button>
-              <button
-                *ngIf="nuevo"
-                type="reset"
-                class="btn btn-secondary btn-block"
-              >
-                Limpiar campos
+                {{ nuevo ? "Limpiar campos" : "Descartar cambios" }}
               </button>
             </div>
             <div class="col-sm-6">

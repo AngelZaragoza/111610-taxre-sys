@@ -5,14 +5,13 @@
   color="#f5627c"
   type="ball-atom"
   [fullScreen]="true"
-  name="movil_lista"
+  [name]="nombreComponente"
   ><p style="color: white">Cargando...</p></ngx-spinner
 >
 
-<!-- Contenido -->
-<div class="container-fluid p-3 mb-3 rounded">
-  <!-- Inicio componente -->
-  <div *ngIf="lista.length > 0 && !loading && errorMessage == ''" class="row">
+<!-- Inicio componente -->
+<div *ngIf="!loading" class="container-fluid p-3 mb-3 rounded">
+  <div class="row">
     <div class="col-md-5">
       <div class="card animate__animated animate__fadeInLeft animate__faster">
         <div class="card-header-list">
@@ -23,34 +22,80 @@
               class="float-right w-25 btn btn-sm btn-success"
               [routerLink]="['nuevo']"
             >
-              <i class="fas fa-user-plus"></i>
+              <i class="fas fa-taxi"></i>
+              <i class="fas fa-plus fa-xs"></i>
               &nbsp; Nuevo...
             </button>
           </div>
         </div>
         <div class="card-body back-form shadow-effect">
-          <div class="table-responsive">
+          <!-- Contenido -->
+          <div *ngIf="errorMessage === ''" class="table-responsive">
             <table class="table table-hover">
               <thead class="list-group-item-secondary">
                 <tr>
-                  <th scope="col" style="width: 70px;">Tipo</th>
-                  <th scope="col" class="text-center" style="width: 60px;">Móv.</th>
-                  <th scope="col" class="text-center" style="width: 60px;">Chapa</th>
-                  <th scope="col">Adherente</th>
-                  <th scope="col">Acciones</th>
+                  <th scope="col" class="text-nowrap">
+                    <i
+                      class="fas fa-sort"
+                      role="button"
+                      (click)="ordenarPor('tipo_movil_id')"
+                    ></i>
+                    Tipo
+                  </th>
+                  <th
+                    scope="col"
+                    class="text-center text-nowrap"
+                    style="width: 50px"
+                  >
+                    <i
+                      class="fas fa-sort"
+                      role="button"
+                      (click)="ordenarPor('nro_interno')"
+                    ></i>
+                    Móv.
+                  </th>
+                  <th
+                    scope="col"
+                    class="text-center text-nowrap"
+                    style="width: 50px"
+                  >
+                    <i
+                      class="fas fa-sort"
+                      role="button"
+                      (click)="ordenarPor('nro_habilitacion')"
+                    ></i>
+                    Chapa
+                  </th>
+                  <th scope="col" class="text-nowrap">
+                    <i
+                      class="fas fa-sort"
+                      role="button"
+                      (click)="ordenarPor('adherente')"
+                    ></i>
+                    Adherente
+                  </th>
+                  <th scope="col" class="text-nowrap">Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 <tr *ngFor="let movil of lista">
+                  <ng-template #tipContent
+                    >{{ movil.marca }} {{ movil.modelo }}</ng-template
+                  >
                   <td scope="row">{{ movil.tipo }}</td>
-                  <td class="font-weight-bold text-center">
-                    {{ movil.nro_interno | number:'2.0-0' }}
+                  <td
+                    class="font-weight-bold text-center"
+                    [ngbTooltip]="tipContent"
+                  >
+                    {{ movil.nro_interno | number: "2.0-0" }}
                   </td>
-                  <td class="text-center">{{ movil.nro_habilitacion | number:'3.0-0'}}</td>
+                  <td class="text-center">
+                    {{ movil.nro_habilitacion | number: "3.0-0" }}
+                  </td>
                   <td>{{ movil.adherente }}</td>
                   <td>
                     <a
-                      class="btn btn-sm btn-warning"
+                      class="btn btn-sm btn-warning text-nowrap"
                       [routerLink]="['detalle', movil.movil_id]"
                       ><i class="fas fa-info-circle"></i>&nbsp; Detalles</a
                     >
@@ -59,6 +104,14 @@
               </tbody>
             </table>
           </div>
+          <!-- Fin Contenido -->
+          <!-- Mensajes de Error -->
+          <app-error
+            *ngIf="errorMessage !== ''"
+            [origin]="nombreComponente"
+            [errorMessage]="errorMessage"
+          ></app-error>
+          <!-- Fin Mensajes de Error -->
         </div>
       </div>
     </div>
@@ -67,34 +120,4 @@
       <router-outlet></router-outlet>
     </div>
   </div>
-  <!-- Mensajes de Error -->
-  <div *ngIf="!loading && errorMessage != ''" class="row">
-    <div
-      class="
-        form-group
-        align-middle
-        alert alert-info
-        animate__animated animate__fadeIn
-      "
-      role="alert"
-    >
-      <div class="text-center" style="color: #4db8c8">
-        <i class="far fa-folder-open fa-7x"></i>
-      </div>
-      <h5 class="text-center">
-        {{ errorMessage }}
-      </h5>
-      <button
-        *ngIf="isAdmin || isManager"
-        class="float-right btn btn-sm btn-success"
-        [routerLink]="['nuevo']"
-      >
-        <i class="fas fa-user-plus"></i>
-        &nbsp; Nuevo...
-      </button>
-    </div>
-  </div>
-  <!-- Fin Mensajes de Error -->
 </div>
-
-<!-- <h4 *ngIf="!loading && errorMessage !== ''">{{ errorMessage }}</h4> -->

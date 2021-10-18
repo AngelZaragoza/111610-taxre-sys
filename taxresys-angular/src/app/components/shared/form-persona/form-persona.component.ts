@@ -7,39 +7,35 @@ import {
   OnDestroy,
 } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { CustomValidators } from 'src/app/classes/custom.validator';
+
 import { Persona } from 'src/app/classes/persona';
+import { RangoFechas } from 'src/app/classes/rango-fechas';
 import { AlertasService } from 'src/app/services/alertas.service';
-import { UsuariosService } from 'src/app/services/usuarios.service';
+import { UtilsService } from 'src/app/services/utils.service';
 
 @Component({
   selector: 'app-form-persona',
   templateUrl: './form-persona.component.html',
 })
 export class FormPersonaComponent implements OnInit, OnDestroy {
-  //Atributos que pueden ser seteados desde el componente padre
+  // Atributos que pueden ser seteados desde el componente padre
   @Input() persona: Persona = new Persona();
   @Input() editar: boolean = true;
   @Input() nuevo: boolean = true;
 
-  //Atributos que emiten datos hacia el componente padre
+  // Atributos que emiten datos hacia el componente padre
   @Output() emitEstado: EventEmitter<boolean>;
   @Output() emitPersona: EventEmitter<Persona>;
 
-  //Formulario
-  datosPersona: FormGroup;
-  fechaMax: Date;
-  fechaMin: Date;
+  // Formulario y objeto para control de fechas
+  datosPersona: FormGroup;  
+  rangoFechasNacim: RangoFechas;
 
-  constructor(
-    private _usuariosService: UsuariosService,
+  constructor(    
+    private _utils: UtilsService,
     private _alertas: AlertasService
-  ) {
-    //Para evitar que se almacenen fechas inválidas
-    this.fechaMax = this._usuariosService.calculaFechaMax(new Date(), 'y', -18);
-    this.fechaMin = this._usuariosService.calculaFechaMax(new Date(), 'y', -120);
-
-    //Instanciar controles del formulario con validadores
-    this.initForm();
+  ) {   
 
     //Instanciar emisores para enviar información al componente padre
     this.emitEstado = new EventEmitter();
@@ -47,6 +43,9 @@ export class FormPersonaComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.initFechas();
+    // Instanciar controles del formulario con validadores
+    this.initForm();
     this.datosPersona.setValue(this.persona);
   }
 
@@ -57,26 +56,39 @@ export class FormPersonaComponent implements OnInit, OnDestroy {
         Validators.required,
         Validators.minLength(3),
         Validators.maxLength(40),
+        Validators.pattern(CustomValidators.ALFANUM_NO_SIMBOLOS)
       ]),
       nombre: new FormControl('', [
         Validators.required,
         Validators.minLength(3),
         Validators.maxLength(45),
+        Validators.pattern(CustomValidators.ALFANUM_NO_SIMBOLOS)
       ]),
       direccion: new FormControl('', [
         Validators.required,
         Validators.minLength(5),
         Validators.maxLength(50),
+        Validators.pattern(CustomValidators.ALFANUM_NO_SIMBOLOS)
       ]),
       telefono: new FormControl('', [
         Validators.required,
         Validators.minLength(6),
         Validators.maxLength(20),
-        Validators.pattern('^[+0-9-]+$'),
+        Validators.pattern(CustomValidators.TELEFONO),
       ]),
       email: new FormControl('', [Validators.email, Validators.maxLength(60)]),
       fecha_nac: new FormControl(''),
     });
+  }
+
+  initFechas(): void {
+    // Para controlar las fechas que se pueden almacenar
+    let hoy = new Date();
+    this.rangoFechasNacim = {
+      actual: hoy,
+      minimo: this._utils.calcularFecha(hoy, 'y', -120),
+      maximo: this._utils.calcularFecha(hoy, 'y', -18),
+    };    
   }
 
   //Accessores del Form
@@ -105,13 +117,22 @@ export class FormPersonaComponent implements OnInit, OnDestroy {
     return this.datosPersona.get('fecha_nac');
   }
 
+  get nacidoEn() {
+    return this.rangoFechasNacim;
+  }
+
   //Métodos del componente
   //*******************
   cancelEdit(): void {
-    //Setea "editar" en false y lo emite hacia el componente padre
-    this.editar = false;
-    this.datosPersona.reset(this.persona);
-    this.emitEstado.emit(this.editar);
+    if(this.nuevo) {
+      this.datosPersona.reset();
+      this.initForm();
+    } else {
+      // Setea "editar" en false y lo emite hacia el componente padre
+      this.editar = false;
+      this.datosPersona.reset(this.persona);
+      this.emitEstado.emit(this.editar);
+    }
   }
 
   confirmaGuardado(): void {
@@ -133,7 +154,7 @@ export class FormPersonaComponent implements OnInit, OnDestroy {
   }
 
   savePersona(): void {
-    //Recorre los campos del form y asigna los valores al objeto Persona
+    // Recorre los campos del form y asigna los valores al objeto Persona
     for (const key in this.datosPersona.value) {
       let value = this.datosPersona.value[key];
       if (value === '' || value === null) {
@@ -141,7 +162,7 @@ export class FormPersonaComponent implements OnInit, OnDestroy {
       } else {
         this.persona[key] = value;
       }
-    }    
+    }
 
     //Emite el objeto persona para que lo tome el componente padre
     this.emitPersona.emit(this.persona);

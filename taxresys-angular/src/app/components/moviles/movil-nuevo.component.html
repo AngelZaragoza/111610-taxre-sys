@@ -1,15 +1,15 @@
-<div *ngIf="ready && errorMessage == ''" class="container-fluid mb-3 rounded">
-  <div class="card animate__animated animate__fadeIn">
+<div class="container-fluid mb-3 rounded">
+  <div *ngIf="ready && errorMessage == ''" class="card animate__animated animate__fadeIn">
     <div class="card-header-form">
       <div class="h4 m-3 px-3 text-center text-white clearfix">
         <button
           class="float-left btn btn-sm btn-outline-warning"
           [routerLink]="['/moviles']"
         >
-          Cancelar
+        <i class="fas fa-angle-double-left"></i>&nbsp; Cancelar
         </button>
         Alta de Nuevo Móvil
-      </div>      
+      </div>
     </div>
     <div class="card-body back-form shadow-effect">
       <app-form-movil
@@ -21,4 +21,24 @@
       ></app-form-movil>
     </div>
   </div>
+  <!-- Mensajes de Error -->
+  <div *ngIf="!ready && errorMessage != ''" class="row">
+    <div class="col">
+      <app-error
+        [origin]="'mov_nuevo'"
+        [errorMessage]="errorMessage"
+      ></app-error>
+      <button
+        class="
+          btn btn-warning
+          animate__animated animate__fadeIn animate__delay-1s
+        "
+        [routerLink]="['/moviles']"
+      >
+        <i class="fas fa-angle-double-left"></i>
+        &nbsp; Regresar
+      </button>
+    </div>
+  </div>
+  <!-- Fin Mensajes de Error -->
 </div>

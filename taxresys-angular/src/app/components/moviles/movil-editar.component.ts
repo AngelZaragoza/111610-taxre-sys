@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
+
 import { Movil } from '../../classes/movil';
 import { MovilesService } from 'src/app/services/moviles.service';
 import { UsuariosService } from 'src/app/services/usuarios.service';
-import { HttpErrorResponse } from '@angular/common/http';
 import { AlertasService } from 'src/app/services/alertas.service';
 
 @Component({
@@ -27,13 +28,16 @@ export class MovilEditarComponent implements OnInit {
   ready: boolean;
   nuevo: boolean;
   errorMessage: string = '';
+  nombreComponente: string;
 
   constructor(
     private _movilesService: MovilesService,
     private _usuariosService: UsuariosService,
-    private activatedRoute: ActivatedRoute,
-    private _alertas: AlertasService
+    private _alertas: AlertasService,
+    private activatedRoute: ActivatedRoute
   ) {
+    this.nombreComponente = 'mov_detalle';
+
     this.nuevo = false;
     //Se ejecuta con cada llamada a la ruta que renderiza este componente
     //excepto cuando el parámetro que viene con la ruta no cambia.
@@ -41,6 +45,7 @@ export class MovilEditarComponent implements OnInit {
     this.activatedRoute.params.subscribe((params) => {
       this.idParam = params['movil_id'];
       this.editar = false;
+      this.ready = false;
 
       this.detalleMovil(this.idParam).finally(() => {
         console.table(this.movil);
@@ -96,20 +101,19 @@ export class MovilEditarComponent implements OnInit {
 
   async detalleMovil(id) {
     this.loading = true;
-    this.ready = false;
-    this._usuariosService.mostrarSpinner(this.loading, 'movil_detalle');
+    this._usuariosService.mostrarSpinner(this.loading, this.nombreComponente);
 
-    try {
-      this.movil = await this._movilesService.detalleMovil(id);
+    this.movil = await this._movilesService.detalleMovil(id);
+    if (this.movil instanceof HttpErrorResponse) {
+      this.ready = false;
+      this.errorMessage = this.movil.error['message'];
+    } else {
       this.ready = true;
       this.errorMessage = '';
-    } catch (error) {
-      this.ready = false;
-      this.errorMessage = error.error?.message;
     }
 
     this.loading = false;
-    this._usuariosService.mostrarSpinner(this.loading, 'movil_detalle');
+    this._usuariosService.mostrarSpinner(this.loading, this.nombreComponente);
   }
 
   activarEdicion(): void {
@@ -124,22 +128,17 @@ export class MovilEditarComponent implements OnInit {
 
   async updateMovil() {
     this.loading = true;
+    this._usuariosService.mostrarSpinner(this.loading, this.nombreComponente);
     let mensaje: string;
-    let result: any;
-
-    try {
-      result = await this._movilesService.updateMovil(
-        this.movil,
-        this.movil.movil_id
-      );
-    } catch (error) {
-      result = error;
-    }
-
+    let result = await this._movilesService.updateMovil(
+      this.movil,
+      this.movil.movil_id
+    );
+    
     if (result instanceof HttpErrorResponse) {
-      mensaje = `${result.error['message']} -- ${result.error['status']} -- No se guardaron datos.`;
+      mensaje = `${result.error['message']} -- No se guardaron datos.`;
       this._alertas.problemDialog.fire({
-        title: 'Algo falló',
+        title: `Algo falló (${result.error['status']})`,
         text: mensaje,
       });
     } else {
@@ -154,5 +153,6 @@ export class MovilEditarComponent implements OnInit {
     }
 
     this.loading = false;
+    this._usuariosService.mostrarSpinner(this.loading, this.nombreComponente);
   }
 }

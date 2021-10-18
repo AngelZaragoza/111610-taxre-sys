@@ -4,13 +4,16 @@ const authGuard = require("../lib/authguard.middleware"); //Chequeo antes de cad
 
 const movilesController = require("../controllers/moviles.controller");
 
-router.route("/").get(authGuard, movilesController.listaMoviles);
-router.route("/tipos").get(authGuard, movilesController.listaTipos);
+router
+  .route("/")
+  .get(authGuard, movilesController.listaMoviles)
+  .post(authGuard, movilesController.nuevoMovilFull);
+
 router
   .route("/detalle/:id")
   .get(authGuard, movilesController.detalleMovil)
   .patch(authGuard, movilesController.updateMovil);
 
-router.route("/nuevo").post(authGuard, movilesController.nuevoMovilFull);
+router.route("/tipos").get(authGuard, movilesController.listaTipos);
 
 module.exports = router;

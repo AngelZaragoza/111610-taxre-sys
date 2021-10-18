@@ -1,9 +1,9 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 import { ChoferesService } from 'src/app/services/choferes.service';
 import { UsuariosService } from 'src/app/services/usuarios.service';
-import { ListadoService } from 'src/app/services/listado.service';
+import { UtilsService } from 'src/app/services/utils.service';
 
 @Component({
   selector: 'app-chofer-lista',
@@ -27,7 +27,7 @@ export class ChoferListaComponent implements OnInit, OnDestroy {
   constructor(
     private _choferesService: ChoferesService,
     private _usuariosService: UsuariosService,
-    private _listadoService: ListadoService
+    private _utils: UtilsService
   ) {
     this.errorMessage = '';
     this.nombreComponente = 'chf_lista';
@@ -61,22 +61,15 @@ export class ChoferListaComponent implements OnInit, OnDestroy {
       this.errorMessage = this.lista.error['message'];
     } else {
       this.errorMessage = '';
-      this.listenUpdates();
     }
+
+    this.listenUpdates();
     this.loading = false;
     this._usuariosService.mostrarSpinner(this.loading, this.nombreComponente);
   }
 
-  ordenarPor(campo: string): void {
-    let orden: string;
-    if (this.ultimoOrden === campo) {
-      orden = 'desc';
-      this.ultimoOrden = '';
-    } else {
-      orden = 'asc';
-      this.ultimoOrden = campo;
-    }
-    this._listadoService.ordenarListado(this.lista, campo, orden);
+  ordenarPor(campo: string): void {    
+    this._utils.ordenarListado(this.lista, campo);
   }
 
   listenUpdates(): void {
@@ -104,10 +97,14 @@ export class ChoferListaComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    //Destruye la suscripción y emite la lista actualizada
-    this.personaSub.unsubscribe();
-    this.ultimoOrden = '';
-    this.ordenarPor('apellido');
-    this._choferesService.choferesObs$.next(this.lista);
+    // Destruye la suscripción y emite la lista actualizada
+    if (this.personaSub) {
+      this.personaSub.unsubscribe();
+    }
+    if (this.lista.length) {
+      this.ultimoOrden = '';
+      this.ordenarPor('apellido');
+      this._choferesService.choferesObs$.next(this.lista);
+    }
   }
 }

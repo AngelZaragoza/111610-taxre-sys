@@ -50,7 +50,7 @@ export class MovilesService {
   }
 
   async cargarListas() {
-    if (this._usuarios.user.logged) {
+    if (this._usuarios.user.logged && !this.iniciado) {
       await Promise.all([
         this.getLista('/adherentes'),
         this.getLista('/choferes'),
@@ -62,7 +62,8 @@ export class MovilesService {
         })
         .catch((error) => {
           console.log('Listas no cargadas', error);
-          return error;
+          this.iniciado = false;
+          throw error;
         });
     }
   }
@@ -89,49 +90,58 @@ export class MovilesService {
 
   //* Operaciones *
   //****************
-  async detalleMovil(id: Number) {
-    let movil: any;
-    await this._conexion
-      .request('GET', `${environment.serverUrl}/moviles/detalle/${id}`)
-      .then((res: any) => {
-        movil = res;
-      })
-      .catch((err) => (movil = err));
-    return movil[0];
+  async detalleMovil(id: number) {
+    try {
+      let movil = await this._conexion.request(
+        'GET',
+        `${environment.serverUrl}/moviles/detalle/${id}`
+      );
+      return movil[0];
+    } catch (error) {
+      console.error(error);
+      return error;
+    }
   }
 
   async nuevoMovilFull(nuevo: any) {
-    let movil: any;
-    await this._conexion
-      .request('POST', `${environment.serverUrl}/moviles/nuevo`, nuevo)
-      .then((res) => {
-        movil = res;
-        console.log('CREATE MOVIL', movil);
-        this.afterChanges(movil);
-      })
-      .catch((err) => (movil = err));
-    return movil;
+    try {
+      let movil = await this._conexion.request(
+        'POST',
+        `${environment.serverUrl}/moviles`,
+        nuevo
+      );
+      this.movilesObs$.next(movil);
+      this.afterChanges(movil);
+      return movil;
+    } catch (error) {
+      console.error(error);
+      return error;
+    }
   }
 
   async updateMovil(movil: any, id: Number) {
-    let mov: any;
-    await this._conexion
-      .request('PATCH', `${environment.serverUrl}/moviles/detalle/${id}`, movil)
-      .then((res) => {
-        mov = res;
-        console.log('UPDATE MOVIL', mov);
-        this.afterChanges(mov);
-      })
-      .catch((err) => (mov = err));
-    return mov;
+    try {
+      let mov = await this._conexion.request(
+        'PATCH',
+        `${environment.serverUrl}/moviles/detalle/${id}`,
+        movil
+      );
+      this.movilesObs$.next(mov);
+      this.afterChanges(mov);
+      return mov;
+    } catch (error) {
+      return error;
+    }    
   }
 
   //Métodos auxiliares
   //*****************************
-  aniosValidos(rango: number): number[] {
-    //Crea un arreglo de años válidos para los Móviles
+  /** Crea un arreglo de años válidos de fabricación de los Móviles
+   * @param rango  número en años para calcular el rango
+   */
+  aniosValidos(rango: number): number[] {    
     let anios: number[] = [];
-    //Suma 1 al año actual por autos asentados con modelo del año siguiente
+    // Suma 1 al año actual por autos asentados con modelo del año siguiente
     let anio = new Date().getFullYear() + 1;
 
     for (let idx = 0; idx < rango; idx++) {
@@ -139,7 +149,8 @@ export class MovilesService {
     }
     return anios;
   }
-
+  
+  /** Crea un objeto con fechas límites de vencimiento del ITV */
   private minMaxITV(): void {
     let hoy = new Date();
     this.fechasITV = {
@@ -151,7 +162,7 @@ export class MovilesService {
 
   private async afterChanges(result: any) {
     // Recupera la lista de Móviles para actualizar todos los subscribers
-    this.getLista('/moviles');
+    // this.getLista('/moviles');
 
     // Recupera valores del objeto de respuesta del server
     let {
@@ -161,17 +172,29 @@ export class MovilesService {
     let aumentar: number;
     let reducir: number;
 
-    // Actualiza el nro de móviles de los Adherentes involucrados
+    // Busca el index en el array de Adherentes usando la respuesta del server
     aumentar = this.listaAdherentes.findIndex(
       (adh) => adh['adherente_id'] == actual
     );
-    this.listaAdherentes[aumentar].moviles_activos += 1;
 
-    if (action == 'updated' && anterior != actual) {
-      reducir = this.listaAdherentes.findIndex(
-        (adh) => adh['adherente_id'] == anterior
-      );
-      this.listaAdherentes[reducir].moviles_activos -= 1;
+    // Actualiza el nro de móviles de los Adherentes involucrados
+    switch (action) {
+      case 'added':
+        this.listaAdherentes[aumentar].moviles_activos += 1;
+        break;
+      case 'updated':
+        // Si en el update cambió el Adherente, se actualizan valores
+        if (anterior !== actual) {
+          reducir = this.listaAdherentes.findIndex(
+            (adh) => adh['adherente_id'] == anterior
+          );
+          this.listaAdherentes[aumentar].moviles_activos += 1;
+          this.listaAdherentes[reducir].moviles_activos -= 1;
+        }
+        break;
+      // Próximo: delete de Móvil
     }
+    this._adherentes.adherentesObs$.next(this.listaAdherentes);
+    
   }
 }

@@ -1,13 +1,14 @@
 import { Component, ViewChild, ElementRef } from '@angular/core';
-import { UsuariosService } from 'src/app/services/usuarios.service';
+import { Router } from '@angular/router';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { confirmaPassword } from '../../classes/custom.validator';
+import { CustomValidators } from '../../classes/custom.validator';
+import { HttpErrorResponse } from '@angular/common/http';
+
 import { DTODetalleUsuario } from '../../classes/detalle-usuario';
 import { Persona } from '../../classes/persona';
 import { Usuario } from '../../classes/usuario';
-import { Router } from '@angular/router';
+import { UsuariosService } from 'src/app/services/usuarios.service';
 import { AlertasService } from 'src/app/services/alertas.service';
-import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-usuario-nuevo',
@@ -47,6 +48,7 @@ export class UsuarioNuevoComponent {
           Validators.required,
           Validators.minLength(5),
           Validators.maxLength(20),
+          Validators.pattern(CustomValidators.ALFANUM_NO_ESPACIOS), //Sólo alfanumérico (ñ ni acentos permitidos)
         ]),
         password: new FormControl('', [
           Validators.required,
@@ -58,8 +60,8 @@ export class UsuarioNuevoComponent {
           Validators.minLength(5),
           Validators.maxLength(35),
         ]),
-      },
-      { validators: confirmaPassword }
+      },      
+      { validators: CustomValidators.confirmaPassword }
     );
 
     //Listo para guardar nuevo usuario: false
@@ -121,14 +123,12 @@ export class UsuarioNuevoComponent {
   async saveUsuario() {
     this.loading = true;
     let mensaje: string;
-    
+
     //Crea un objeto "detalle" uniendo "persona" y "usuario"
     this.detalle = { ...this.persona, ...this.usuario };
-    // console.log('Resultado final =>');
-    // console.table(this.detalle);
-    
+
     //Envia el objeto "detalle" al servicio para guardar en la DB
-    let result = await this._usuariosService.nuevoUsuarioFull(this.detalle);    
+    let result = await this._usuariosService.nuevoUsuarioFull(this.detalle);
 
     if (result instanceof HttpErrorResponse) {
       mensaje = `${result.error['message']} -- No se guardaron datos.`;
@@ -147,7 +147,7 @@ export class UsuarioNuevoComponent {
           this.route.navigateByUrl('/usuarios');
         },
       });
-    }    
+    }
 
     this.loading = false;
   }

@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { MovilesService } from '../../services/moviles.service';
-import { Movil } from '../../classes/movil';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
+import { MovilesService } from '../../services/moviles.service';
+import { Movil } from '../../classes/movil';
 import { AlertasService } from 'src/app/services/alertas.service';
 
 @Component({
@@ -11,16 +11,16 @@ import { AlertasService } from 'src/app/services/alertas.service';
   styles: [],
 })
 export class MovilNuevoComponent implements OnInit {
-  //Listados
+  // Listados
   listaAdherentes: any[] = [];
   listaChoferes: any[] = [];
   listaTipos: any[] = [];
 
-  //Clases modelo para los objetos
+  // Clases modelo para los objetos
   detalle: any = {};
   movil: Movil = new Movil();
 
-  //Listo para guardar nuevo Movil
+  // Listo para guardar nuevo Movil
   ready: boolean;
   nuevo: boolean;
   loading: boolean;
@@ -41,7 +41,6 @@ export class MovilNuevoComponent implements OnInit {
   }
 
   async getDatosCombos() {
-    //Controlar como se ve si no hay adherentes cargados...
     try {
       if (!this._movilesService.iniciado) {
         await this._movilesService.cargarListas();
@@ -53,7 +52,13 @@ export class MovilNuevoComponent implements OnInit {
       this.errorMessage = '';
     } catch (error) {
       this.errorMessage = error.error?.message;
+    }
+
+    // Se muestra el componente de error si no hay Adherentes cargados
+    if (!this.listaAdherentes.length) {
       this.ready = false;
+      this.errorMessage =
+        'No se puede dar de alta un Móvil sin Adherentes cargados';
     }
   }
 
@@ -71,16 +76,12 @@ export class MovilNuevoComponent implements OnInit {
     let mensaje: string;
     let result: any;
 
-    try {
-      result = await this._movilesService.nuevoMovilFull(this.movil);
-    } catch (error) {
-      result = error;
-    }
+    result = await this._movilesService.nuevoMovilFull(this.movil);
 
     if (result instanceof HttpErrorResponse) {
-      mensaje = `${result['error']['message']} -- ${result['statusText']} -- No se guardaron datos.`;
+      mensaje = `${result.error['message']} -- No se guardaron datos.`;
       this._alertas.problemDialog.fire({
-        title: 'Algo falló',
+        title: `Algo falló (${result.error['status']})`,
         text: mensaje,
       });
     } else {
@@ -90,23 +91,11 @@ export class MovilNuevoComponent implements OnInit {
         title: 'Móvil guardado!',
         text: mensaje,
         didOpen: () => {
-          this.ready = true;
           this.route.navigateByUrl('/moviles');
         },
       });
     }
 
     this.loading = false;
-
-    // if (result instanceof HttpErrorResponse) {
-    //   alert(
-    //     `Algo falló:\n${result.error.err?.code} \n ${result.statusText}\nNo se guardaron datos.`
-    //   );
-    // } else {
-    //   alert(`Nuevo Móvil guardado!`);
-    //   this.route.navigateByUrl('/home');
-    // }
-
-    // this.loading = false;
   }
 }
