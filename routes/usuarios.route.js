@@ -1,7 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const passport = require("passport");
-const authGuard = require("../lib/authguard.middleware"); //Chequeo antes de cada peticion
+const authGuard = require("../lib/authguard.middleware");
+const adminGuard = require('../lib/adminguard.middleware'); 
 
 const usuariosController = require("../controllers/usuarios.controller");
 const personasController = require("../controllers/personas.controller");
@@ -30,12 +31,12 @@ function checkUser(req, res, next) {
 router
   .route("/")
   .get(authGuard, usuariosController.listaUsuarios)
-  .post(authGuard, usuariosController.nuevoUsuarioFull);
+  .post(authGuard, adminGuard, usuariosController.nuevoUsuarioFull);
 router
   .route("/detalle/:id")
   .get(authGuard, usuariosController.detalleUsuario)
   .put(authGuard, personasController.updatePersona)
-  .patch(authGuard, usuariosController.updateUsuario);
+  .patch(authGuard, usuariosController.updateUsuario, adminGuard, usuariosController.resetUsuario);
 
 router.route("/roles").get(authGuard, usuariosController.listaRoles);
 

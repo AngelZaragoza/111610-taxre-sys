@@ -37,10 +37,19 @@ export class UsuarioNuevoComponent {
     private _alertas: AlertasService,
     private route: Router
   ) {
-    //Recupera roles de usuario para llenar combo
+    // Recupera roles de usuario para llenar combo
     this.roles = this._usuariosService.roles;
 
-    //Controles del formulario
+    this.initForm();
+
+    // Listo para guardar nuevo usuario: false
+    this.ready = false;
+  }
+
+  /**
+   * Inicializa los controles del Form
+   */
+  initForm() {
     this.newUsuario = new FormGroup(
       {
         rol_id: new FormControl('', Validators.required),
@@ -63,9 +72,14 @@ export class UsuarioNuevoComponent {
       },      
       { validators: CustomValidators.confirmaPassword }
     );
+  }  
 
-    //Listo para guardar nuevo usuario: false
-    this.ready = false;
+  /**
+   * Resetea el Form y lo rellena con los datos del Usuario
+   */  
+  resetForm() {
+    this.newUsuario.reset();
+    this.initForm();   
   }
 
   //Accesores del Form

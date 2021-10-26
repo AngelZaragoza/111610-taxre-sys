@@ -149,7 +149,32 @@
                       (userName.touched || userName.dirty) && userName.invalid,
                     'text-success': userName.valid
                   }"
-                  >Entre 5 y 20 caracteres&nbsp; ></small
+                  >Entre 5 y 20 caracteres &nbsp;</small
+                >
+              </div>
+            </div>
+            <hr />
+            <div class="form-group">
+              <div *ngIf="isOwner" class="form-check form-check-inline">
+                <input
+                  type="checkbox"
+                  formControlName="cambiaPass"
+                  class="form-check-input"
+                  id="chgpass"
+                />
+                <label class="form-check-label" for="chgpass"
+                  >&nbsp; ¿Cambiar Contraseña?</label
+                >
+              </div>
+              <div *ngIf="isAdmin" class="form-check form-check-inline">
+                <input
+                  type="checkbox"
+                  formControlName="resetPass"
+                  class="form-check-input"
+                  id="rstpass"
+                />
+                <label class="form-check-label" for="rstpass"
+                  >&nbsp; Restablecer contraseña?</label
                 >
               </div>
             </div>
@@ -205,7 +230,11 @@
               <label for="alias" class="col-sm-5 col-form-label"
                 >Confirmar Password: &nbsp;<span *ngIf="passConfirm.touched">
                   <ng-container
-                    *ngIf="passConfirm.valid; then valido; else invalido"
+                    *ngIf="
+                      passConfirm.valid && !editUsuario.errors?.nocoincide;
+                      then valido;
+                      else invalido
+                    "
                   ></ng-container>
                 </span>
               </label>
@@ -242,6 +271,7 @@
               <button
                 type="button"
                 class="btn btn-secondary btn-block"
+                (click)="resetForm()"
                 data-dismiss="modal"
               >
                 Descartar Cambios

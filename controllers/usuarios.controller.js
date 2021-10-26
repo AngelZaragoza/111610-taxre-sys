@@ -33,7 +33,8 @@ class Usuario {
                    FROM personas p JOIN usuarios u
                      ON p.persona_id = u.persona_id
                    JOIN roles r
-                     ON u.rol_id = r.rol_id`;
+                     ON u.rol_id = r.rol_id
+                  ORDER BY u.alias`;
 
       const lista = await conexion.query(sql);
 
@@ -55,16 +56,16 @@ class Usuario {
 
       // let sql = `SELECT p.persona_id, p.apellido, p.nombre, p.direccion,
       //                   p.telefono, p.email, DATE_FORMAT(p.fecha_nac, '%Y-%m-%d') AS fecha_nac,
-      //                   u.usuario_id, u.rol_id, u.alias, u.password
-      //             FROM personas p JOIN usuarios u
-      //               ON p.persona_id = u.persona_id
-      //            WHERE u.usuario_id = ?`;
+      //                   u.usuario_id, u.rol_id, u.alias
+      //              FROM personas p JOIN usuarios u
+      //                ON p.persona_id = u.persona_id
+      //             WHERE u.usuario_id = ?`;
       let sql = `SELECT p.persona_id, p.apellido, p.nombre, p.direccion,
                         p.telefono, p.email, p.fecha_nac,
-                        u.usuario_id, u.rol_id, u.alias, u.password
-                  FROM personas p JOIN usuarios u
-                    ON p.persona_id = u.persona_id
-                 WHERE u.usuario_id = ?`;
+                        u.usuario_id, u.rol_id, u.alias 
+                   FROM personas p JOIN usuarios u
+                     ON p.persona_id = u.persona_id
+                  WHERE u.usuario_id = ?`;
 
       const results = await conexion.query(sql, [id]);
 
@@ -129,8 +130,17 @@ class Usuario {
 
   updateUsuario = async (req, res, next) => {
     try {
-      let { id } = req.params;
-      let { rol_id, alias, passwordAnterior, passwordConfirm } = req.body; //Recupera los campos enviados desde el form
+      let { id } = req.params; // Recupera el id enviado por parámetro
+      let { rol_id, alias, passwordAnterior, passwordConfirm, cambiaPass, resetPass } =
+        req.body; // Recupera los campos enviados desde el form
+
+      // Si se indica un reseteo del password, se pasa al siguiente middleware
+      if (resetPass) {
+        return next();        
+      }
+
+      let sql; // Contendrá la sentencia SQL a ejecutar
+      let argumentos = [rol_id, alias]; // Contendrá el arreglo de argumentos para la query
 
       // Si no se encuentra el Usuario, se corta la ejecución
       let user = await this.getUsuario("usuario_id", id);
@@ -138,27 +148,72 @@ class Usuario {
         throw new HttpException(404, "Usuario inexistente");
       }
 
-      // Compara el password ingresado por el Usuario, si no es correcto se corta la ejecución
-      let passCorrecto = await this.passwordUtil(passwordAnterior, user.password);
-      if (!passCorrecto) {
-        throw new HttpException(403, "El password anterior no es correcto");
+      if (cambiaPass) {
+        // Compara el password ingresado por el Usuario, si no es correcto se corta la ejecución
+        let passCorrecto = await this.passwordUtil(passwordAnterior, user.password);
+        if (!passCorrecto) {
+          throw new HttpException(403, "El password anterior no es correcto");
+        }
+
+        //Si el password anterior es correcto, se hashea el nuevo password
+        passwordConfirm = await this.passwordUtil(passwordConfirm);
+
+        sql = `UPDATE usuarios SET 
+                      rol_id=?, alias=?, password=?
+                WHERE usuario_id=?`;
+
+        argumentos.push(passwordConfirm);
+      } else {
+        sql = `UPDATE usuarios SET 
+                      rol_id=?, alias=?
+                WHERE usuario_id=?`;
       }
 
-      //Si el password anterior es correcto, se hashea el nuevo password
-      const password = await this.passwordUtil(passwordConfirm);
+      // Se termina de construir el array de argumentos para la query
+      argumentos.push(id);
 
-      let sql = `UPDATE usuarios SET 
-                        rol_id=?, alias=?, password=?
-                  WHERE usuario_id=?`;
-
-      const results = await conexion.query(sql, [rol_id, alias, password, id]);
-      console.log("UPDATE =>", results);
+      const results = await conexion.query(sql, argumentos);
       if (results["changedRows"] < 1) {
         throw new HttpException(418, "No hubo cambios", {
           action: "unchanged",
           ...results,
         });
       }
+      console.log("Update Usuario =>", results);
+      res.status(200).json({ success: true, action: "updated", results });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  resetUsuario = async (req, res, next) => {
+    try {
+      let { id } = req.params; // Recupera el id enviado por parámetro
+      let { rol_id, alias, passwordConfirm } = req.body;
+      let sql;
+
+      // Si no se encuentra el Usuario, se corta la ejecución
+      let user = await this.getUsuario("usuario_id", id);
+      if (!user) {
+        throw new HttpException(404, "Usuario inexistente");
+      }
+
+      passwordConfirm = await this.passwordUtil(passwordConfirm);
+      sql = `UPDATE usuarios SET 
+                    rol_id=?, alias=?, password=?
+              WHERE usuario_id=?`;
+
+      // Contendrá el arreglo de argumentos para la query
+      let argumentos = [rol_id, alias, passwordConfirm, id];
+
+      const results = await conexion.query(sql, argumentos);
+      if (results["changedRows"] < 1) {
+        throw new HttpException(418, "No hubo cambios", {
+          action: "unchanged",
+          ...results,
+        });
+      }
+      console.log("Reset Usuario =>", results);
       res.status(200).json({ success: true, action: "updated", results });
     } catch (error) {
       next(error);
@@ -224,6 +279,13 @@ class Usuario {
     }
   };
 
+  /**
+   * Retorna el hash resultante de encriptar un password.
+   * Si se provee un hash como segundo parámetro,
+   * retorna el resultado de verificar este contra el password.
+   * @param {string} password  El password a encriptar o verificar
+   * @param {string} hash  El hash usado para la verificación (opcional)
+   */
   passwordUtil = async (password, hash) => {
     if (!hash) {
       //Si no se proporciona hash, se calcula y devuelve hash

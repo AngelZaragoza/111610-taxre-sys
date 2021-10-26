@@ -1,7 +1,8 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 import { UsuariosService } from 'src/app/services/usuarios.service';
+import { UtilsService } from 'src/app/services/utils.service';
 
 @Component({
   selector: 'app-usuario-lista',
@@ -21,10 +22,12 @@ export class UsuarioListaComponent implements OnInit, OnDestroy {
   loading: boolean;
   errorMessage: string;
   nombreComponente: string;
+  ultimoOrden: string;
 
-  constructor(private _usuariosService: UsuariosService) {
+  constructor(private _usuariosService: UsuariosService, private _utils: UtilsService) {
     this.errorMessage = '';
     this.nombreComponente = 'usr_lista';
+    this.ultimoOrden = '';
   }
 
   ngOnInit(): void {
@@ -96,9 +99,14 @@ export class UsuarioListaComponent implements OnInit, OnDestroy {
           }
           break;
       }
+      this.ordenarPor('alias');
     });
   }
 
+  ordenarPor(campo: string): void {
+    this._utils.ordenarListado(this.lista, campo);
+  }
+  
   ngOnDestroy(): void {
     //Destruye la suscripción
     this.personaSub.unsubscribe();

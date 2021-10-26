@@ -1,20 +1,28 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { UsuariosService } from '../../services/usuarios.service';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { CustomValidators } from '../../classes/custom.validator';
+
 import { DTODetalleUsuario } from '../../classes/detalle-usuario';
 import { Persona } from '../../classes/persona';
 import { Usuario } from '../../classes/usuario';
-import { confirmaPassword } from '../../classes/custom.validator';
+import { UsuariosService } from '../../services/usuarios.service';
 import { AlertasService } from 'src/app/services/alertas.service';
-import { HttpErrorResponse } from '@angular/common/http';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-usuario-editar',
   templateUrl: './usuario-editar.component.html',
   styles: [],
 })
-export class UsuarioEditarComponent {
+export class UsuarioEditarComponent implements OnInit, OnDestroy {
   //Crea una referencia a un elemento del DOM
   @ViewChild('toggleModal', { read: ElementRef }) llamaModal: ElementRef;
 
@@ -23,9 +31,10 @@ export class UsuarioEditarComponent {
   persona: Persona = new Persona();
   usuario: Usuario = new Usuario();
 
-  //Formulario y objeto de roles de usuario
+  // Formulario y objeto de Roles de usuario
   editUsuario: FormGroup;
   roles: any;
+  checkboxSub: Subscription = new Subscription();
 
   //Auxiliares
   idParam: any;
@@ -43,7 +52,9 @@ export class UsuarioEditarComponent {
   ) {
     this.nombreComponente = 'usr_detalle';
     this.roles = this._usuariosService.roles;
+  }
 
+  ngOnInit(): void {
     //Inicializar los controles del Form
     this.initForm();
 
@@ -57,17 +68,20 @@ export class UsuarioEditarComponent {
 
       this.detalleUsuario(this.idParam).finally(() => {
         if (this.ready) {
-          this.personaId.setValue(this.usuario.persona_id);
-          this.userId.setValue(this.usuario.usuario_id);
-          this.userName.setValue(this.usuario.alias);
-          this.rolSelect.setValue(this.usuario.rol_id);
+          this.resetForm();
+          // this.editUsuario.reset();
+          // this.clearPasswords();
+          // this.editUsuario.patchValue(this.usuario);
         } else {
           console.warn(this.errorMessage);
         }
       });
     });
+    this.checkFormOptions();
   }
 
+  // Inicialización y opciones del Form
+  // ***********************************
   initForm(): void {
     this.editUsuario = new FormGroup(
       {
@@ -78,25 +92,81 @@ export class UsuarioEditarComponent {
           Validators.required,
           Validators.minLength(5),
           Validators.maxLength(20),
+          Validators.pattern(CustomValidators.ALFANUM_NO_ESPACIOS), //Sólo alfanumérico (ñ ni acentos permitidos)
         ]),
-        passwordAnterior: new FormControl('', [
+        passwordAnterior: new FormControl({ value: '', disabled: true }, [
           Validators.required,
           Validators.minLength(5),
           Validators.maxLength(35),
         ]),
-        password: new FormControl('', [
+        password: new FormControl({ value: '', disabled: true }, [
           Validators.required,
           Validators.minLength(5),
           Validators.maxLength(35),
         ]),
-        passwordConfirm: new FormControl('', [
+        passwordConfirm: new FormControl({ value: '', disabled: true }, [
           Validators.required,
           Validators.minLength(5),
           Validators.maxLength(35),
         ]),
+        cambiaPass: new FormControl(false),
+        resetPass: new FormControl(false),
       },
-      { validators: confirmaPassword }
+      { validators: CustomValidators.confirmaPassword }
     );
+  }
+
+  /**
+   * Se suscribe a los checkbox de cambio de password
+   */
+  checkFormOptions(): void {
+    this.checkboxSub.add(
+      this.cambiaPass.valueChanges.subscribe((checked) => {
+        if (checked) {
+          this.passAnterior.enable();
+          this.pass.enable();
+          this.passConfirm.enable();
+        } else {
+          this.clearPasswords();
+          this.passAnterior.disable();
+          this.pass.disable();
+          this.passConfirm.disable();
+        }
+      })
+    );
+
+    this.checkboxSub.add(
+      this.resetPass.valueChanges.subscribe((checked) => {
+        if (checked) {
+          this.passAnterior.disable();
+          this.pass.enable();
+          this.passConfirm.enable();
+        } else {
+          this.clearPasswords();
+          this.passAnterior.disable();
+          this.pass.disable();
+          this.passConfirm.disable();
+        }
+      })
+    );
+  }
+
+  /**
+   * Limpia los campos de password y los marca 'pristine' y 'untouched'
+   */
+  clearPasswords() {
+    this.passAnterior.reset('');
+    this.pass.reset('');
+    this.passConfirm.reset('');
+  }
+
+  /**
+   * Resetea el Form y lo rellena con los datos del Usuario
+   */  
+  resetForm() {
+    this.editUsuario.reset();
+    this.clearPasswords();
+    this.editUsuario.patchValue(this.usuario);
   }
 
   //Métodos accesores en general
@@ -146,10 +216,18 @@ export class UsuarioEditarComponent {
     return this.editUsuario.get('passwordConfirm');
   }
 
+  get cambiaPass() {
+    return this.editUsuario.get('cambiaPass');
+  }
+
+  get resetPass() {
+    return this.editUsuario.get('resetPass');
+  }
+
   //Métodos del componente
   //**********************
   async detalleUsuario(id: number) {
-    this.loading = true;    
+    this.loading = true;
     this._usuariosService.mostrarSpinner(this.loading, this.nombreComponente);
 
     this.detalle = await this._usuariosService.detalleUsuario(id);
@@ -253,19 +331,16 @@ export class UsuarioEditarComponent {
         title: 'Cambios guardados!',
         text: mensaje,
         didOpen: () => {
-          //Si este mensaje se dispara, es pq todo funcionó
-          //Se limpian algunos campos
-          this.passAnterior.setValue('');
-          this.pass.setValue('');
-          this.passConfirm.setValue('');
-          this.editUsuario.updateValueAndValidity();
+          // Si este mensaje se dispara, todo funcionó
+          // Se limpian algunos campos
+          this.clearPasswords();
 
-          //Se oculta el modal
+          // Se oculta el modal
           this.llamaModal.nativeElement.dispatchEvent(
             new Event('click', { bubbles: true })
           );
 
-          //Si los cambios afectan al Usuario logueado, se cierra la Sesión
+          // Si los cambios afectan al Usuario logueado, se cierra la sesión
           if (this.isOwner) {
             this._usuariosService
               .passportLogout()
@@ -276,7 +351,7 @@ export class UsuarioEditarComponent {
                 this.errorMessage = error.error['message'];
               });
           } else {
-            //Si el cambio lo hizo un Admin o Encargado, se vuelve al listado de Usuarios
+            // Si el cambio lo hizo un Admin o Encargado, navega al listado de Usuarios
             this.route.navigateByUrl('/usuarios');
           }
         },
@@ -284,5 +359,10 @@ export class UsuarioEditarComponent {
     }
 
     this.loading = false;
+  }
+
+  ngOnDestroy(): void {
+    console.log('Editar Usuario Destruido');
+    this.checkboxSub.unsubscribe();
   }
 }
