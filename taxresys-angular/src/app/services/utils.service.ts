@@ -1,13 +1,20 @@
 import { Injectable } from '@angular/core';
 import { NgxSpinnerService } from 'ngx-spinner';
+import { Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UtilsService {
   ultimoOrden: string;
+  componentDestroyed$: Subject<void>;
+
   constructor(private _spinner: NgxSpinnerService) {
+    // Para controlar el último campo usado para 'ordenarListado'
     this.ultimoOrden = '';
+    
+    // Para terminar suscripciones en un componente al destruir el mismo
+    this.componentDestroyed$ = new Subject<void>();
   }
 
   /**

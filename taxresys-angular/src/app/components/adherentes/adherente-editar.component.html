@@ -10,13 +10,19 @@
 >
 
 <!-- Inicio componente -->
-<div class="container-fluid mb-3 rounded">
+<div class="container-fluid mb-3 rounded" #inicio>
   <!-- Contenido -->
   <div *ngIf="ready && errorMessage == ''" class="row">
     <div class="col">
       <div class="card animate__animated animate__fadeIn">
         <div class="card-header-form">
           <div class="h4 m-3 px-3 text-center text-white clearfix">
+            <button
+              class="float-left btn btn-sm btn-warning"
+              [routerLink]="['/adherentes']"
+            >
+              <i class="fas fa-angle-double-left"></i>
+            </button>
             Detalles
             <button
               (click)="activarEdicion()"
@@ -105,10 +111,12 @@
           <form [formGroup]="editAdherente">
             <div class="form-group row">
               <label for="alias" class="col-form-label">Observaciones: </label>
-
               <textarea
-                class="form-control"
                 formControlName="observaciones"
+                class="form-control"
+                [ngClass]="{
+                  'border-danger': observaciones.dirty && observaciones.invalid
+                }"
                 maxlength="300"
                 rows="3"
               ></textarea>
@@ -129,7 +137,7 @@
           #updateAdh
           (click)="confirmaGuardado()"
           class="btn btn-primary"
-          [disabled]="loading  || editAdherente.invalid"
+          [disabled]="loading || editAdherente.invalid"
         >
           <i
             [ngClass]="loading ? 'fas fa-sync-alt fa-spin' : 'fas fa-save'"

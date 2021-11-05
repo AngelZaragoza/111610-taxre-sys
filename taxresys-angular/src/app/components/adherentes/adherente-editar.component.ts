@@ -1,11 +1,13 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { AdherentesService } from '../../services/adherentes.service';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { CustomValidators } from '../../classes/custom.validator';
+
 import { Persona } from '../../classes/persona';
 import { Adherente } from '../../classes/adherente';
 import { UsuariosService } from 'src/app/services/usuarios.service';
-import { HttpErrorResponse } from '@angular/common/http';
+import { AdherentesService } from '../../services/adherentes.service';
 import { AlertasService } from 'src/app/services/alertas.service';
 
 @Component({
@@ -16,6 +18,7 @@ import { AlertasService } from 'src/app/services/alertas.service';
 export class AdherenteEditarComponent {
   //Crea una referencia a un elemento del DOM
   @ViewChild('toggleModal', { read: ElementRef }) llamaModal: ElementRef;
+  @ViewChild('inicio', { read: ElementRef }) inicio: ElementRef;
 
   //Clases modelo para los objetos
   detalle: any = {};
@@ -40,14 +43,10 @@ export class AdherenteEditarComponent {
     private _alertas: AlertasService
   ) {
     this.nombreComponente = 'adh_detalle';
+  }
 
-    //Inicializar los controles del Form
-    this.editAdherente = new FormGroup({
-      persona_id: new FormControl(0),
-      adherente_id: new FormControl(0),
-      moviles_activos: new FormControl(0),
-      observaciones: new FormControl('', Validators.maxLength(300)),
-    });
+  ngOnInit(): void {
+    this.initForm();
 
     //Se ejecuta con cada llamada a la ruta que renderiza este componente
     //excepto cuando el parámetro que viene con la ruta no cambia.
@@ -63,11 +62,28 @@ export class AdherenteEditarComponent {
         } else {
           console.warn(this.errorMessage);
         }
+        this.inicio.nativeElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        });
       });
     });
   }
 
-  ngOnInit(): void {}
+  /**
+   * Inicializa los controles del Form
+   */
+  initForm(): void {
+    this.editAdherente = new FormGroup({
+      persona_id: new FormControl(0),
+      adherente_id: new FormControl(0),
+      moviles_activos: new FormControl(0),
+      observaciones: new FormControl(null, [
+        Validators.maxLength(300),
+        Validators.pattern(CustomValidators.ALFANUM_NO_SIMBOLOS),
+      ]),
+    });
+  }
 
   //Métodos accesores en general
   //****************************

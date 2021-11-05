@@ -33,9 +33,30 @@
             <table class="table table-hover">
               <thead class="list-group-item-secondary">
                 <tr>
-                  <th scope="col">Apellido</th>
-                  <th scope="col">Nombre</th>
-                  <th scope="col">Móviles</th>
+                  <th scope="col" class="text-nowrap">
+                    <i
+                      class="fas fa-sort"
+                      role="button"
+                      (click)="ordenarPor('apellido')"
+                    ></i>
+                    &nbsp;Apellido
+                  </th>
+                  <th scope="col" class="text-nowrap">
+                    <i
+                      class="fas fa-sort"
+                      role="button"
+                      (click)="ordenarPor('nombre')"
+                    ></i>
+                    &nbsp;Nombre
+                  </th>
+                  <th scope="col" class="text-nowrap">
+                    <i
+                      class="fas fa-sort"
+                      role="button"
+                      (click)="ordenarPor('moviles_activos')"
+                    ></i>
+                    &nbsp;Móviles
+                  </th>
                   <th scope="col">Acciones</th>
                 </tr>
               </thead>
@@ -46,7 +67,8 @@
                   <td class="text-center">{{ adh.moviles_activos }}</td>
                   <td>
                     <a
-                      class="btn btn-sm btn-warning"
+                      class="btn btn-sm btn-warning text-nowrap"
+                      (click)="savePosition($event)"
                       [routerLink]="['detalle', adh.adherente_id]"
                       ><i class="fas fa-info-circle"></i>&nbsp; Detalles</a
                     >
