@@ -11,18 +11,21 @@ import { UsuariosService } from '../services/usuarios.service';
 @Injectable({
   providedIn: 'root',
 })
-export class OwnerGuard implements CanActivate {
+export class TurnoGuard implements CanActivate {
   constructor(private _usuarios: UsuariosService, private router: Router) {}
 
   canActivate(
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
-  ): Promise<boolean | UrlTree> | boolean | UrlTree {    
-    // Si el Usuario logueado no es el igual al Usuario que abrió el Turno,
-    // impide la navegación y redirige a la página de error correspondiente.
-    const isOwner = this._usuarios.user.usuario_id === this._usuarios.user.owner;
-    if (!isOwner) {      
-      this.router.navigate(['/error'], {queryParams: {origin: 'turno-dif-usuario' }})
+  ): Promise<boolean | UrlTree> | boolean | UrlTree {
+    // Si no hay un Turno abierto, impide la navegación
+    // y redirige a la página de error correspondiente.    
+    if (!this._usuarios.user.open) {
+      if (state.url === '/viajes/turno') {
+        this.router.navigate(['/error'], {
+          queryParams: { origin: 'turno-viajes-pln' },
+        });
+      }
       return false;
     }
     

@@ -40,23 +40,19 @@ export class PendienteListaComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.userSub = this._usuariosService.userObs$.subscribe((userLogged) => {
-      console.log('pendientesLista', userLogged);
+    this.userSub = this._usuariosService.userObs$.subscribe((userLogged) => {      
       this.userLogged = userLogged;
     });
-    this._usuariosService.checkAuth(false);
+    // this._usuariosService.checkAuth(false);
 
     if (this.isOpen) {
       //Si hay un turno actualmente abierto, recupera las listas
-      console.log('Turno en Viajes =>', this.getTurno);
       this.getListas(this._viajesService.isIniciado);
     }
   }
 
   ngOnDestroy(): void {
-    //Called once, before the instance is destroyed.
-    //Destruye el suscriptor
-    console.log('|| Lista Pendientes Destruido ||');
+    // Destruye la suscripción
     this.userSub.unsubscribe();
   }
 
@@ -95,10 +91,7 @@ export class PendienteListaComponent implements OnInit {
       await this._viajesService.getLista('/jornadas')
     ).filter(
       (item) => item.turno_cierre === null && item.turno_inicio !== null
-    );
-
-    //Se muestran las listas recuperadas. Solo para debug
-    console.table(this.listaMovilesJornadas);
+    );    
 
     //Si no hay jornadas abiertas, se recupera el mensaje de error
     if (this.listaMovilesJornadas[0] instanceof HttpErrorResponse) {

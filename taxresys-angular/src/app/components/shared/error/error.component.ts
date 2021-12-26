@@ -21,14 +21,18 @@ export class ErrorComponent implements OnInit {
       this._activated.queryParamMap.subscribe(params => {
         this.origin = params.get('origin');
         switch (this.origin) {
-          case 'turno-pln':
+          case 'turno-dif-usuario':
             this.errorTitle = 'Turno abierto por otro Usuario';
             this.errorMessage = 'Sólo el Usuario que abrió el Turno actual tiene acceso a la Planilla de Alta de Viajes';
             break;
-          case 'turno-jrn':
+          case 'turno-viajes-pln':
             this.errorTitle = 'No hay un Turno abierto';
-            this.errorMessage = 'Acceso a la Planilla de Jornadas de Móviles sólo posible luego de abrir Turno';
-            break;        
+            this.errorMessage = 'Acceso a la Planilla de Alta de Viajes sólo posible luego de abrir Turno';
+            break;
+          case 'turno-jornadas-pln':
+            this.errorTitle = 'No hay un Turno abierto';
+            this.errorMessage = 'Iniciar o Cerrar Jornadas de Móviles sólo posible luego de abrir Turno';
+            break;
           // default:
           //   break;
         }

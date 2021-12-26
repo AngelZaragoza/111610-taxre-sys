@@ -30,7 +30,6 @@ export class NavbarComponent implements OnInit {
         'No hay Viajes Pendientes por Asignar'
           ? 0
           : this.listaPendientes.length;
-      console.log('Pend. Navbar =>', this.pendientes);
     });
 
     //Suscribirse al observable de Usuarios logueados para cargar listados
@@ -40,9 +39,9 @@ export class NavbarComponent implements OnInit {
         //Si hay un usuario logueado,se recuperan los Pendientes activos
         this._viajesService.getPendientesActivos();
         //Cargar las listas básicas para no hacer llamadas innecesarias a la BD
-        if (!this._viajesService.isIniciado) {
-          this._viajesService.cargarListas();
-        }
+        // if (!this._viajesService.isIniciado) {
+        //   this._viajesService.cargarListas();
+        // }
       }
     });
   }
@@ -66,14 +65,11 @@ export class NavbarComponent implements OnInit {
         text: `${this.userLogged.alias}`,
         icon: 'question',
         position: 'top-end',
-        toast: true,
-        // showCancelButton: true,
-        // confirmButtonText: 'Confirmar',
-        // cancelButtonText: 'Cancelar',
+        toast: true,        
       })
       .then((result) => {
         if (result.isConfirmed) {
-          //Si el usuario confirma, se invoca el método para cerrar sesión
+          // Si el usuario confirma, se invoca el método para cerrar sesión
           this.logOut();
         }
       });

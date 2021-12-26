@@ -33,6 +33,7 @@ export class AlertasService {
     this.problemDialog = Swal.mixin({
       icon: 'error',
       position: 'center',
+      allowOutsideClick: false,
     });
 
     this.infoDialog = Swal.mixin({

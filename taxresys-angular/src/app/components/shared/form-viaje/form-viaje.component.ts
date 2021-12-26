@@ -182,7 +182,7 @@ export class FormViajeComponent implements OnInit, OnDestroy {
     let nuevoViaje = Viaje.viajeDesdeJson(this.datosViaje.value);
     let mensaje: string;
 
-    if (nuevoViaje.tipo_viaje_id != 2 && this.asignaPendiente) {
+    if (nuevoViaje.tipo_viaje_id != 2 || this.asignaPendiente) {
       //Chequea si la fecha y hora del viaje es mayor o igual a la
       //fecha y hora de inicio de Jornada del Móvil
       let horaValida = this.listaMovilesJornadas

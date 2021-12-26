@@ -11,20 +11,20 @@ export class AppComponent implements OnInit {
   loading: boolean;
   userLogged: any;
 
-  constructor ( public _usuariosService:UsuariosService ) { 
-    this.loading = true;    
-  }  
+  constructor ( public _usuariosService:UsuariosService ) {}  
   
   ngOnInit(): void { 
+    this.loading = true;
     this.primeraCarga();
   }  
 
-  async primeraCarga() {    
+  private async primeraCarga() {    
     this._usuariosService.mostrarSpinner(this.loading, 'inicio');
-    await this._usuariosService.checkAuth(true);
+    await this._usuariosService.checkAuth();
     this.userLogged = this._usuariosService.user;
-    this.loading = false;
-    this._usuariosService.mostrarSpinner(this.loading, 'inicio');
+    setTimeout(() => {
+      this.loading = false;
+      this._usuariosService.mostrarSpinner(this.loading, 'inicio');
+    }, 200);
   }
-
 }

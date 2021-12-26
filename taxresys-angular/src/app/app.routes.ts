@@ -32,6 +32,8 @@ import { ViajeHistoricoComponent } from './components/viajes/viaje-historico.com
 //Guardianes de rutas y página de Error
 import { AuthGuard } from './auth/auth.guard';
 import { OwnerGuard } from './auth/owner.guard';
+import { TurnoGuard } from './guards/turno.guard';
+import { JornadaGuard } from './guards/jornada.guard';
 import { ErrorComponent } from './components/shared/error/error.component';
 
 const routes: Routes = [
@@ -83,11 +85,13 @@ const routes: Routes = [
   {
     path: 'jornadas',
     component: JornadaPlanillaComponent,
+    canActivate: [AuthGuard],
+    canActivateChild: [JornadaGuard],
     children: [
       { path: 'cierre', component: FormJornadaComponent },
       { path: 'inicio', component: FormJornadaComponent },
+      { path: 'error', component: ErrorComponent }
     ],
-    canActivate: [AuthGuard],
   },
   {
     path: 'viajes',
@@ -96,7 +100,7 @@ const routes: Routes = [
       {
         path: 'turno',
         component: ViajePlanillaComponent,
-        canActivate: [OwnerGuard],
+        canActivate: [TurnoGuard, OwnerGuard],
       },
       {
         path: 'hist-viajes',
@@ -116,6 +120,6 @@ const routes: Routes = [
 @NgModule({
   imports: [RouterModule.forRoot(routes, { useHash: true })],
   exports: [RouterModule],
-  providers: [AuthGuard, OwnerGuard],
+  providers: [AuthGuard, OwnerGuard, TurnoGuard, JornadaGuard],
 })
 export class AppRoutingModule {}

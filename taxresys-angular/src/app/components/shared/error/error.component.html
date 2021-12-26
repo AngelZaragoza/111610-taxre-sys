@@ -1,8 +1,11 @@
 <ng-container [ngSwitch]="origin">
-  <div *ngSwitchCase="'turno-pln'" class="error-solo d-flex align-items-center">
+  <div *ngSwitchCase="'turno-dif-usuario'" class="error-solo d-flex align-items-center">
     <ng-container *ngTemplateOutlet="turnoVarios"></ng-container>
   </div>
-  <div *ngSwitchCase="'turno-jrn'" class="error-solo d-flex align-items-center">
+  <div *ngSwitchCase="'turno-viajes-pln'" class="error-solo d-flex align-items-center">
+    <ng-container *ngTemplateOutlet="turnoVarios"></ng-container>
+  </div>
+  <div *ngSwitchCase="'turno-jornadas-pln'" class="error-solo d-flex align-items-center">
     <ng-container *ngTemplateOutlet="turnoVarios"></ng-container>
   </div>
   <div *ngSwitchDefault class="error-embedded d-flex align-items-center">
@@ -43,11 +46,14 @@
             >
               <div class="text-center my-3" style="color: #4db8c8">
                 <i
-                  *ngIf="origin === 'turno-jrn'"
+                  *ngIf="
+                    origin === 'turno-jornadas-pln' ||
+                    origin === 'turno-viajes-pln'
+                  "
                   class="fas fa-business-time fa-7x"
                 ></i>
                 <i
-                  *ngIf="origin === 'turno-pln'"
+                  *ngIf="origin === 'turno-dif-usuario'"
                   class="fas fa-user-shield fa-7x"
                 ></i>
               </div>
@@ -91,7 +97,8 @@
             origin === 'usr_lista' ||
             origin === 'adh_lista' ||
             origin === 'chf_lista' ||
-            origin === 'mov_lista'
+            origin === 'mov_lista' ||
+            origin === 'form_turno'
           "
           class="far fa-file-excel fa-5x"
         ></i>

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { NgxSpinnerService } from 'ngx-spinner';
-import { Subject } from 'rxjs';
+import { ReplaySubject, Subject } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { RequestService } from './request.service';
 
@@ -8,9 +8,9 @@ import { RequestService } from './request.service';
   providedIn: 'root',
 })
 export class UsuariosService {
-  //Auxiliares
+  // Auxiliares
   user: any = {};
-  userObs$: Subject<any>;
+  userObs$: ReplaySubject<any>;
   personaObs$: Subject<any>;
   turno: any;
   roles: any[] = [];
@@ -19,70 +19,78 @@ export class UsuariosService {
     private _conexion: RequestService,
     private _spinner: NgxSpinnerService
   ) {
-    //Instancia los objetos que serán retornados como Observables
-    this.userObs$ = new Subject();
+    // Instancia los objetos que serán retornados como Observables
+    this.userObs$ = new ReplaySubject(1);
     this.personaObs$ = new Subject();
 
+    this.user = this.readUser();
     console.log('Usuarios listo');
   }
 
   //Chequea si hay un usuario logueado
   //**********************************
-  async checkAuth(chkServer: boolean, passportResult?: any) {
+  public async checkAuth() {
     try {
-      if (passportResult) {
-        //Si se recibe un objeto, la llamada vino desde el LogIn o el LogOut:
-        //Se escribe en localStorage y se recuperan los roles de usuario
-
-        if (passportResult.logged) {
-          await this.getTurnoAbierto();
-          await this.getRoles();
-        }
-        this.user = { ...passportResult, ...this.turno };
-        localStorage.setItem('user', JSON.stringify(this.user));
-        return this.user;
-      }
-
-      if (chkServer) {
-        //Se chequea desde la sesión almacenada en server
-        //y se recuperan los roles de usuario
-        let result: Object = await this._conexion.request(
-          'GET',
-          `${environment.serverUrl}/usuarios/isauth`
-        );
-        await this.getTurnoAbierto();
-
-        this.user = { ...result, ...this.turno };
-        localStorage.setItem('user', JSON.stringify(this.user));
-        this.getRoles();
-        return this.user;
-      }
-
-      //Se recupera data de localStorage, se procede con:
-      this.user = JSON.parse(localStorage.getItem('user'));
-      return this.user;
+      const passportResult: Object = await this._conexion.request(
+        'GET',
+        `${environment.serverUrl}/usuarios/isauth`
+      );
+      this.setUser(passportResult);
     } catch (error) {
-      console.log(error);
-      localStorage.setItem('user', JSON.stringify(error['error']));
-      this.user = JSON.parse(localStorage.getItem('user'));
-      return this.user;
-    } finally {
-      this.userObs$.next(this.user);
+      console.error(error);
+      this.setUser(error.error);
     }
   }
 
-  //Métodos de Autenticación
-  //************************
+  // Métodos de Autenticación
+  // ************************
+  /**
+   * Si un Usuario hace login, recupera el último turno y los roles,
+   * luego almacena en localStorage los datos del Usuario.
+   */
+  public async setUser(user: any) {
+    if (user.logged) {
+      await Promise.all([this.getTurnoAbierto(), this.getRoles()])
+        .then((results) => {
+          [this.turno, this.roles] = results;
+        })
+        .catch((error) => {
+          console.error(error);
+        });      
+    } else {
+      this.turno = {};
+    }
+    this.user = { ...user, ...this.turno };
+    localStorage.setItem('user', JSON.stringify(this.user));
+    this.userObs$.next(this.user);
+  }
+
+  /**
+   * Intenta leer desde localStorage los datos del Usuario.
+   * Si no encuentra uno, devuelve un objeto 'not logged'.
+   */
+  public readUser() {
+    try {
+      return (
+        JSON.parse(localStorage.getItem('user')) ?? {
+          logged: false,
+          message: 'Sesión Cerrada',
+        }
+      );
+    } catch (error) {
+      return { logged: false, message: 'Sesión Cerrada' };
+    }
+  }
+
   async passportLogin(user: any) {
     try {
-      let result = await this._conexion.request(
+      let passportResult: {} = await this._conexion.request(
         'POST',
         `${environment.serverUrl}/usuarios/passportLogin`,
         user
       );
-
-      this.checkAuth(false, result);
-      return result;
+      this.setUser(passportResult);
+      return passportResult;
     } catch (error) {
       throw error;
     }
@@ -90,14 +98,12 @@ export class UsuariosService {
 
   async passportLogout() {
     try {
-      let result = await this._conexion.request(
+      let passportResult: {} = await this._conexion.request(
         'GET',
         `${environment.serverUrl}/usuarios/passportLogout`
       );
-
-      this.turno = {};
-      this.checkAuth(false, result);
-      return result;
+      this.setUser(passportResult);
+      return passportResult;
     } catch (error) {
       throw error;
     }
@@ -201,8 +207,7 @@ export class UsuariosService {
         'GET',
         `${environment.serverUrl}/usuarios/roles`
       );
-      this.roles = <any[]>lista;
-      return lista;
+      return <any[]>lista;
     } catch (error) {
       console.error('No se pudieron recuperar roles', error);
     }
@@ -212,11 +217,9 @@ export class UsuariosService {
     let turno: any;
     await this._conexion
       .request('GET', `${environment.serverUrl}/turnos/inout`)
-      .then((res: any) => {
-        console.log('Desde chequeo ultimo turno =>', res);
-        console.log('cierre =>', res['turno'].hora_cierre);
+      .then((res: any) => {        
         if (res['turno'].hora_cierre) {
-          turno['open'] = false;
+          turno = { open: false };
         } else {
           turno = {
             open: true,
@@ -225,7 +228,6 @@ export class UsuariosService {
             owner: res['turno'].usuario_id,
           };
         }
-        this.turno = turno;
       })
       .catch((err) => {
         this.turno = { open: false };

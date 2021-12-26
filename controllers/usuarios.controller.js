@@ -226,20 +226,20 @@ class Usuario {
 
   loginSuccess = (req, res) => {
     let { password, ...userSinPass } = req.user;
-    console.log("Passport authenticate: Logged In --", req.session.id);
+    console.log("-- Passport authenticate: Logged In --", req.session.id);
     res.status(200).json({ logged: true, ...userSinPass });
   };
 
   loginFailed = (req, res) => {
-    console.log("Passport authenticate: Failure --", req.session);
+    console.log("-- Passport authenticate: Failure --");
     res.status(401).json({ success: false, message: "Usuario o Password incorrectos" });
   };
 
   logoutUsuario = (req, res, next) => {
     try {
       req.logout();
-      console.log("Passport authenticate: Logged Out --", req.session);
-      res.status(200).json({ logged: false, message: "Sesión Cerrada", status: 200 });
+      console.log("-- Passport authenticate: Logged Out --");
+      res.status(200).json({ logged: false, message: "Sesión Cerrada" });
     } catch (error) {
       error.status = 418;
       error.message = "Cerrar Sesión falló. Verifique";

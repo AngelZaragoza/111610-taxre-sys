@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { EMPTY, Subscription } from 'rxjs';
 import { Viaje } from 'src/app/classes/viaje.model';
 import { UsuariosService } from 'src/app/services/usuarios.service';
 import { ViajesService } from 'src/app/services/viajes.service';
@@ -43,11 +43,12 @@ export class ViajePlanillaComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.userSub = this._usuariosService.userObs$.subscribe((userLogged) => {
-      // console.log('viajesPlanilla', userLogged);
-      this.userLogged = userLogged;
-    });
-    this._usuariosService.checkAuth(false);
+    this.userLogged = this._usuariosService.user;
+    // this.userSub = this._usuariosService.userObs$.subscribe((userLogged) => {
+    //   console.log('viajesPlanilla', userLogged);
+    //   this.userLogged = userLogged;
+    // });
+    // this._usuariosService.readUser();
 
     if (this.isOpen) {
       //Si hay un turno actualmente abierto, recupera las listas
@@ -60,7 +61,7 @@ export class ViajePlanillaComponent implements OnInit, OnDestroy {
     //Called once, before the instance is destroyed.
     //Destruye el suscriptor
     console.log('|| Planillas Viaje Destruido ||');
-    this.userSub.unsubscribe();
+    // this.userSub.unsubscribe();
   }
 
   //Métodos accessores

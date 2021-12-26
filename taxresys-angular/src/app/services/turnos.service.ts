@@ -6,7 +6,6 @@ import { RequestService } from './request.service';
   providedIn: 'root',
 })
 export class TurnosService {
-  pruebaRespuesta: any;
 
   constructor(private _conexion: RequestService) {
     console.log('Turnos listo');
@@ -15,53 +14,95 @@ export class TurnosService {
   //* Listados *
   //****************
 
+  /**
+   * Recupera la cantidad especificada de Turnos registrados
+   */
   async getUltimosNTurnos(cant: number) {
-    let ultimos: any[];
-    await this._conexion
-      .request('GET', `${environment.serverUrl}/turnos/ultimos/?cant=${cant}`)
-      .then((res: any[]) => (ultimos = res))
-      .catch((err) => (ultimos[0] = err));
-
-    console.log('Ultimos =>', ultimos);
-    return ultimos;
+    try {
+      let ultimos = await this._conexion.request(
+        'GET',
+        `${environment.serverUrl}/turnos/ultimos/?cant=${cant}`
+      );
+      return ultimos;
+    } catch (error) {
+      console.error(error);
+      return error;
+    }
   }
 
   //* Operaciones *
   //****************
+  /**
+   * Recupera el último Turno registrado (más reciente)
+   */
   async getUltimoTurno() {
-    let turno: any;
-    await this._conexion
-      .request('GET', `${environment.serverUrl}/turnos/inout`)
-      .then((res: any) => (turno = res))
-      .catch((err) => (turno = err));
-    return turno;
+    try {
+      let turno = await this._conexion.request(
+        'GET',
+        `${environment.serverUrl}/turnos/inout`
+      );
+      return turno;
+    } catch (error) {
+      console.error(error);
+      return error;
+    }
   }
 
-  async inicioTurno(inicio: any) {
-    let turno: any;
-    this.pruebaRespuesta = await this._conexion
-      .request('POST', `${environment.serverUrl}/turnos/inout`, inicio)
-      .then((res: any) => {
-        turno = res;
-      })
-      .catch((err) => {
-        turno = err;
-      });
-    return turno;
+  /**
+   * Registra el inicio de un nuevo Turno
+   */
+  async inicioTurno(turno: any) {
+    try {
+      let result = await this._conexion.request(
+        'POST',
+        `${environment.serverUrl}/turnos/inout`,
+        turno
+      );
+      return result;
+    } catch (error) {
+      console.error(error);
+      return error;
+    }
+
+    // let turno: any;
+    // this.pruebaRespuesta = await this._conexion
+    //   .request('POST', `${environment.serverUrl}/turnos/inout`, inicio)
+    //   .then((res: any) => {
+    //     turno = res;
+    //   })
+    //   .catch((err) => {
+    //     turno = err;
+    //   });
+    // return turno;
   }
 
-  async cierreTurno(cierre: any) {
-    let turno: any;
-    this.pruebaRespuesta = await this._conexion
-      .request('PATCH', `${environment.serverUrl}/turnos/inout`, cierre)
-      .then((res: any) => {
-        console.log('Cierre Turno:', res);
-        turno = res;
-      })
-      .catch((err) => {
-        console.log('Error Cierre Turno:', err);
-        turno = err;
-      });
-    return turno;
+  /**
+   * Registra el cierre de un Turno previamente abierto
+   */
+  async cierreTurno(turno: any) {
+    try {
+      let result = await this._conexion.request(
+        'PATCH',
+        `${environment.serverUrl}/turnos/inout`,
+        turno
+      );
+      return result;
+    } catch (error) {
+      console.error(error);
+      return error;
+    }
+
+    // let result: any;
+    // this.pruebaRespuesta = await this._conexion
+    //   .request('PATCH', `${environment.serverUrl}/turnos/inout`, cierre)
+    //   .then((res: any) => {
+    //     console.log('Cierre Turno:', res);
+    //     result = res;
+    //   })
+    //   .catch((err) => {
+    //     console.log('Error Cierre Turno:', err);
+    //     result = err;
+    //   });
+    // return result;
   }
 }
