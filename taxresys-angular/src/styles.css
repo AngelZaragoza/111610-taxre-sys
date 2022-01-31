@@ -21,7 +21,7 @@ textarea {
 .card-header-form {
   box-shadow: 1px 7px 15px #a2a2a2;
   margin: -15px -10px 0px -10px;
-  /* height: 60px; */
+  border-radius: 0.25rem;
   min-height: 3.5em;
   background: linear-gradient(-90deg, #8e2de2, #4a00e0);
 }
@@ -33,7 +33,7 @@ textarea {
 .card-header-list {
   box-shadow: 1px 7px 15px #a2a2a2;
   margin: -15px -10px 0px -10px;
-  /* height: 60px; */
+  border-radius: 0.25rem;
   min-height: 3.5em;
   background: linear-gradient(90deg, #A60E2B, #F0A032);
 }
@@ -50,4 +50,9 @@ textarea {
 
 .error-embedded {
   padding: 3rem 0;  
+}
+
+.content-sticky {
+  position: sticky;  
+  top: 70px;
 }

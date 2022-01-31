@@ -3,29 +3,34 @@
   bdColor="rgba(233, 236, 239, 0.1)"
   size="medium"
   color="#f5627c"
-  type="ball-circus"
+  type="line-scale-pulse-out"
   [fullScreen]="false"
-  name="abre_cierra_jornada"
+  [name]="nombreComponente"
   ><p style="color: black; font-weight: bold">Espere...</p></ngx-spinner
 >
 
-<!-- Contenido -->
-
-<div *ngIf="!loading && !ready" class="container-fluid mb-3 rounded">
-  <div class="card">
+<!-- Inicio componente -->
+<div
+  *ngIf="!loading && !ready"
+  class="container-fluid mb-3 content-sticky"
+>
+  <!-- Contenido -->
+  <div *ngIf="errorMessage == ''" class="card animate__animated animate__fadeIn">
     <div class="card-header-form">
-      <div class="row justify-content-center">
-        <div class="col-md-2 offset-md-1 mt-2">
-          <a class="btn btn-outline-warning" [routerLink]="['/jornadas']"
-            >Cancelar</a
-          >
-        </div>
-        <div class="col-md-8 h4 m-3 text-center text-white">
-          {{ textoBoton }}
-        </div>
-      </div>
+      <div class="h4 m-3 px-3 text-center text-white clearfix">
+        <button
+          class="float-left btn btn-sm btn-outline-warning"
+          [routerLink]="['/jornadas']"
+        >
+          <i class="fas fa-angle-double-left"></i>&nbsp; Cancelar
+        </button>
+        {{ textoBoton }}
+      </div>      
     </div>
     <div class="card-body back-form shadow-effect">
+      <h5 class="h5 pb-2 mt-n1 text-center border-bottom">
+        Móvil {{ internoMovil }}
+      </h5>
       <form [formGroup]="datosJornada">
         <fieldset>
           <div class="container">
@@ -33,7 +38,6 @@
               *ngIf="abreJornada; then inicioJornada; else cierraJornada"
             ></ng-container>
             <ng-template #inicioJornada>
-              <!-- <div class="form-group col-md-5"> -->
               <div class="form-group">
                 <label for="chofer_pref" class="col-form-label">Chofer:</label>
                 <select
@@ -43,9 +47,9 @@
                   }"
                   formControlName="chofer_id"
                 >
-                  <option value="">-- Seleccione uno --</option>
+                  <option value="" selected>-- Seleccione uno --</option>
                   <option
-                    *ngFor="let chofer of listaChoferes"
+                    *ngFor="let chofer of choferesDisponibles"
                     [value]="chofer.chofer_id"
                     [selected]="chofer.chofer_id == chfParam"
                   >
@@ -53,7 +57,6 @@
                   </option>
                 </select>
               </div>
-              <!-- <div class="form-group col-sm-6"> -->
               <div class="form-group">
                 <label for="inicio" class="col-form-label"
                   >Fecha y Hora de Inicio:</label
@@ -74,11 +77,11 @@
             </ng-template>
             <ng-template #cierraJornada>
               <div class="form-group">
-                <label for="chofer_pref" class="col-form-label">Chofer:</label>
+                <label class="col-form-label">Chofer:</label>
                 <span class="form-control">
                   {{
                     jornada.chofer_id
-                      | nombreCompleto: "chofer_id":listaChoferes
+                      | nombreCompleto: "chofer_id":choferesDisponibles
                   }}
                 </span>
               </div>
@@ -127,4 +130,25 @@
       </form>
     </div>
   </div>
+  <!-- Fin Contenido -->
+  <!-- Mensajes de Error -->
+  <div *ngIf="!loading && errorMessage != ''" class="row">
+    <div class="col">
+      <app-error
+        [origin]="nombreComponente"
+        [errorMessage]="errorMessage"
+      ></app-error>
+      <button 
+        class="
+          btn btn-warning
+          animate__animated animate__fadeIn animate__delay-1s
+        "
+        [routerLink]="['/jornadas']"
+      >
+        <i class="fas fa-angle-double-left"></i>
+        &nbsp; Regresar
+      </button>
+    </div>
+  </div>
+  <!-- Fin Mensajes de Error -->
 </div>

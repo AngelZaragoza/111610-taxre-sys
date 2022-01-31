@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs';
+import { ReplaySubject, Subject } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { AdherentesService } from './adherentes.service';
 import { RequestService } from './request.service';
@@ -15,7 +15,8 @@ export class ChoferesService {
   listaChoferes: any[] = [];
 
   //Auxiliares
-  choferesObs$: Subject<any>;
+  // choferesObs$: Subject<any>;
+  choferesObs$: ReplaySubject<any>;
 
   constructor(
     private _conexion: RequestService,
@@ -23,7 +24,7 @@ export class ChoferesService {
     private _usuarios: UsuariosService
   ) {
     //Instancia el objeto que será retornado como Observable
-    this.choferesObs$ = new Subject();
+    this.choferesObs$ = new ReplaySubject(1);
 
     //Se suscribe a los cambios en el Módulo de Adherentes
     this._adherentes.adherentesObs$.subscribe((lista) => {

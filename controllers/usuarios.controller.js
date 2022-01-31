@@ -221,17 +221,17 @@ class Usuario {
   };
 
   //**********************************
-  //* Métodos llamados por passport *
+  //* Métodos llamados por Passport *
   //**********************************
 
   loginSuccess = (req, res) => {
     let { password, ...userSinPass } = req.user;
-    console.log("-- Passport authenticate: Logged In --", req.session.id);
+    console.log("-- Authenticate: Success --");
     res.status(200).json({ logged: true, ...userSinPass });
   };
 
   loginFailed = (req, res) => {
-    console.log("-- Passport authenticate: Failure --");
+    console.log("-- Authenticate: Failure --");
     res.status(401).json({ success: false, message: "Usuario o Password incorrectos" });
   };
 
@@ -239,7 +239,7 @@ class Usuario {
     try {
       req.logout();
       console.log("-- Passport authenticate: Logged Out --");
-      res.status(200).json({ logged: false, message: "Sesión Cerrada" });
+      res.status(200).json({ logged: false, status: 200, message: "Sesión Cerrada" });
     } catch (error) {
       error.status = 418;
       error.message = "Cerrar Sesión falló. Verifique";

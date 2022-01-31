@@ -12,8 +12,28 @@ export class ErrorComponent implements OnInit {
   @Input() origin: string;
   @Input() errorTitle: string = '';
   @Input() errorMessage: string = '';
+  errorListas: string[];
+  errorIndividuales: string[];
 
-  constructor(private _activated: ActivatedRoute, private _route: Router) { }
+  constructor(private _activated: ActivatedRoute, private _route: Router) {
+    this.errorListas = [
+      'usr_lista',
+      'adh_lista',
+      'chf_lista',
+      'mov_lista',
+      'form_turno',
+      'jornada_planilla'
+    ];
+    this.errorIndividuales = [
+      'usr_detalle',
+      'adh_detalle',
+      'chf_detalle',
+      'mov_detalle',
+      'chf_nuevo',
+      'mov_nuevo',
+      'abre_cierra_jornada'
+    ];
+   }
 
   ngOnInit(): void {
     //Si 'origin' no fue seteado por Input, se lee el queryParam
