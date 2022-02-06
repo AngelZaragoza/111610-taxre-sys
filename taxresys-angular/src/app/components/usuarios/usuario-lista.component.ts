@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Subscription } from 'rxjs';
+import { NavigationEnd, Router, RouterEvent } from '@angular/router';
+import { filter, takeUntil } from 'rxjs/operators';
 import { UsuariosService } from 'src/app/services/usuarios.service';
 import { UtilsService } from 'src/app/services/utils.service';
 
@@ -18,16 +19,36 @@ export class UsuarioListaComponent implements OnInit, OnDestroy {
   userLogged: any = {};
 
   //Auxiliares
-  personaSub: Subscription;
   loading: boolean;
   errorMessage: string;
   nombreComponente: string;
   ultimoOrden: string;
+  clickedElem: HTMLElement;
 
-  constructor(private _usuariosService: UsuariosService, private _utils: UtilsService) {
+  constructor(
+    private _usuariosService: UsuariosService,
+    private _utils: UtilsService,
+    private router: Router
+  ) {
     this.errorMessage = '';
     this.nombreComponente = 'usr_lista';
     this.ultimoOrden = '';
+
+    // Verifica los cambios en las rutas. Al cargar la ruta del listado,
+    // hace scroll hasta el elemento html guardado (si existe)
+    this.router.events
+      .pipe(
+        takeUntil(this._utils.componentDestroyed$),
+        filter((e: RouterEvent) => e instanceof NavigationEnd)
+      )
+      .subscribe((e: NavigationEnd) => {
+        if (e.urlAfterRedirects === '/usuarios' && this.clickedElem) {
+          this.clickedElem.scrollIntoView({
+            behavior: 'smooth',
+            block: 'nearest',
+          });
+        }
+      });
   }
 
   ngOnInit(): void {
@@ -62,6 +83,13 @@ export class UsuarioListaComponent implements OnInit, OnDestroy {
 
   //Métodos del componente
   //*******************
+  /**
+   * Guarda el elemento html sobre el que se llamó el evento
+   */
+  public savePosition(elem: Event) {
+    this.clickedElem = <HTMLElement>elem.target;
+  }
+
   async getUsuarios() {
     this.loading = true;
     this._usuariosService.mostrarSpinner(this.loading, this.nombreComponente);
@@ -78,37 +106,42 @@ export class UsuarioListaComponent implements OnInit, OnDestroy {
     this.listenUpdates();
   }
 
+  /**
+   * Se suscribe a los cambios en cualquier elemento de la lista
+   * hasta que el componente sea destruido
+   */
   listenUpdates(): void {
-    //Se suscribe a los cambios en cualquier elemento de la lista
-    this.personaSub = this._usuariosService.personaObs$.subscribe((data) => {
-      let { action, ...valores } = data;
+    this._usuariosService.personaObs$
+      .pipe(takeUntil(this._utils.componentDestroyed$))
+      .subscribe((data) => {
+        let { action, ...valores } = data;
 
-      // Se chequea la propiedad 'action' del Observable
-      switch (action) {
-        case 'added':
-          this.lista.push(valores['created']);
-          break;
-        case 'updated':
-          let index = this.lista.findIndex(
-            (item) => item['persona_id'] == valores['persona_id']
-          );
-          for (const key in this.lista[index]) {
-            if (Object.prototype.hasOwnProperty.call(valores, key)) {
-              this.lista[index][key] = valores[key];
+        // Se chequea la propiedad 'action' del Observable
+        switch (action) {
+          case 'added':
+            this.lista.push(valores['created']);
+            break;
+          case 'updated':
+            let index = this.lista.findIndex(
+              (item) => item['persona_id'] == valores['persona_id']
+            );
+            for (const key in this.lista[index]) {
+              if (Object.prototype.hasOwnProperty.call(valores, key)) {
+                this.lista[index][key] = valores[key];
+              }
             }
-          }
-          break;
-      }
-      this.ordenarPor('alias');
-    });
+            break;
+        }
+        this.ordenarPor('alias');
+      });
   }
 
   ordenarPor(campo: string): void {
     this._utils.ordenarListado(this.lista, campo);
   }
-  
+
   ngOnDestroy(): void {
-    //Destruye la suscripción
-    this.personaSub.unsubscribe();
+    // Emite un observable para destruir las suscripciones
+    this._utils.componentDestroyed$.next();
   }
 }

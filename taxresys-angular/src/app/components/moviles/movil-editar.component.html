@@ -9,18 +9,24 @@
   ><p style="color: black; font-weight: bold">Cargando...</p></ngx-spinner
 >
 
-<div class="container-fluid mb-3 rounded content-sticky">
+<div class="container-fluid mb-3 rounded content-sticky" #inicio>
   <!-- Contenido -->
   <div *ngIf="ready && errorMessage == ''" class="row">
     <div class="col">
       <div class="card animate__animated animate__fadeIn">
         <div class="card-header-form">
           <div class="h4 m-3 px-3 text-center text-white clearfix">
+            <button
+              class="float-left btn btn-sm btn-warning"
+              [routerLink]="['/moviles']"
+            >
+              <i class="fas fa-angle-double-left"></i>
+            </button>
             Detalles
             <button
+              *ngIf="isAdmin || isManager" 
               (click)="activarEdicion()"
-              class="float-right ml-3 w-25 btn btn-sm btn-info"
-              [disabled]="!isAdmin && !isManager"
+              class="float-right ml-3 w-25 btn btn-sm btn-info"              
             >
               <i class="fas fa-taxi"></i>
               &nbsp; Editar
@@ -52,17 +58,7 @@
       <app-error
         [origin]="nombreComponente"
         [errorMessage]="errorMessage"
-      ></app-error>
-      <button
-        class="
-          btn btn-warning
-          animate__animated animate__fadeIn animate__delay-1s
-        "
-        [routerLink]="['/moviles']"
-      >
-        <i class="fas fa-angle-double-left"></i>
-        &nbsp; Regresar
-      </button>
+      ></app-error>      
     </div>
   </div>
   <!-- Fin Mensajes de Error -->

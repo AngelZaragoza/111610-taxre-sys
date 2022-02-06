@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 
@@ -13,6 +13,8 @@ import { AlertasService } from 'src/app/services/alertas.service';
   styles: [],
 })
 export class MovilEditarComponent implements OnInit {
+  @ViewChild('inicio', { read: ElementRef }) inicio: ElementRef;
+  
   //Listados
   listaAdherentes: any[] = [];
   listaChoferes: any[] = [];
@@ -48,7 +50,14 @@ export class MovilEditarComponent implements OnInit {
       this.ready = false;
 
       this.detalleMovil(this.idParam).finally(() => {
-        console.table(this.movil);
+        if (!this.ready) {
+          console.warn(this.movil)
+        } 
+        // Se desplaza hasta el inicio del formulario
+        this.inicio.nativeElement.scrollIntoView(true, {
+          behavior: 'smooth',
+          block: 'center',
+        });
       });
     });
   }
@@ -84,19 +93,6 @@ export class MovilEditarComponent implements OnInit {
       this.errorMessage = error.error?.message;
       this.ready = false;
     }
-
-    /*
-    this.listaAdherentes = await this._movilesService.getLista('/adherentes');
-
-    //Si no hay adherentes cargados, no se hacen los otros llamados
-    if (this.listaAdherentes[0] instanceof HttpErrorResponse) {
-      this.errorMessage = this.listaAdherentes[0]['error']['message'];
-      this.ready = false;
-    } else {
-      this.listaChoferes = await this._movilesService.getLista('/choferes');
-      this.listaTipos = await this._movilesService.getLista('/moviles/tipos');
-    }
-    */
   }
 
   async detalleMovil(id) {

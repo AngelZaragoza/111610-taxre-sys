@@ -3,7 +3,6 @@ import { AdherentesService } from '../../services/adherentes.service';
 import { ChoferesService } from '../../services/choferes.service';
 import {
   FormGroup,
-  FormControl,
   Validators,
   FormBuilder,
 } from '@angular/forms';
@@ -61,18 +60,20 @@ export class ChoferNuevoComponent implements OnInit {
     this.initForm();
   }
 
-  //Inicializa el formulario con valores por defecto
-  initForm() {
+  /**
+   * Inicializa el formulario y setea los validadores
+   */
+  initForm() {    
     this.newChofer = this.formBuilder.group({
-      persona_id: new FormControl(''),
-      carnet_nro: new FormControl('', [
+      persona_id: [''],
+      carnet_nro: ['', [
         Validators.required,
         Validators.minLength(5),
         Validators.maxLength(22),
-        Validators.pattern('^[\\w]+[-\\w]+[\\w]$'),
-      ]),
-      carnet_vence: new FormControl('', Validators.required),
-      habilitado: new FormControl(1),
+        Validators.pattern(/(^[\w]{2,4}-[\d]+$)|(^[\d]+$)/),
+      ]],
+      carnet_vence: ['', Validators.required],
+      habilitado: [1],
     });
   }
 

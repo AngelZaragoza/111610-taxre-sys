@@ -1,17 +1,13 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import {
-  FormGroup,
-  FormControl,
-  Validators,
-  FormBuilder,
-} from '@angular/forms';
+import { FormGroup, Validators, FormBuilder } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 import { Chofer } from 'src/app/classes/chofer';
 import { Persona } from 'src/app/classes/persona';
 import { ChoferesService } from 'src/app/services/choferes.service';
 import { UsuariosService } from 'src/app/services/usuarios.service';
-import { HttpErrorResponse } from '@angular/common/http';
 import { AlertasService } from 'src/app/services/alertas.service';
+import { RangoFechas } from 'src/app/classes/rango-fechas';
 
 @Component({
   selector: 'app-chofer-editar',
@@ -69,18 +65,21 @@ export class ChoferEditarComponent implements OnInit {
 
   ngOnInit(): void {}
 
+  /**
+   * Inicializa el formulario y setea los validadores
+   */
   initForm() {
     this.editChofer = this.formBuilder.group({
-      chofer_id: new FormControl(0),
-      persona_id: new FormControl(0),
-      carnet_nro: new FormControl('', [
+      chofer_id: [0],
+      persona_id: [0],
+      carnet_nro: ['', [
         Validators.required,
         Validators.minLength(5),
         Validators.maxLength(22),
-        Validators.pattern('^[\\w]+[-\\w]+[\\w]$'),
-      ]),
-      carnet_vence: new FormControl('', Validators.required),
-      habilitado: new FormControl(1),
+        Validators.pattern(/(^[\w]{2,4}-[\d]+$)|(^[\d]+$)/),
+      ]],
+      carnet_vence: ['', Validators.required],
+      habilitado: [1],
     });
   }
 
@@ -92,6 +91,10 @@ export class ChoferEditarComponent implements OnInit {
 
   get isManager(): boolean {
     return this._usuariosService.user['rol_id'] === 2;
+  }
+
+  get fechasCarnet(): RangoFechas {
+    return this._choferesService.fechasCarnet;
   }
 
   //Accesores del Form

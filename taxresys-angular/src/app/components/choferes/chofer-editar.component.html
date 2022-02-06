@@ -10,17 +10,23 @@
 >
 
 <!-- Contenido -->
-<div class="container-fluid mb-3 rounded">
+<div class="container-fluid mb-3 rounded content-sticky">
   <div *ngIf="ready && errorMessage == ''" class="row">
     <div class="col">
       <div class="card animate__animated animate__fadeIn">
         <div class="card-header-form">
           <div class="h4 m-3 px-3 text-center text-white clearfix">
+            <button
+              class="float-left btn btn-sm btn-warning"
+              [routerLink]="['/choferes']"
+            >
+              <i class="fas fa-angle-double-left"></i>
+            </button>
             Detalles
             <button
+              *ngIf="isAdmin || isManager"  
               (click)="activarEdicion()"
               class="float-right ml-3 w-25 btn btn-sm btn-info"
-              [disabled]="!isAdmin && !isManager"
             >
               <i class="fas fa-id-card"></i>
               &nbsp; Editar
@@ -30,11 +36,10 @@
               #toggleModal
               data-toggle="modal"
               data-target="#editCarnet"
-              class="float-right ml-3 w-25 btn btn-sm btn-info"
-              [disabled]="!isAdmin && !isManager"
+              class="float-right ml-3 w-25 btn btn-sm btn-info"              
             >
               <i class="fas fa-id-card-alt"></i>
-              &nbsp; Extra
+              &nbsp; Carnet
             </button>
           </div>
         </div>
@@ -59,17 +64,7 @@
       <app-error
         [origin]="nombreComponente"
         [errorMessage]="errorMessage"
-      ></app-error>
-      <button
-        class="
-          btn btn-warning
-          animate__animated animate__fadeIn animate__delay-1s
-        "
-        [routerLink]="['/choferes']"
-      >
-        <i class="fas fa-angle-double-left"></i>
-        &nbsp; Regresar
-      </button>
+      ></app-error>      
     </div>
   </div>
   <!-- Fin Mensajes de Error -->
@@ -139,6 +134,8 @@
                 <input
                   [owlDateTime]="venceCarnet"
                   [owlDateTimeTrigger]="venceCarnet"
+                  [min]="fechasCarnet.minimo"
+                  [max]="fechasCarnet.maximo"
                   class="form-control"
                   formControlName="carnet_vence"
                   placeholder="Vencim. Carnet"
@@ -148,6 +145,7 @@
                 />
                 <owl-date-time
                   [pickerType]="'calendar'"
+                  [startView]="'multi-years'"
                   #venceCarnet
                 ></owl-date-time>
               </div>
@@ -155,7 +153,7 @@
           </form>
         </div>
       </div>
-      <div class="modal-footer">
+      <div *ngIf="isAdmin || isManager" class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">
           Descartar Cambios
         </button>

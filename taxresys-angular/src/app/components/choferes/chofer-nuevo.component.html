@@ -1,4 +1,4 @@
-<div class="container-fluid mb-3 rounded">
+<div class="container-fluid mb-3 rounded content-sticky">
   <div class="card animate__animated animate__fadeIn">
     <div class="card-header-form">
       <div class="h4 m-3 px-3 text-center text-white clearfix">
@@ -35,7 +35,7 @@
         <!-- Si se carga desde cero los datos -->
         <div
           *ngIf="cargaFull && eleccion"
-          class="col-md-12 animate__animated animate__fadeIn animate__faster"
+          class="col-12 animate__animated animate__fadeIn animate__faster"
         >
           <app-form-persona
             [nuevo]="true"
@@ -103,107 +103,106 @@
       </div>
     </div>
   </div>
-
-  <!-- Modal -->
-  <div
-    class="modal fade"
-    id="datosCarnet"
-    data-backdrop="static"
-    data-keyboard="false"
-    tabindex="-1"
-    aria-labelledby="staticBackdropLabel"
-    aria-hidden="true"
-  >
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="staticBackdropLabel">
-            Datos Adicionales del Chofer
-          </h5>
-          <button
-            id="cerrar"
-            type="button"
-            class="close"
-            data-dismiss="modal"
-            aria-label="Close"
-          >
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          <div class="container justify-content-between">
-            <form [formGroup]="newChofer">
-              <div class="form-group row">
-                <label for="carnet_nro" class="col-md-6 col-form-label"
-                  >Tipo y Nro. Carnet: &nbsp;
-                  <span *ngIf="carnet.dirty">
-                    <ng-container
-                      *ngIf="carnet.valid; then valido; else invalido"
-                    ></ng-container>
-                  </span>
-                </label>
-                <div class="col-md-6">
-                  <input
-                    type="text"
-                    formControlName="carnet_nro"
-                    class="form-control"
-                    aria-describedby="helpId"
-                    [ngClass]="{
-                      'border-danger': carnet.dirty && carnet.invalid
-                    }"
-                  />
-                  <small id="helpId" class="text-muted"
-                    >Ej: "D1-25666666" (Sin comillas)</small
-                  >
-                </div>
+</div>
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="datosCarnet"
+  data-backdrop="static"
+  data-keyboard="false"
+  tabindex="-1"
+  aria-labelledby="staticBackdropLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="staticBackdropLabel">
+          Datos Adicionales del Chofer
+        </h5>
+        <button
+          id="cerrar"
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="container justify-content-between">
+          <form [formGroup]="newChofer">
+            <div class="form-group row">
+              <label for="carnet_nro" class="col-md-6 col-form-label"
+                >Tipo y Nro. Carnet: &nbsp;
+                <span *ngIf="carnet.dirty">
+                  <ng-container
+                    *ngIf="carnet.valid; then valido; else invalido"
+                  ></ng-container>
+                </span>
+              </label>
+              <div class="col-md-6">
+                <input
+                  type="text"
+                  formControlName="carnet_nro"
+                  class="form-control"
+                  aria-describedby="helpId"
+                  [ngClass]="{
+                    'border-danger': carnet.dirty && carnet.invalid
+                  }"
+                />
+                <small id="helpId" class="text-muted"
+                  >Ej: "D1-25666666" (Sin comillas)</small
+                >
               </div>
-              <div class="form-group row">
-                <label for="carnet_vence" class="col-md-6 col-form-label"
-                  >Fecha Vencimiento: &nbsp;
-                  <span *ngIf="vencimiento.dirty">
-                    <ng-container
-                      *ngIf="vencimiento.valid; then valido; else invalido"
-                    ></ng-container>
-                  </span>
-                </label>
-                <div class="col-md-6">
-                  <input
-                    [owlDateTime]="venceCarnet"
-                    [owlDateTimeTrigger]="venceCarnet"
-                    class="form-control"
-                    formControlName="carnet_vence"
-                    placeholder="Vencim. Carnet"
-                    [ngClass]="{
-                      'border-danger': vencimiento.dirty && vencimiento.invalid
-                    }"
-                  />
-                  <owl-date-time
-                    [pickerType]="'calendar'"
-                    #venceCarnet
-                  ></owl-date-time>
-                </div>
+            </div>
+            <div class="form-group row">
+              <label for="carnet_vence" class="col-md-6 col-form-label"
+                >Fecha Vencimiento: &nbsp;
+                <span *ngIf="vencimiento.dirty">
+                  <ng-container
+                    *ngIf="vencimiento.valid; then valido; else invalido"
+                  ></ng-container>
+                </span>
+              </label>
+              <div class="col-md-6">
+                <input
+                  [owlDateTime]="venceCarnet"
+                  [owlDateTimeTrigger]="venceCarnet"
+                  class="form-control"
+                  formControlName="carnet_vence"
+                  placeholder="Vencim. Carnet"
+                  [ngClass]="{
+                    'border-danger': vencimiento.dirty && vencimiento.invalid
+                  }"
+                />
+                <owl-date-time
+                  [pickerType]="'calendar'"
+                  [startView]="'multi-years'"
+                  #venceCarnet
+                ></owl-date-time>
               </div>
-            </form>
-          </div>
+            </div>
+          </form>
         </div>
-
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">
-            Cancelar
-          </button>
-          <button
-            type="button"
-            (click)="confirmaGuardado()"
-            class="btn btn-primary"
-            [disabled]="newChofer.invalid || loading"
-          >
-            <i
-              [ngClass]="loading ? 'fas fa-sync-alt fa-spin' : 'fas fa-save'"
-            ></i>
-            <span *ngIf="!loading">&nbsp; Guardar Chofer</span>
-            <span *ngIf="loading">&nbsp; Guardando...</span>
-          </button>
-        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+          Cancelar
+        </button>
+        <button
+          type="button"
+          (click)="confirmaGuardado()"
+          class="btn btn-primary"
+          [disabled]="newChofer.invalid || loading"
+        >
+          <i
+            [ngClass]="loading ? 'fas fa-sync-alt fa-spin' : 'fas fa-save'"
+          ></i>
+          <span *ngIf="!loading">&nbsp; Guardar Chofer</span>
+          <span *ngIf="loading">&nbsp; Guardando...</span>
+        </button>
       </div>
     </div>
   </div>

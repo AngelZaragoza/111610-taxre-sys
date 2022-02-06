@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Subscription } from 'rxjs';
+import { NavigationEnd, Router, RouterEvent } from '@angular/router';
+import { filter, takeUntil } from 'rxjs/operators';
 import { NgbTooltipConfig } from '@ng-bootstrap/ng-bootstrap';
 import { MovilesService } from 'src/app/services/moviles.service';
 import { UsuariosService } from 'src/app/services/usuarios.service';
@@ -19,17 +20,18 @@ export class MovilListaComponent implements OnInit, OnDestroy {
   // userLogged: any = {};
 
   //Auxiliares
-  movilSub: Subscription;
   loading: boolean;
   errorMessage: string = '';
   nombreComponente: string;
   ultimoOrden: string;
+  clickedElem: HTMLElement;
 
   constructor(
+    public _utils: UtilsService,
     private _movilesService: MovilesService,
     private _usuariosService: UsuariosService,
     private _configTip: NgbTooltipConfig,
-    private _utils: UtilsService
+    private router: Router
   ) {
     this.errorMessage = '';
     this.nombreComponente = 'mov_lista';
@@ -39,6 +41,22 @@ export class MovilListaComponent implements OnInit, OnDestroy {
     this._configTip.container = 'body';
     this._configTip.openDelay = 700;
     this._configTip.closeDelay = 200;
+
+    // Verifica los cambios en las rutas. Al cargar la ruta del listado,
+    // hace scroll hasta el elemento html guardado (si existe)
+    this.router.events
+      .pipe(
+        takeUntil(this._utils.componentDestroyed$),
+        filter((e: RouterEvent) => e instanceof NavigationEnd)
+      )
+      .subscribe((e: NavigationEnd) => {
+        if (e.urlAfterRedirects === '/moviles' && this.clickedElem) {
+          this.clickedElem.scrollIntoView({
+            behavior: 'smooth',
+            block: 'nearest',
+          });
+        }
+      });
   }
 
   ngOnInit(): void {
@@ -58,6 +76,13 @@ export class MovilListaComponent implements OnInit, OnDestroy {
 
   //Métodos del componente
   //*******************
+  /**
+   * Guarda el elemento html sobre el que se llamó el evento
+   */
+  public savePosition(elem: Event) {
+    this.clickedElem = <HTMLElement>elem.target;
+  }
+
   async getMoviles() {
     this.loading = true;
     this._usuariosService.mostrarSpinner(this.loading, this.nombreComponente);
@@ -74,35 +99,40 @@ export class MovilListaComponent implements OnInit, OnDestroy {
     this._usuariosService.mostrarSpinner(this.loading, this.nombreComponente);
   }
 
-  /** Se suscribe a los cambios en la lista de Móviles */
+  /**
+   * Se suscribe a los cambios en cualquier elemento de la lista
+   * hasta que el componente sea destruido
+   */
   listenUpdates(): void {
-    this.movilSub = this._movilesService.movilesObs$.subscribe((data) => {
-      if (Array.isArray(data)) {
-        this.lista = data;
-        return;
-      }
-      let {
-        action,
-        resp: { ...valores },
-      } = data;
-      console.log('Valores =>', valores);
-      switch (action) {
-        case 'added':
-          this.lista.push(valores);
-          break;
-        case 'updated':
-          let index = this.lista.findIndex(
-            (item) => item['movil_id'] == valores['movil_id']
-          );
-          for (const key in this.lista[index]) {
-            if (Object.prototype.hasOwnProperty.call(valores, key)) {
-              this.lista[index][key] = valores[key];
+    this._movilesService.movilesObs$
+      .pipe(takeUntil(this._utils.componentDestroyed$))
+      .subscribe((data) => {
+        if (Array.isArray(data)) {
+          this.lista = data;
+          return;
+        }
+        let {
+          action,
+          resp: { ...valores },
+        } = data;
+        console.log('Valores =>', valores);
+        switch (action) {
+          case 'added':
+            this.lista.push(valores);
+            break;
+          case 'updated':
+            let index = this.lista.findIndex(
+              (item) => item['movil_id'] == valores['movil_id']
+            );
+            for (const key in this.lista[index]) {
+              if (Object.prototype.hasOwnProperty.call(valores, key)) {
+                this.lista[index][key] = valores[key];
+              }
             }
-          }
-          break;
-      }
-      this.ordenarPor('nro_interno');
-    });
+            break;
+        }
+        this.ordenarPor('nro_interno');
+      });
   }
 
   ordenarPor(campo: string): void {
@@ -110,10 +140,9 @@ export class MovilListaComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    //Destruye la suscripción
-    if (this.movilSub) {
-      this.movilSub.unsubscribe();
-    }
+    // Emite un observable para destruir las suscripciones
+    // y luego emite la lista actualizada
+    this._utils.componentDestroyed$.next();    
     if (this.lista.length) {
       this._utils.ultimoOrden = '';
       this.ordenarPor('nro_interno');

@@ -17,8 +17,7 @@
         <div class="card-header-list">
           <div class="h4 m-3 px-3 text-center text-white clearfix">
             Móviles Registrados
-            <button
-              *ngIf="isAdmin || isManager"
+            <button              
               class="float-right w-25 btn btn-sm btn-success"
               [routerLink]="['nuevo']"
             >
@@ -95,6 +94,7 @@
                   <td>{{ movil.adherente }}</td>
                   <td>
                     <a
+                      (click)="savePosition($event)"  
                       class="btn btn-sm btn-warning text-nowrap"
                       [routerLink]="['detalle', movil.movil_id]"
                       ><i class="fas fa-info-circle"></i>&nbsp; Detalles</a

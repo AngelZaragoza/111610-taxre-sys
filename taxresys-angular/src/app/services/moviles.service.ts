@@ -6,6 +6,7 @@ import { AdherentesService } from './adherentes.service';
 import { ChoferesService } from './choferes.service';
 import { RequestService } from './request.service';
 import { UsuariosService } from './usuarios.service';
+import { UtilsService } from './utils.service';
 
 @Injectable({
   providedIn: 'root',
@@ -25,7 +26,8 @@ export class MovilesService {
     private _conexion: RequestService,
     private _usuarios: UsuariosService,
     private _choferes: ChoferesService,
-    private _adherentes: AdherentesService
+    private _adherentes: AdherentesService,
+    private _utils: UtilsService
   ) {
     console.log('Móviles listo');
     this.minMaxITV();
@@ -83,7 +85,6 @@ export class MovilesService {
       }
       return lista;
     } catch (error) {
-      console.log(error);
       return error;
     }
   }
@@ -98,7 +99,6 @@ export class MovilesService {
       );
       return movil[0];
     } catch (error) {
-      console.error(error);
       return error;
     }
   }
@@ -144,7 +144,7 @@ export class MovilesService {
     // Suma 1 al año actual por autos asentados con modelo del año siguiente
     let anio = new Date().getFullYear() + 1;
 
-    for (let idx = 0; idx < rango; idx++) {
+    for (let idx = 0; idx <= rango; idx++) {
       anios.push(anio - idx);
     }
     return anios;
@@ -155,14 +155,13 @@ export class MovilesService {
     let hoy = new Date();
     this.fechasITV = {
       actual: hoy,
-      minimo: new Date(hoy.getFullYear() - 1, 0, 1),
-      maximo: new Date(hoy.getFullYear() + 1, 11, 31),
+      minimo: this._utils.calcularFecha(hoy, 'y', -1),
+      maximo: this._utils.calcularFecha(hoy, 'y', 1),
     };
   }
 
   private async afterChanges(result: any) {
     // Recupera la lista de Móviles para actualizar todos los subscribers
-    // this.getLista('/moviles');
 
     // Recupera valores del objeto de respuesta del server
     let {

@@ -69,7 +69,9 @@ export class AdherenteListaComponent implements OnInit, OnDestroy {
 
   //Métodos del componente
   //*******************
-  // Guarda el elemento html sobre el que se llamó el evento
+  /**
+   * Guarda el elemento html sobre el que se llamó el evento
+   */
   public savePosition(elem: Event) {
     this.clickedElem = <HTMLElement>elem.target;
   }

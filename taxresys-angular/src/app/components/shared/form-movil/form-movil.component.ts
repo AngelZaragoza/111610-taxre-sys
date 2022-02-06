@@ -4,28 +4,21 @@ import {
   Output,
   EventEmitter,
   DoCheck,
-  OnInit,
-  OnDestroy,
+  OnInit 
 } from '@angular/core';
-import {
-  FormGroup,
-  FormControl,
-  Validators,
-  FormBuilder,
-} from '@angular/forms';
+import { FormGroup, Validators, FormBuilder } from '@angular/forms';
 import { CustomValidators } from 'src/app/classes/custom.validator';
 
 import { Movil } from 'src/app/classes/movil';
 import { RangoFechas } from 'src/app/classes/rango-fechas';
 import { MovilesService } from 'src/app/services/moviles.service';
-import { UsuariosService } from 'src/app/services/usuarios.service';
 import { AlertasService } from 'src/app/services/alertas.service';
 
 @Component({
   selector: 'app-form-movil',
   templateUrl: './form-movil.component.html',
 })
-export class FormMovilComponent implements OnInit, DoCheck, OnDestroy {
+export class FormMovilComponent implements OnInit, DoCheck {
   //Atributos que pueden ser seteados desde el componente padre
   @Input() movil: Movil = new Movil();
   @Input() editar: boolean = true;
@@ -48,7 +41,6 @@ export class FormMovilComponent implements OnInit, DoCheck, OnDestroy {
 
   constructor(
     private _movilesService: MovilesService,
-    private _usuariosService: UsuariosService,
     private _alertas: AlertasService,
     private fb: FormBuilder
   ) {
@@ -75,56 +67,59 @@ export class FormMovilComponent implements OnInit, DoCheck, OnDestroy {
     }
   }
 
-  initForm() {
+  /**
+   * Inicializa el formulario y setea los validadores
+   */
+  initForm() {    
     this.datosMovil = this.fb.group({
-      movil_id: new FormControl(''),
-      adherente_id: new FormControl('', Validators.required),
-      tipo_movil_id: new FormControl('', Validators.required),
-      marca: new FormControl('', [
+      movil_id: [''],
+      adherente_id: ['', Validators.required],
+      tipo_movil_id: ['', Validators.required],
+      marca: ['', [
         Validators.required,
         Validators.minLength(3),
         Validators.maxLength(15),
         Validators.pattern(CustomValidators.ALFANUM_NO_SIMBOLOS),
-      ]),
-      modelo: new FormControl('', [
+      ]],
+      modelo: ['', [
         Validators.required,
         Validators.minLength(3),
         Validators.maxLength(20),
         Validators.pattern(CustomValidators.ALFANUM_NO_SIMBOLOS),
-      ]),
-      descripcion: new FormControl('', [
+      ]],
+      descripcion: ['', [
         Validators.required,
         Validators.minLength(5),
         Validators.maxLength(60),
         Validators.pattern(CustomValidators.ALFANUM_NO_SIMBOLOS),
-      ]),
-      dominio: new FormControl('', [
+      ]],
+      dominio: ['', [
         Validators.required,
         Validators.minLength(6),
         Validators.maxLength(9),
         CustomValidators.validaPatente,
-      ]),
-      nro_habilitacion: new FormControl('', [
+      ]],
+      nro_habilitacion: ['', [
         Validators.required,
         Validators.maxLength(4),
         Validators.pattern(CustomValidators.NUMERICO),
-      ]),
-      nro_interno: new FormControl('', [
+      ]],
+      nro_interno: ['', [
         Validators.required,
         Validators.maxLength(3),
         Validators.pattern(CustomValidators.NUMERICO),
-      ]),
-      anio_fabr: new FormControl('', [
+      ]],
+      anio_fabr: ['', [
         Validators.required,
         Validators.maxLength(4),
         Validators.pattern(CustomValidators.NUMERICO),
-      ]),
-      chofer_pref: new FormControl(''),
-      fecha_itv: new FormControl(''),
-      seguro: new FormControl('', [
+      ]],
+      chofer_pref: [''],
+      fecha_itv: [''],
+      seguro: ['', [
         Validators.maxLength(50),
         Validators.pattern(CustomValidators.ALFANUM_NO_SIMBOLOS),
-      ]),
+      ]],
     });
   }
 
@@ -225,9 +220,5 @@ export class FormMovilComponent implements OnInit, DoCheck, OnDestroy {
     // Emite el objeto 'movil' para que lo tome el componente padre
     this.emitMovil.emit(this.movil);
     this.datosMovil.reset(this.movil);
-  }
-
-  ngOnDestroy(): void {
-    console.log('Form Móvil destruido');
   }
 }

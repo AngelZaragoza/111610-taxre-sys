@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { PreviousRouteService } from 'src/app/services/previous-route.service';
 
 @Component({
   selector: 'app-error',
@@ -8,14 +9,20 @@ import { ActivatedRoute, Router } from '@angular/router';
   ]
 })
 export class ErrorComponent implements OnInit {
-  //Atributos que pueden ser seteados desde el componente padre
+  // Atributos que pueden ser seteados desde el componente padre
   @Input() origin: string;
   @Input() errorTitle: string = '';
   @Input() errorMessage: string = '';
+  
+  // Listas con los nombres de componentes a comparar
   errorListas: string[];
   errorIndividuales: string[];
 
-  constructor(private _activated: ActivatedRoute, private _route: Router) {
+  constructor(
+    private _activated: ActivatedRoute, 
+    private _route: Router, 
+    private _previous: PreviousRouteService
+  ) {
     this.errorListas = [
       'usr_lista',
       'adh_lista',
@@ -37,9 +44,9 @@ export class ErrorComponent implements OnInit {
 
   ngOnInit(): void {
     //Si 'origin' no fue seteado por Input, se lee el queryParam
-    if(!this.origin) {      
+    if(!this.origin) {
       this._activated.queryParamMap.subscribe(params => {
-        this.origin = params.get('origin');
+        this.origin = params.get('origin') ?? '404';
         switch (this.origin) {
           case 'turno-dif-usuario':
             this.errorTitle = 'Turno abierto por otro Usuario';
@@ -53,10 +60,30 @@ export class ErrorComponent implements OnInit {
             this.errorTitle = 'No hay un Turno abierto';
             this.errorMessage = 'Iniciar o Cerrar Jornadas de Móviles sólo posible luego de abrir Turno';
             break;
-          // default:
-          //   break;
+          case 'not-admin':
+            this.errorTitle = 'Acceso Restringido';
+            this.errorMessage = 'Sólo un Usuario Administrador puede acceder a la ruta solicitada';
+            break;
+          case 'not-admin-manager':
+            this.errorTitle = 'Acceso Restringido';
+            this.errorMessage = 'Sólo un Usuario Administrador o Encargado puede acceder a la ruta solicitada';
+            break;
+          case '404':
+            this.errorTitle = '404 Page Not Found';
+            this.errorMessage = 'La ruta solicitada no existe. Si la ingresó manualmente, verifique e intente nuevamente';
+            break;
         }
       })      
     }
+  }
+
+  backToPrevious() {
+    let previous = this._previous.getPreviousUrl();
+    this._route.navigateByUrl(previous);
+  }
+
+  backToParent() {
+    let parent = this._previous.getParentUrl();
+    this._route.navigateByUrl(parent || '/home');
   }
 }

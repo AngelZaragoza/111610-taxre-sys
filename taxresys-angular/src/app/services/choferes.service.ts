@@ -1,10 +1,11 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { ReplaySubject, Subject } from 'rxjs';
+import { ReplaySubject } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { RangoFechas } from '../classes/rango-fechas';
 import { AdherentesService } from './adherentes.service';
 import { RequestService } from './request.service';
 import { UsuariosService } from './usuarios.service';
+import { UtilsService } from './utils.service';
 
 @Injectable({
   providedIn: 'root',
@@ -15,13 +16,14 @@ export class ChoferesService {
   listaChoferes: any[] = [];
 
   //Auxiliares
-  // choferesObs$: Subject<any>;
+  fechasCarnet: RangoFechas;
   choferesObs$: ReplaySubject<any>;
 
   constructor(
     private _conexion: RequestService,
     private _adherentes: AdherentesService,
-    private _usuarios: UsuariosService
+    private _usuarios: UsuariosService,
+    private _utils: UtilsService
   ) {
     //Instancia el objeto que será retornado como Observable
     this.choferesObs$ = new ReplaySubject(1);
@@ -33,6 +35,8 @@ export class ChoferesService {
         this.listaAdherentes = lista;
       }
     });
+    
+    this.minMaxCarnet();
     console.log('Choferes listo');
   }
 
@@ -101,5 +105,17 @@ export class ChoferesService {
       console.error(error);
       return error;
     }
+  }
+
+  //Métodos auxiliares
+  //*******************************
+  /** Crea un objeto con fechas límites de vencimiento del Carnet */
+  private minMaxCarnet(): void {
+    let hoy = new Date();
+    this.fechasCarnet = {
+      actual: hoy,
+      minimo: this._utils.calcularFecha(hoy, 'm', -6),
+      maximo: this._utils.calcularFecha(hoy, 'y', 5),
+    };
   }
 }

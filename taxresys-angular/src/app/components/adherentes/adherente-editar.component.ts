@@ -1,7 +1,7 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { FormGroup, Validators, FormBuilder } from '@angular/forms';
 import { CustomValidators } from '../../classes/custom.validator';
 
 import { Persona } from '../../classes/persona';
@@ -38,8 +38,9 @@ export class AdherenteEditarComponent {
 
   constructor(
     public _adherentesService: AdherentesService,
-    private activatedRoute: ActivatedRoute,
     private _usuariosService: UsuariosService,
+    private activatedRoute: ActivatedRoute,
+    private formBuilder: FormBuilder,
     private _alertas: AlertasService
   ) {
     this.nombreComponente = 'adh_detalle';
@@ -71,17 +72,20 @@ export class AdherenteEditarComponent {
   }
 
   /**
-   * Inicializa los controles del Form
+   * Inicializa el formulario y setea los validadores
    */
-  initForm(): void {
-    this.editAdherente = new FormGroup({
-      persona_id: new FormControl(0),
-      adherente_id: new FormControl(0),
-      moviles_activos: new FormControl(0),
-      observaciones: new FormControl(null, [
-        Validators.maxLength(300),
-        Validators.pattern(CustomValidators.ALFANUM_NO_SIMBOLOS),
-      ]),
+  initForm(): void {    
+    this.editAdherente = this.formBuilder.group({
+      persona_id: [0],
+      adherente_id: [0],
+      moviles_activos: [0],
+      observaciones: [
+        null,
+        [
+          Validators.maxLength(300),
+          Validators.pattern(CustomValidators.ALFANUM_NO_SIMBOLOS),
+        ],
+      ],
     });
   }
 

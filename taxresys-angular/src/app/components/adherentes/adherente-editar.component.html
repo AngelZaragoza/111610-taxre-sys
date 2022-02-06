@@ -25,9 +25,9 @@
             </button>
             Detalles
             <button
+              *ngIf="isAdmin || isManager" 
               (click)="activarEdicion()"
-              class="float-right ml-3 w-25 btn btn-sm btn-info"
-              [disabled]="!isAdmin && !isManager"
+              class="float-right ml-3 w-25 btn btn-sm btn-info"              
             >
               <i class="fas fa-id-card"></i>
               &nbsp; Editar
@@ -38,8 +38,7 @@
               id="toggleModal"
               data-toggle="modal"
               data-target="#editExtra"
-              class="float-right ml-3 w-25 btn btn-sm btn-info"
-              [disabled]="!isAdmin && !isManager"
+              class="float-right ml-3 w-25 btn btn-sm btn-info"              
             >
               <i class="fas fa-id-card-alt"></i>
               &nbsp; Extra
@@ -66,17 +65,7 @@
       <app-error
         [origin]="nombreComponente"
         [errorMessage]="errorMessage"
-      ></app-error>
-      <button
-        class="
-          btn btn-warning
-          animate__animated animate__fadeIn animate__delay-1s
-        "
-        [routerLink]="['/adherentes']"
-      >
-        <i class="fas fa-angle-double-left"></i>
-        &nbsp; Regresar
-      </button>
+      ></app-error>      
     </div>
   </div>
   <!-- Fin Mensajes de Error -->
@@ -128,13 +117,12 @@
         </div>
       </div>
 
-      <div class="modal-footer">
+      <div *ngIf="isAdmin || isManager" class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">
           Descartar Cambios
         </button>
         <button
-          type="button"
-          #updateAdh
+          type="button"          
           (click)="confirmaGuardado()"
           class="btn btn-primary"
           [disabled]="loading || editAdherente.invalid"

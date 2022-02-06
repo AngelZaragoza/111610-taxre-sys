@@ -67,6 +67,7 @@
                   <td>{{ user.rol_id | nomElem: "rol_id":roles }}</td>
                   <td>
                     <a
+                      (click)="savePosition($event)"  
                       class="btn btn-sm btn-warning"
                       [routerLink]="['detalle', user.usuario_id]"
                       ><i class="fas fa-info-circle"></i>&nbsp; Detalles</a
