@@ -12,11 +12,11 @@
 <!-- Contenido -->
 <div
   *ngIf="listaPendientesActivos.length > 0 && getTurno > 0 && !loading"
-  class="container p-3 mb-3 rounded"
+  class="container-fluid p-3 mb-3 rounded"
 >
   <div class="row">
-    <div class="col">
-      <div class="card">
+    <div class="col-md-12">
+      <div class="card animate__animated animate__fadeIn">
         <div class="card-header-list">
           <div class="h4 m-3 text-center text-white">
             Lista de Pendientes (por Asignar)

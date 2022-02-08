@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { UsuariosService } from 'src/app/services/usuarios.service';
 
@@ -15,9 +15,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   constructor(private _usuariosService: UsuariosService) { }
 
   ngOnInit(): void {
-    this._usuariosService.userObs$.asObservable().subscribe()
     this.userSub = this._usuariosService.userObs$.subscribe((userLogged) => {
-      console.log('|| Desde Suscripcion ||', userLogged);
       this.userLogged = userLogged;
       if (this.userLogged.logged) {
         this.saludo = `Bienvenid@ ${this.userLogged.alias}`;
@@ -25,13 +23,10 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.saludo = 'Para comenzar debe Iniciar Sesión';
       }
     });
-    this._usuariosService.checkAuth(false);
-    
   }
 
   
   ngOnDestroy(): void {
-    //Called once, before the instance is destroyed.
     this.userSub.unsubscribe();
   }  
 }

@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { EMPTY, Subscription } from 'rxjs';
 import { Viaje } from 'src/app/classes/viaje.model';
 import { UsuariosService } from 'src/app/services/usuarios.service';
 import { ViajesService } from 'src/app/services/viajes.service';
@@ -19,6 +19,7 @@ export class ViajePlanillaComponent implements OnInit, OnDestroy {
   estadosViaje: any[] = [];
   listaMovilesJornadas: any[] = [];
   listaChoferes: any[] = [];
+  listaMoviles: any[] = [];
   listaViajesTurno: Viaje[] = [];
 
   //Información del usuario y turno
@@ -42,11 +43,12 @@ export class ViajePlanillaComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.userSub = this._usuariosService.userObs$.subscribe((userLogged) => {
-      console.log('viajesPlanilla', userLogged);
-      this.userLogged = userLogged;
-    });
-    this._usuariosService.checkAuth(false);
+    this.userLogged = this._usuariosService.user;
+    // this.userSub = this._usuariosService.userObs$.subscribe((userLogged) => {
+    //   console.log('viajesPlanilla', userLogged);
+    //   this.userLogged = userLogged;
+    // });
+    // this._usuariosService.readUser();
 
     if (this.isOpen) {
       //Si hay un turno actualmente abierto, recupera las listas
@@ -59,7 +61,7 @@ export class ViajePlanillaComponent implements OnInit, OnDestroy {
     //Called once, before the instance is destroyed.
     //Destruye el suscriptor
     console.log('|| Planillas Viaje Destruido ||');
-    this.userSub.unsubscribe();
+    // this.userSub.unsubscribe();
   }
 
   //Métodos accessores
@@ -74,6 +76,10 @@ export class ViajePlanillaComponent implements OnInit, OnDestroy {
 
   get getTurno(): number {
     return this.userLogged.turno_id;
+  }
+  
+  get getInicio(): number {
+    return this.userLogged.hora_inicio;
   }
 
   get getAlias(): string {
@@ -94,6 +100,11 @@ export class ViajePlanillaComponent implements OnInit, OnDestroy {
     this.estadosViaje = this._viajesService.estadosViaje;
     this.listaChoferes = this._viajesService.listaChoferes;
     
+    //Se recuperan listas resumidas para mostrar datos mínimos
+    this.listaMoviles = this._viajesService.listaMoviles.map((mov) => {
+      return { movil_id: mov.movil_id, nro_interno: mov.nro_interno };
+    });
+
     this.listaMovilesJornadas = await (
       await this._viajesService.getLista('/jornadas')
     ).filter(
@@ -153,15 +164,14 @@ export class ViajePlanillaComponent implements OnInit, OnDestroy {
   }
 
   async viajeAgregado(event: Viaje) {
-    
     //Si el viaje que llega desde el hijo no es tipo Pendiente, se continúa
     if (event.estado_viaje_id != 4) {
-      
-      //Si el primer elemento del array es error, el viaje recibido 
+      //Si el primer elemento del array es error, el viaje recibido
       //es el primero del Turno, y se lo guarda en la primera posición
       if (this.listaViajesTurno[0] instanceof HttpErrorResponse) {
         this.listaViajesTurno[0] = event;
-      } else {        
+        this.errorMessage = '';
+      } else {
         //Sino, se lo agrega al arreglo de Viajes registrados del Turno
         this.listaViajesTurno.push(event);
       }

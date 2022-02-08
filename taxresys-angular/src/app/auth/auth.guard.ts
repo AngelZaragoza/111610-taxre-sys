@@ -12,7 +12,7 @@ import { UsuariosService } from '../services/usuarios.service';
   providedIn: 'root',
 })
 export class AuthGuard implements CanActivate {
-  authorized: any;
+  userLogged: any;
 
   constructor(private _usuarios: UsuariosService, private router: Router) {}
 
@@ -21,16 +21,14 @@ export class AuthGuard implements CanActivate {
     state: RouterStateSnapshot
   ): Promise<boolean | UrlTree> {
     
-    this.authorized = await this._usuarios.checkAuth(true);
-
-    if (this.authorized.logged) {
-      console.log('Autorizado');
+    // this.userLogged = this._usuarios.user ? this._usuarios.user.logged : false
+    this.userLogged = this._usuarios.readUser();
+    if (this.userLogged.logged) {
       return true;
-    } else {
-      console.error('Bloqueado por Guard: no logueado');
-      this.router.navigateByUrl('/home');
-      return false;
-    }    
-
+    }
+    console.error('Bloqueado por Guard: no logueado');
+    this.router.navigateByUrl('/home');
+    return false;
+    
   }
 }

@@ -12,14 +12,17 @@
 <!-- Contenido -->
 <div
   *ngIf="listaViajesTurno.length > 0 && getTurno > 0 && !loading"
-  class="container p-3 mb-3 rounded"
+  class="container-fluid p-3 mb-3 rounded"
 >
   <!-- <div class="container-fluid p-3 mb-3 rounded"> -->
   <div class="row">
-    <div class="col">
-      <div class="card">
+    <div class="col-md-12">
+      <div class="card animate__animated animate__fadeIn">
         <div class="card-header-list">
-          <div class="h4 m-3 text-center text-white">Planilla de Viajes</div>
+          <div class="h4 m-3 text-center text-white">
+            Planilla de Viajes -- Turno iniciado: 
+            {{ getInicio | date: "dd/MM/YYYY HH:mm'hs.'" }}
+          </div>
         </div>
         <div class="card-body back-form shadow-effect">
           <div class="row mb-3 justify-content-center">
@@ -93,8 +96,14 @@
                       <tr>
                         <th scope="col" class="align-middle">#</th>
                         <th scope="col" class="align-middle">Móv.</th>
-                        <th scope="col" class="align-middle text-truncate" style="max-width: 130px">Chofer</th>
-                        <th scope="col" class="align-middle">Calle/Lugar</th>
+                        <th
+                          scope="col"
+                          class="align-middle text-truncate"
+                          style="width: 190px"
+                        >
+                          Chofer
+                        </th>
+                        <th scope="col" class="align-middle" style="min-width: 200px">Calle/Lugar</th>
                         <th scope="col" class="align-middle">Alt.</th>
                         <th
                           scope="col"
@@ -109,7 +118,7 @@
                         <th scope="col" class="align-middle text-center">
                           Estado
                         </th>
-                        <th scope="col" class="align-middle text-center">
+                        <th scope="col" class="align-middle text-center" style="min-width: 200px">
                           Observaciones
                         </th>
                       </tr>
@@ -130,10 +139,13 @@
                         <th scope="row" class="align-middle text-center">
                           {{
                             viaje.movil_id
-                              | nroMovil: "nro_interno":listaMovilesJornadas
+                              | nroMovil: "nro_interno":listaMoviles
                           }}
                         </th>
-                        <td class="align-middle text-truncate" style="max-width: 130px">
+                        <td
+                          class="align-middle text-truncate"
+                          style="max-width: 130px"
+                        >
                           {{
                             viaje.chofer_id
                               | nombreCompleto: "chofer_id":listaChoferes

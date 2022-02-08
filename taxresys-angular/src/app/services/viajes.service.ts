@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Viaje } from '../classes/viaje.model';
+import { ChoferesService } from './choferes.service';
+import { MovilesService } from './moviles.service';
 import { RequestService } from './request.service';
 import { UsuariosService } from './usuarios.service';
 
@@ -9,20 +11,36 @@ import { UsuariosService } from './usuarios.service';
   providedIn: 'root',
 })
 export class ViajesService {
+  //Listados
   tiposViaje: any[] = [];
   estadosViaje: any[] = [];
   listaChoferes: any[] = [];
+  listaMoviles: any[] = [];
   listaPendientesActivos: any[] = [];
+
+  //Auxiliares
   pendientesObs$: Subject<any>;
   isIniciado: boolean = false;
 
   constructor(
     private _conexion: RequestService,
-    private _usuarios: UsuariosService
+    private _usuarios: UsuariosService,
+    private _moviles: MovilesService,
+    private _choferes: ChoferesService
   ) {
     //Instancia el objeto que será retornado como Observable
     this.pendientesObs$ = new Subject();
-    // this.cargarListas();
+
+    //Se suscribe a los cambios en el Módulo de Móviles
+    this._moviles.movilesObs$.subscribe((lista) => {
+      this.listaMoviles = lista;
+      console.log('---- Moviles en Viajes Actualizado ----');
+    });
+    //Se suscribe a los cambios en el Módulo de Choferes
+    this._choferes.choferesObs$.subscribe((lista) => {
+      console.log('---- Choferes en Viajes Actualizado ----');
+      this.listaChoferes = lista;
+    });
     console.log('Viajes listo');
   }
 
@@ -31,18 +49,24 @@ export class ViajesService {
   async cargarListas() {
     if (this._usuarios.user.logged) {
       await Promise.all([
-        this.getLista('/viajes/tipos').then(
-          (lista) => (this.tiposViaje = lista)
-        ),
-        this.getLista('/viajes/estados').then(
-          (lista) => (this.estadosViaje = lista)
-        ),
-        this.getLista('/choferes').then(
-          (lista) => (this.listaChoferes = lista)
-        ),
+        this.getLista('/viajes/tipos'),
+        this.getLista('/viajes/estados'),
+        this.getLista('/choferes'),
+        this.getLista('/moviles'),
       ])
-        .then(() => (this.isIniciado = true))
-        .catch((error) => console.log('Listas no cargadas', error));
+        .then((listas) => {
+          [
+            this.tiposViaje,
+            this.estadosViaje,
+            this.listaChoferes,
+            this.listaMoviles,
+          ] = listas;
+          this.isIniciado = true;
+        })
+        .catch((error) => {
+          console.log('Listas no cargadas', error);
+          this.isIniciado = false;
+        });
     }
   }
 
@@ -75,19 +99,17 @@ export class ViajesService {
         lista[0] = err;
       });
 
-    console.table(lista);
+    // console.table(lista);
     return lista;
   }
 
   async getViajesEntreFechas(objQuery: any) {
+    //Destructura el objQuery para facilidad de lectura
     let { fechaIni, fechaFin, cant, pag } = objQuery;
-    //Transformar las fechas en strings
-    // fechaIni = fechaIni.toISOString();
-    // fechaFin = fechaFin.toISOString();
 
     let lista: Viaje[] = [];
     //Concatena los diferentes strings para la query
-    let query = `ini=${fechaIni}&fin=${fechaFin}&cant=${cant}&pag=${pag}`
+    let query = `ini=${fechaIni}&fin=${fechaFin}&cant=${cant}&pag=${pag}`;
 
     await this._conexion
       .request('GET', `${environment.serverUrl}/viajes/hist-fechas?${query}`)
@@ -98,7 +120,7 @@ export class ViajesService {
         lista[0] = err;
       });
 
-    console.table(lista);
+    // console.table(lista);
     return lista;
   }
 
@@ -109,14 +131,14 @@ export class ViajesService {
       .then((res: any[]) => {
         lista = res;
         this.listaPendientesActivos = res;
-        this.pendientesObs$.next(lista.length);
+        this.pendientesObs$.next(lista);
       })
       .catch((err: any) => {
-        this.pendientesObs$.next(0);
         lista[0] = err;
+        this.pendientesObs$.next(lista);
       });
 
-    console.log('Pendientes =>', lista);
+    // console.log('Pendientes =>', lista);
     return lista;
   }
 
@@ -129,7 +151,7 @@ export class ViajesService {
       .then((res) => (viaje = res))
       .catch((err) => (viaje = err));
 
-    console.log('Viaje normal', viaje);
+    // console.log('Viaje normal', viaje);
     return viaje;
   }
 

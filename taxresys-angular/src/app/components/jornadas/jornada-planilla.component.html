@@ -1,106 +1,137 @@
 <!-- Spinner -->
 <ngx-spinner
   bdColor="rgba(0, 0, 0, 0.9)"
-  size="medium"
+  size="default"
   color="#f5627c"
-  type="ball-atom"
+  type="timer"
   [fullScreen]="true"
-  name="jornada_planilla"
-  ><p style="color: white">Cargando...</p></ngx-spinner
->
+  [name]="nombreComponente"
+  ><p style="color: white">Cargando...</p>
+</ngx-spinner>
 
 <!-- Contenido -->
 <div
-  *ngIf="listaMovilesJornadas.length > 0 && turnoActual > 0 && !loading"
-  class="container-fluid p-3 mb-3 rounded"
->
-  <!-- <div class="container-fluid p-3 mb-3 rounded"> -->
+  *ngIf="!loading"
+  class="container-fluid p-3 mb-3 rounded">  
   <div class="row">
     <div class="col-md-8">
-      <div class="card">
+      <div class="card animate__animated animate__fadeIn">
         <div class="card-header-list">
           <div class="h4 m-3 text-center text-white">Planilla de Jornadas</div>
         </div>
         <div class="card-body back-form shadow-effect">
-          <table class="table table-hover table-responsive">
-            <thead class="thead-light">
-              <tr>
-                <th scope="col" class="align-middle">Móvil</th>
-                <th scope="col" class="align-middle">Habilit.</th>
-                <th scope="col" class="align-middle">Nombre Chofer</th>
-                <th scope="col" class="align-middle text-center" style="width: 170px">
-                  Hora Inicio
-                </th>
-                <th scope="col" class="align-middle text-center" style="width: 170px">
-                  Hora Cierre
-                </th>
-                <th scope="col" class="align-middle text-center" style="width: 120px">Novedades</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let movil of listaMovilesJornadas">
-                <th scope="row" class="align-middle" routerLinkActive="list-group-item-success">
-                  {{ movil.nro_interno }}
-                </th>
-                <td class="align-middle">
-                  {{ movil.tipo }} {{ movil.nro_habilitacion }}
-                </td>                
-                <td class="align-middle">
-                  {{
-                    movil.chofer_id | nombreCompleto: "chofer_id":listaChoferes
-                  }}
-                </td>
-                <ng-container
-                  *ngIf="
-                    movil.turno_cierre || !movil.turno_inicio;
-                    then iniciarJornada;
-                    else jornadaIniciada
-                  "
-                ></ng-container>
-                <ng-template #iniciarJornada>
-                  <td class="align-middle">
-                    <a
-                      class="btn btn-info btn-block"
-                      [routerLink]="['inicio']" [queryParams]="{ mov: movil.movil_id, chp: movil.chofer_pref }"
-                      ><i class="far fa-calendar-check"></i>&nbsp; Iniciar...
-                    </a>
-                  </td>
-                  <td class="align-middle list-group-item-warning">
-                    <span class="">
-                      {{ movil.hora_cierre | date: "dd/MM/YYYY HH:mm'hs.'" }}
-                    </span>
-                  </td>
-                  
-                  <!-- <td class="align-middle">
-                    <span class="btn btn-outline-info btn-block"
-                      >Inicie Jornada</span
-                    >
-                  </td> -->
-                </ng-template>
-                <ng-template #jornadaIniciada>
-                  <td class="align-middle list-group-item-info">
-                    <span class="">
-                      {{ movil.hora_inicio | date: "dd/MM/YYYY HH:mm'hs.'" }}
-                    </span>
-                  </td>
-                  <td class="align-middle">
-                    <a
-                      class="btn btn-danger btn-sm btn-block"
-                      [routerLink]="['cierre']" [queryParams]="{ mov: movil.movil_id, jrn: movil.jornada_id }"
-                      ><i class="far fa-calendar-times"></i>&nbsp; Cerrar...</a
-                    >
-                  </td>
-                </ng-template>
-                <td class="align-middle">
-                  <a
-                    class="btn btn-warning btn-sm btn-block"
-                    [routerLink]="['detalle', movil.movil_id]"
-                    ><i class="fas fa-clipboard-check"></i>&nbsp; Nueva...</a
+          <!-- Contenido -->
+          <div *ngIf="errorMessage === ''" class="table-responsive">
+            <table class="table table-hover">
+              <thead class="list-group-item-secondary">
+                <tr>
+                  <th scope="col" class="align-middle">Móvil</th>
+                  <th scope="col" class="align-middle">Habilit.</th>
+                  <th scope="col" class="align-middle">Nombre Chofer</th>
+                  <th
+                    scope="col"
+                    class="align-middle text-center"
+                    style="width: 170px"
                   >
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                    Hora Inicio
+                  </th>
+                  <th
+                    scope="col"
+                    class="align-middle text-center"
+                    style="width: 170px"
+                  >
+                    Hora Cierre
+                  </th>
+                  <th
+                    scope="col"
+                    class="align-middle text-center"
+                    style="width: 120px"
+                  >
+                    Novedades
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let movil of listaMovilesJornadas">
+                  <th
+                    scope="row"
+                    class="align-middle"
+                    routerLinkActive="list-group-item-success"
+                  >
+                    {{ movil.nro_interno | number: "2.0-0" }}
+                  </th>
+                  <td class="align-middle">
+                    {{ movil.tipo }}
+                    {{ movil.nro_habilitacion | number: "3.0-0" }}
+                  </td>
+                  <td class="align-middle">
+                    {{
+                      (movil.turno_cierre ? -1 : movil.chofer_id )
+                      | nombreCompleto: "chofer_id":listaChoferes
+                    }}
+                  </td>
+                  <ng-container
+                    *ngIf="
+                      movil.turno_cierre || !movil.turno_inicio;
+                      then iniciarJornada;
+                      else jornadaIniciada
+                    "
+                  ></ng-container>
+                  <ng-template #iniciarJornada>
+                    <td class="align-middle">
+                      <a
+                        class="btn btn-info btn-sm btn-block"
+                        [routerLink]="['inicio']"
+                        [queryParams]="{
+                          mov: movil.movil_id,
+                          chp: movil.chofer_pref
+                        }"
+                        ><i class="far fa-calendar-check"></i>&nbsp; Iniciar...
+                      </a>
+                    </td>
+                    <td class="align-middle list-group-item-warning">
+                      <span class="">
+                        {{ movil.hora_cierre | date: "dd/MM/YYYY HH:mm'hs.'" }}
+                      </span>
+                    </td>
+                  </ng-template>
+                  <ng-template #jornadaIniciada>
+                    <td class="align-middle list-group-item-info">
+                      <span class="">
+                        {{ movil.hora_inicio | date: "dd/MM/YYYY HH:mm'hs.'" }}
+                      </span>
+                    </td>
+                    <td class="align-middle">
+                      <a
+                        class="btn btn-danger btn-sm btn-block"
+                        [routerLink]="['cierre']"
+                        [queryParams]="{
+                          mov: movil.movil_id,
+                          jrn: movil.jornada_id
+                        }"
+                        ><i class="far fa-calendar-times"></i>&nbsp; Cerrar...</a
+                      >
+                    </td>
+                  </ng-template>
+                  <td class="align-middle">
+                    <a
+                      class="btn btn-warning btn-sm btn-block"
+                      [routerLink]="['detalle', movil.movil_id]"
+                      ><i class="fas fa-clipboard-check"></i>&nbsp; Nueva...</a
+                    >
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <!-- Fin Contenido -->
+          <!-- Mensajes de Error -->
+          <app-error
+            *ngIf="errorMessage !== ''"
+            [origin]="nombreComponente"
+            [errorMessage]="errorMessage"
+          ></app-error>
+          <!-- Fin Mensajes de Error -->
         </div>
       </div>
     </div>
@@ -113,25 +144,3 @@
     </div>
   </div>
 </div>
-
-<!-- Plantillas para mostrar contenido dependiendo de si hay una jornada iniciada o no -->
-
-<!-- Esta plantilla se muestra si no hay ningún turno abierto -->
-<ng-template *ngIf="turnoActual > 0 && !loading" #abrirTurno>
-  <div class="container">
-    <div class="row justify-content-center">
-      <div class="col-md-8">
-        <div class="card">
-          <div class="card-header-list">
-            <div class="h4 m-3 text-center text-white">
-              Error: No hay un turno Abierto
-            </div>
-          </div>
-          <div class="card-body back-form shadow-effect">
-            <h5>Para poder ver las Jornadas el Operador debe Abrir su Turno</h5>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</ng-template>

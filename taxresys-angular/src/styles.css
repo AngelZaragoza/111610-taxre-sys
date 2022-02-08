@@ -5,6 +5,7 @@ body {
   /* background-color: hsl(59 92% 71%) !important; */
   /* background-color: #fbee5d !important; */
   background-color: #dfdddd !important;
+  min-height: 100vh;
   padding-bottom: 50px;
 }
 
@@ -17,16 +18,11 @@ textarea {
   background-color: #243e58 !important;
 }
 
-.fondo-titulo {
-  /* background-color: #f4f123 !important; */
-  /* background-color: #fbee5d !important; */
-  background-color: #f9ee72b0 !important;
-}
-
 .card-header-form {
   box-shadow: 1px 7px 15px #a2a2a2;
   margin: -15px -10px 0px -10px;
-  height: 60px;
+  border-radius: 0.25rem;
+  min-height: 3.5em;
   background: linear-gradient(-90deg, #8e2de2, #4a00e0);
 }
 
@@ -37,8 +33,9 @@ textarea {
 .card-header-list {
   box-shadow: 1px 7px 15px #a2a2a2;
   margin: -15px -10px 0px -10px;
-  height: 60px;
-  background: linear-gradient(-90deg, #A60E2B, #F0A032);
+  border-radius: 0.25rem;
+  min-height: 3.5em;
+  background: linear-gradient(90deg, #A60E2B, #F0A032);
 }
 
 /*Efecto de sombra para todas las tarjetas*/
@@ -46,31 +43,16 @@ textarea {
   box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
 }
 
-/* Animaciones */
-.animated {
-  -webkit-animation-duration: 1s;
-  animation-duration: 1s;
-  -webkit-animation-fill-mode: both;
-  animation-fill-mode: both;
+/* Misceláneos */
+.error-solo {
+  padding: 15vh 0;  
 }
 
-.fast {
-  -webkit-animation-duration: 0.4s;
-  animation-duration: 0.4s;
-  -webkit-animation-fill-mode: both;
-  animation-fill-mode: both;
+.error-embedded {
+  padding: 3rem 0;  
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
-}
-
-.fadeIn {
-  animation-name: fadeIn;
+.content-sticky {
+  position: sticky;  
+  top: 70px;
 }

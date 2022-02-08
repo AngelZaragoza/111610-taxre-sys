@@ -1,182 +1,194 @@
 <div class="container shadow p-3 mb-3 rounded">
-    <div class="row justify-content-center">
-      <div class="col-md-11">
-        <form [formGroup]="datosPersona" (ngSubmit)="savePersona()">
-          <fieldset [disabled]="!editar">
-            <div class="form-group row">
-              <label for="apellido" class="col-md-3 col-form-label"
-                >Apellido</label
+  <div class="row justify-content-center">
+    <div class="col-md-11">
+      <form [formGroup]="datosPersona" (ngSubmit)="confirmaGuardado()">
+        <fieldset [disabled]="!editar">
+          <!-- Inputs y Validaciones: Apellido y Nombre -->
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="apellido" class="col-form-label"
+                >Apellido: &nbsp;<span *ngIf="apellido.touched">
+                  <ng-container
+                    *ngIf="apellido.valid; then valido; else invalido"
+                  ></ng-container>
+                </span>
+              </label>
+              <input
+                type="text"
+                class="form-control"
+                [ngClass]="{
+                  'border-danger': apellido.touched && apellido.invalid
+                }"
+                formControlName="apellido"
+                placeholder="Apellido"
+              />
+              <small
+                *ngIf="apellido.touched && apellido.invalid"
+                class="text-danger"
               >
-              <div class="col-md-9">
-                <input
-                  type="text"
-                  class="form-control"
-                  [ngClass]="{
-                    'border-danger':
-                      !datosPersona.get('apellido').valid &&
-                      datosPersona.get('apellido').touched
-                  }"
-                  formControlName="apellido"
-                  placeholder="Apellido"
-                />
-                <div
-                  *ngIf="
-                    datosPersona.controls['apellido'].errors?.required &&
-                    datosPersona.controls['apellido'].touched
-                  "
-                  class="text-danger"
-                >
-                  Debe ingresar el Apellido
-                </div>
-              </div>
+                Ingrese el Apellido (3-40 caracteres)
+              </small>
             </div>
-  
-            <div class="form-group row">
-              <label for="nombre" class="col-md-3 col-form-label">Nombre</label>
-              <div class="col-md-9">
-                <input
-                  type="text"                  
-                  formControlName="nombre"
-                  placeholder="Nombre"
-                  class="form-control"
-                  [ngClass]="{
-                    'border-danger':
-                      !datosPersona.get('nombre').valid &&
-                      datosPersona.get('nombre').touched
-                  }"
-                  
-                />
-                <div
-                  *ngIf="
-                    datosPersona.controls['nombre'].errors?.required &&
-                    datosPersona.controls['nombre'].touched
-                  "
-                  class="text-danger"
-                >
-                  Debe ingresar el Nombre
-                </div>
-              </div>
-            </div>
-  
-            <div class="form-group row">
-              <label for="direccion" class="col-md-3 col-form-label"
-                >Dirección</label
+            <div class="form-group col-md-6">
+              <label for="nombre" class="col-form-label">Nombre: &nbsp;</label>
+              <span *ngIf="nombre.touched">
+                <ng-container
+                  *ngIf="nombre.valid; then valido; else invalido"
+                ></ng-container>
+              </span>
+              <input
+                type="text"
+                formControlName="nombre"
+                placeholder="Nombre"
+                class="form-control"
+                [ngClass]="{
+                  'border-danger': nombre.touched && nombre.invalid
+                }"
+              />
+              <small
+                *ngIf="nombre.touched && nombre.invalid"
+                class="text-danger"
               >
-              <div class="col-md-9">
-                <input
-                  type="text"
-                  formControlName="direccion"
-                  placeholder="Dirección"
-                  class="form-control"
-                  [ngClass]="{
-                    'border-danger':
-                      !datosPersona.get('direccion').valid &&
-                      datosPersona.get('direccion').touched
-                  }"                  
-                />
-                <div
-                  *ngIf="
-                    datosPersona.controls['direccion'].errors?.required &&
-                    datosPersona.controls['direccion'].touched
-                  "
-                  class="text-danger"
-                >
-                  Ingrese Dirección
-                </div>
-              </div>
+                Ingrese el Nombre (3-45 caracteres)
+              </small>
             </div>
-  
-            <div class="form-group row">
-              <label for="email" class="col-md-3 col-form-label">E-mail:</label>
-              <div class="col-md-9">
-                <input
-                  type="text"
-                  class="form-control"
-                  [ngClass]="{
-                    'border-danger':
-                      !datosPersona.get('email').valid &&
-                      datosPersona.get('email').touched
-                  }"
-                  formControlName="email"
-                  placeholder="usuario@correo.com"
-                />
-                <div
-                  *ngIf="
-                    datosPersona.controls['email'].errors?.required &&
-                    datosPersona.controls['email'].touched
-                  "
-                  class="text-danger"
-                >
-                  Debe ingresar una dirección de e-mail válida
-                </div>
-              </div>
-            </div>
-  
-            <div class="form-group row">
-              <label for="telefono" class="col-md-3 col-form-label"
-                >Teléfono</label
+          </div>
+          <!-- Fin: Apellido y Nombre -->
+          <!-- Inputs y Validaciones: Dirección y Teléfono -->
+          <div class="form-row">
+            <div class="form-group col-md-7">
+              <label for="direccion" class="col-form-label"
+                >Dirección: &nbsp;</label
               >
-              <div class="col-md-3">
-                <input
-                  type="text"
-                  class="form-control"
-                  [ngClass]="{
-                    'border-danger':
-                      !datosPersona.get('telefono').valid &&
-                      datosPersona.get('telefono').touched
-                  }"
-                  formControlName="telefono"
-                  placeholder="35155556666"
-                />
-                <div
-                  *ngIf="
-                    datosPersona.controls['telefono'].errors?.required &&
-                    datosPersona.controls['telefono'].touched
-                  "
-                  class="text-danger"
-                >
-                  Ingrese nro de Teléfono
-                </div>
-              </div>
-              <label for="fecha_nac" class="col-md-2 col-form-label"
-                >F. Nac.</label
+              <span *ngIf="direccion.touched">
+                <ng-container
+                  *ngIf="direccion.valid; then valido; else invalido"
+                ></ng-container>
+              </span>
+              <input
+                type="text"
+                formControlName="direccion"
+                placeholder="Dirección"
+                class="form-control"
+                [ngClass]="{
+                  'border-danger': direccion.touched && direccion.invalid
+                }"
+              />
+              <small
+                *ngIf="direccion.touched && direccion.invalid"
+                class="text-danger"
               >
-              <div class="col-md-4">
-                <input
-                  type="date"
-                  class="form-control"
-                  formControlName="fecha_nac"
-                />
-              </div>
+                Ingrese la Dirección (5-50 caracteres)
+              </small>
             </div>
-  
-            <div *ngIf="editar" class="form-group row">
-              <div class="col-sm-6">
-                <button *ngIf="!nuevo"
-                  (click)="cancelEdit()"
-                  class="btn btn-secondary btn-block"                
-                >
-                  Descartar cambios...
-                </button>
-                <button *ngIf="nuevo"
-                  type="reset"
-                  class="btn btn-secondary btn-block"                  
-                >
-                  Limpiar campos...
-                </button>
-              </div>
-              <div class="col-sm-6">
-                <button                
-                  type="submit"
-                  class="btn btn-primary btn-block"
-                  [disabled]="datosPersona.invalid"
-                >
-                  Guardar cambios...
-                </button>
-              </div>
+            <div class="form-group col-md-5">
+              <label for="telefono" class="col-form-label"
+                >Nro. Teléfono: &nbsp;</label
+              >
+              <span *ngIf="telefono.touched">
+                <ng-container
+                  *ngIf="telefono.valid; then valido; else invalido"
+                ></ng-container>
+              </span>
+              <input
+                type="text"
+                class="form-control"
+                [ngClass]="{
+                  'border-danger': telefono.touched && telefono.invalid
+                }"
+                formControlName="telefono"
+                placeholder="351-55556666"
+              />
+              <small
+                *ngIf="telefono.touched && telefono.invalid"
+                class="text-danger"
+              >
+                Ingrese un Teléfono (dígitos, + y -)
+              </small>
             </div>
-          </fieldset>
-        </form>
-      </div>
+          </div>
+          <!-- Fin Dirección y Teléfono -->
+          <!-- Inputs Opcionales: Email y Fecha de Nacimiento -->
+          <div class="form-row">
+            <div class="form-group col-md-7">
+              <label for="email" class="col-form-label"
+                >Correo Electrónico: &nbsp;</label
+              >
+              <span *ngIf="email.dirty">
+                <ng-container
+                  *ngIf="email.valid; then valido; else invalido"
+                ></ng-container>
+              </span>
+              <input
+                type="text"
+                class="form-control"
+                [ngClass]="{
+                  'border-danger': email.dirty && email.invalid
+                }"
+                formControlName="email"
+                placeholder="usuario@correo.com"
+              />
+              <small *ngIf="email.dirty && email.invalid" class="text-danger">
+                Ingrese una dirección de e-mail válida o deje en blanco
+              </small>
+            </div>
+            <div class="form-group col-md-5">
+              <label for="fecha_nac" class="col-form-label"
+                >Fecha de Nacimiento: &nbsp;</label
+              >
+              <span *ngIf="fecha_nac.dirty">
+                <ng-container
+                  *ngIf="fecha_nac.valid; then valido; else invalido"
+                ></ng-container>
+              </span>
+              <input
+                [owlDateTime]="fechaNac"
+                [owlDateTimeTrigger]="fechaNac"
+                [min]="nacidoEn.minimo"
+                [max]="nacidoEn.maximo"
+                class="form-control"
+                formControlName="fecha_nac"
+                placeholder="Fecha de Nacimiento"
+              />
+              <owl-date-time
+                [pickerType]="'calendar'"
+                [startView]="'multi-years'"
+                #fechaNac
+              ></owl-date-time>
+            </div>
+          </div>
+          <!-- Fin Opcionales: Email y Fecha de Nacimiento -->
+
+          <div *ngIf="editar" class="form-group row">
+            <div class="col-sm-6">
+              <button
+                type="button"
+                (click)="cancelEdit()"
+                class="btn btn-secondary btn-block"
+              >
+                {{ nuevo ? "Limpiar campos" : "Descartar cambios" }}
+              </button>
+            </div>
+            <div class="col-sm-6">
+              <button
+                type="submit"
+                class="btn btn-primary btn-block"
+                [disabled]="datosPersona.invalid"
+              >
+                <i class="fas fa-save"></i>
+                &nbsp; Guardar cambios...
+              </button>
+            </div>
+          </div>
+        </fieldset>
+      </form>
     </div>
   </div>
+</div>
+<!-- Templates para mostrar en validación del Formulario -->
+<ng-template #valido>
+  <i class="fas fa-check-circle text-success"></i>
+</ng-template>
+<ng-template #invalido>
+  <i class="fas fa-times-circle text-danger"></i>
+</ng-template>

@@ -5,16 +5,16 @@
   color="#f5627c"
   type="timer"
   [fullScreen]="true"
-  name="form_turno"
-  ><p style="color: white">Espere...</p></ngx-spinner
->
+  [name]="nombreComponente"
+  ><p style="color: white">Espere...</p>
+</ngx-spinner>
 
 <!-- Contenido -->
-
 <div *ngIf="ready" class="container shadow p-3 mt-5 rounded">
   <div class="row justify-content-center">
-    <div class="col-md-5 animate__animated animate__fadeIn">
-      <div class="card">
+    <!-- Listado de Últimos turnos -->
+    <div class="col-md-5">
+      <div class="card animate__animated animate__fadeIn">
         <div class="card-header-list">
           <div class="h4 m-3 text-center text-white">
             Ultimos {{ cantTurnos }} turnos
@@ -25,7 +25,11 @@
           <div class="form-group row">
             <label class="col-form-label col-5">Mostrar los últimos:</label>
             <div class="col-4">
-              <select #selectCant class="form-control" (change)="cambiaCant(selectCant)">
+              <select
+                #selectCant
+                class="form-control"
+                (change)="cambiaCant(selectCant)"
+              >
                 <option value="2">2 turnos</option>
                 <option value="5" selected>5 turnos</option>
                 <option value="10">10 turnos</option>
@@ -34,12 +38,9 @@
               </select>
             </div>
           </div>
-          <div class="box-tabla">
+          <div *ngIf="ready && errorMessage == ''" class="box-tabla">
             <div class="cont-tabla">
-              <table
-                *ngIf="errorMessage == ''"
-                class="table table-striped table-responsive"
-              >
+              <table class="table table-striped table-responsive">
                 <thead class="thead-light">
                   <tr>
                     <th>Usuario</th>
@@ -48,7 +49,10 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr *ngFor="let turno of ultTurnos" class="animate__animated animate__fadeIn">
+                  <tr
+                    *ngFor="let turno of ultTurnos"
+                    class="animate__animated animate__fadeIn"
+                  >
                     <td scope="row">{{ turno.alias }}</td>
                     <td>{{ turno.hora_inicio | date: "dd/MM/YYYY HH:mm" }}</td>
                     <td>{{ turno.hora_cierre | date: "dd/MM/YYYY HH:mm" }}</td>
@@ -57,18 +61,23 @@
               </table>
             </div>
           </div>
-          <div
-            *ngIf="errorMessage != ''"
-            class="form-group alert alert-danger"
-            role="alert"
-          >
-            <h5 class="text-center">{{ errorMessage }}</h5>
+          <!-- Mensajes de Error -->
+          <div *ngIf="ready && errorMessage != ''" class="row">
+            <div class="col">
+              <app-error
+                [origin]="nombreComponente"
+                [errorMessage]="errorMessage"
+              ></app-error>
+            </div>
           </div>
+          <!-- Fin Mensajes de Error -->
         </div>
       </div>
     </div>
-    <div class="col-md-7 animate__animated animate__fadeIn">
-      <div class="card">
+    <!-- Fin Listado de Últimos turnos -->
+    <!-- Formulario de Apertura / Cierre de Turnos -->
+    <div class="col-md-7">
+      <div *ngIf="ready" class="card animate__animated animate__fadeIn">
         <div class="card-header-form">
           <div class="h4 m-3 text-center text-white">Información del Turno</div>
         </div>
@@ -77,69 +86,24 @@
             <fieldset>
               <div class="container">
                 <div class="row">
-                  <div *ngIf="abreTurno" class="form-group col-sm-6">
-                    <label for="inicio" class="col-form-label"
-                      >Fecha y Hora del Nuevo Turno:</label
-                    >
-                    <input
-                      [owlDateTime]="inicio"
-                      [owlDateTimeTrigger]="inicio"
-                      [min]="turno.hora_cierre"
-                      formControlName="hora_inicio"
-                      class="form-control"
-                      placeholder="Fecha y Hora Inicio"
-                    />
-                    <owl-date-time
-                      [startAt]="turno.hora_cierre"
-                      #inicio
-                    ></owl-date-time>
-                  </div>
-                  <div *ngIf="!abreTurno" class="form-group col-sm-6">
-                    <label for="inicio" class="col-form-label"
-                      >Fecha y Hora de Cierre del Turno:</label
-                    >
-                    <input
-                      [owlDateTime]="cierre"
-                      [owlDateTimeTrigger]="cierre"
-                      [min]="turno.hora_inicio"
-                      formControlName="hora_cierre"
-                      class="form-control"
-                      placeholder="Fecha y Hora Cierre"
-                    />
-                    <owl-date-time
-                      [startAt]="turno.hora_inicio"
-                      #cierre
-                    ></owl-date-time>
-                  </div>
+                  <!-- Información del Turno -->
                   <div class="col-sm-6">
                     <h3 class="text-center">Usuario actual:</h3>
                     <h3 class="font-weight-bold text-center">
                       {{ userLogged.alias }}
                     </h3>
                     <hr />
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="form-group col-sm-6">
-                    <label for="observaciones" class="col-form-label"
-                      >Observaciones:
-                    </label>
-                    <textarea
-                      class="form-control"
-                      formControlName="observaciones"
-                      maxlength="300"
-                      rows="3"
-                    ></textarea>
-                  </div>
-                  <div class="col-sm-6">
-                    <br />
-                    <div *ngIf="abreTurno">
+
+                    <div *ngIf="abreTurno" class="mt-5">
                       <h4 class="text-center">Cierre Turno anterior:</h4>
                       <h5 class="text-center">
                         {{ turno.hora_cierre | date: "dd/MM/YYYY HH:mm" }}
                       </h5>
                     </div>
-                    <div *ngIf="!abreTurno && ultTurnos.length > 0">
+                    <div
+                      *ngIf="!abreTurno && ultTurnos.length > 0"
+                      class="mt-5"
+                    >
                       <h4 class="text-center">Turno actual:</h4>
                       <h4 class="font-weight-bold text-center">
                         {{ ultTurnos[0]["alias"] }}
@@ -147,14 +111,79 @@
                       <h5 class="text-center">
                         {{ turno.hora_inicio | date: "dd/MM/YYYY HH:mm" }}
                       </h5>
+                    </div>                    
+                  </div>
+                  <!-- Controles del Formulario del Turno -->
+                  <div class="col-sm-6">
+                    <ng-container
+                      *ngIf="abreTurno; then inicioTurno; else cierreTurno">
+                    </ng-container>
+                    <!-- Templates para mostrar en Inicio o Cierre de Turno -->
+                    <ng-template #inicioTurno>
+                      <div class="form-group">
+                        <label for="inicio" class="col-form-label"
+                          >Fecha y Hora del Nuevo Turno:
+                        </label>
+                        <input
+                          [owlDateTime]="inicio"
+                          [owlDateTimeTrigger]="inicio"
+                          [min]="turno.hora_cierre"
+                          formControlName="hora_inicio"
+                          class="form-control"
+                          placeholder="Fecha y Hora Inicio"
+                        />
+                        <owl-date-time
+                          [startAt]="turno.hora_cierre"
+                          #inicio
+                        ></owl-date-time>
+                      </div>
+                    </ng-template>
+                    <ng-template #cierreTurno>
+                      <div class="form-group">
+                        <label for="cierre" class="col-form-label"
+                          >Fecha y Hora de Cierre del Turno:</label
+                        >
+                        <input
+                          [owlDateTime]="cierre"
+                          [owlDateTimeTrigger]="cierre"
+                          [min]="turno.hora_inicio"
+                          formControlName="hora_cierre"
+                          class="form-control"
+                          placeholder="Fecha y Hora Cierre"
+                        />
+                        <owl-date-time
+                          [startAt]="turno.hora_inicio"
+                          #cierre
+                        ></owl-date-time>
+                      </div>
+                    </ng-template>
+                    <div class="form-group mt-4">
+                      <label for="observaciones" class="col-form-label"
+                        >Observaciones:
+                      </label>
+                      <textarea
+                        class="form-control"
+                        formControlName="observaciones"
+                        maxlength="300"
+                        rows="4"
+                      ></textarea>
                     </div>
                   </div>
                 </div>
+                <!-- Fin Controles del Formulario -->
                 <div class="row mt-4">
                   <div class="col">
                     <button
+                      class="btn btn-block btn-secondary"
+                      (click)="cancelarForm()"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                  <div class="col">
+                    <button
                       type="button"
-                      (click)="datosTurno.valid && saveTurno(abreTurno)"
+                      (click)="datosTurno.valid && confirmaGuardado()"
                       class="btn btn-block btn-primary"
                       [disabled]="loading"
                     >
@@ -166,15 +195,6 @@
                         "
                       ></i>
                       {{ loading ? "Guardando..." : textoBoton }}
-                    </button>
-                  </div>
-                  <div class="col-sm-2"></div>
-                  <div class="col">
-                    <button
-                      class="btn btn-block btn-secondary"
-                      (click)="cancelarForm()"
-                    >
-                      Cancelar
                     </button>
                   </div>
                 </div>

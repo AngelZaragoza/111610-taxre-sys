@@ -1,6 +1,7 @@
 const dotenv = require("dotenv");
 dotenv.config();
 const mysql2 = require("mysql2");
+const HttpException = require("../lib/httpexception.utils");
 
 class ConexionDB {
   constructor() {
@@ -96,13 +97,19 @@ class ConexionDB {
       // .execute utiliza Prepared Statements (más eficiente)
       this.db.execute(sql, values, callback);
     }).catch((err) => {
-      const mysqlErrorList = Object.keys(HttpStatusCodes);
       // Convierte los errores de mysql a codigos de estado http
-      err.status = mysqlErrorList.includes(err.code)
-        ? HttpStatusCodes[err.code]
-        : err.status;
-
-      throw err;
+      console.log(Object.entries(err));
+      let status, message;
+      const mysqlErrorList = Object.keys(HttpStatusCodes);
+      if (mysqlErrorList.includes(err.code)) {
+        status = HttpStatusCodes[err.code];
+        message = err.sqlMessage;
+      } else {
+        status = 500;
+        message = 'Error interno de la BD';
+      }      
+      
+      throw new HttpException(status, message, err);
     });
   };
 }
@@ -110,7 +117,12 @@ class ConexionDB {
 // like ENUM
 const HttpStatusCodes = Object.freeze({
   ER_TRUNCATED_WRONG_VALUE_FOR_FIELD: 422,
+  ER_BAD_NULL_ERROR: 422,
   ER_DUP_ENTRY: 409,
+  ER_NO_REFERENCED_ROW_2: 409,
+  ER_NO_REFERENCED_ROW: 409,
+  ECONNREFUSED: 504,
+  ETIMEDOUT: 504,
 });
 
 module.exports = new ConexionDB();

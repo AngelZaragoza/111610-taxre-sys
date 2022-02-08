@@ -1,15 +1,14 @@
-<div class="container-fluid mb-3 rounded">
-  <div class="card">
+<div class="container-fluid mb-3 rounded content-sticky">
+  <div class="card animate__animated animate__fadeIn">
     <div class="card-header-form">
-      <div class="row">
-        <div class="col-md-2 offset-md-1 mt-2">
-          <a class="btn btn-outline-warning" [routerLink]="['/usuarios']"
-            >Cancelar</a
-          >
-        </div>
-        <div class="col-md-8 h4 mt-3 text-center text-white">
-          Datos del Nuevo Usuario
-        </div>
+      <div class="h4 m-3 px-3 text-center text-white clearfix">
+        <button
+          class="float-left btn btn-sm btn-outline-warning"
+          [routerLink]="['/usuarios']"
+        >
+          <i class="fas fa-angle-double-left"></i>&nbsp; Cancelar
+        </button>
+        Alta Nuevo Usuario
       </div>
     </div>
     <div class="card-body back-form shadow-effect">
@@ -29,18 +28,27 @@
           <div class="carousel-item">
             <div class="container shadow p-3 mb-3 rounded">
               <div class="row justify-content-center">
-                <div class="col-md-11">                  
-                  <form [formGroup]="newUsuario" (ngSubmit)="saveUsuario()">
+                <div class="col-md-11">
+                  <form
+                    [formGroup]="newUsuario"
+                    (ngSubmit)="confirmaGuardado()"
+                  >
                     <div class="form-group row">
-                      <label for="rol_id" class="col-sm-3 col-form-label"
-                        >Rol Usuario:
+                      <label for="rol_id" class="col-sm-4 col-form-label"
+                        >Rol Usuario: &nbsp;<span *ngIf="rolUser.touched">
+                          <ng-container
+                            *ngIf="rolUser.valid; then valido; else invalido"
+                          ></ng-container>
+                        </span>
                       </label>
-                      <div class="col-sm-9">
+                      <div class="col-sm-8">
                         <select
                           class="form-control"
                           formControlName="rol_id"
                           [ngClass]="{
-                            'border-danger': newUsuario.get('rol_id').invalid
+                            'border-danger':
+                              (rolUser.touched || rolUser.dirty) &&
+                              rolUser.invalid
                           }"
                         >
                           <option value="" selected>
@@ -56,55 +64,75 @@
                       </div>
                     </div>
                     <div class="form-group row">
-                      <label for="alias" class="col-sm-3 col-form-label"
-                        >Username:
+                      <label for="alias" class="col-sm-4 col-form-label"
+                        >Username:&nbsp;<span *ngIf="userName.touched">
+                          <ng-container
+                            *ngIf="userName.valid; then valido; else invalido"
+                          ></ng-container>
+                        </span>
                       </label>
-                      <div class="col-sm-9">
+                      <div class="col-sm-8">
                         <input
                           type="text"
                           formControlName="alias"
                           class="form-control"
                           placeholder="Alias / Nombre de Usuario"
-                        />
-                        <!-- aria-describedby="helpId" -->
-                        <small
-                          id="helpId"
-                          [ngClass]="
-                            newUsuario.get('alias').invalid
-                              ? 'text-danger'
-                              : 'text-success'
-                          "
+                          [ngClass]="{
+                            'border-danger':
+                              userName.touched && userName.invalid
+                          }"
+                        />                        
+                        <small                        
+                          [ngClass]="{
+                            'd-none': userName.untouched,
+                            'text-danger': userName.touched && userName.invalid,
+                            'text-success': userName.valid
+                          }"
                         >
                           De 5 a 20 caracteres
                         </small>
                       </div>
                     </div>
                     <div class="form-group row">
-                      <label for="alias" class="col-sm-3 col-form-label"
+                      <label for="alias" class="col-sm-4 col-form-label"
                         >Password:
                       </label>
-                      <div class="col-sm-9">
+                      <div class="col-sm-8">
                         <input
                           type="password"
                           formControlName="password"
                           class="form-control"
+                          [ngClass]="{
+                            'border-danger':
+                              (pass.touched || pass.dirty) && pass.invalid
+                          }"
                         />
                       </div>
                     </div>
                     <div class="form-group row">
-                      <label for="alias" class="col-sm-3 col-form-label"
-                        >Confirmación:
+                      <label for="alias" class="col-sm-4 col-form-label"
+                        >Confirmación: &nbsp;<span *ngIf="passConfirm.touched">
+                          <ng-container
+                            *ngIf="passConfirm.valid &&
+                            !newUsuario.errors?.nocoincide; then valido; else invalido"
+                          ></ng-container>                          
+                        </span>
                       </label>
-                      <div class="col-sm-9">
+                      <div class="col-sm-8">
                         <input
                           type="password"
                           formControlName="passwordConfirm"
                           class="form-control"
+                          [ngClass]="{
+                            'border-danger':
+                              (passConfirm.touched || passConfirm.dirty) &&
+                              passConfirm.invalid
+                          }"
                         />
                         <small
                           *ngIf="
                             newUsuario.errors?.nocoincide &&
-                            (newUsuario.touched || newUsuario.dirty)
+                            (passConfirm.touched || passConfirm.dirty)
                           "
                           class="text-danger"
                           >Los password no coinciden
@@ -114,7 +142,8 @@
                     <div class="form-group row">
                       <div class="col-sm-6">
                         <button
-                          type="reset"
+                          type="button"
+                          (click)="resetForm()"
                           class="btn btn-secondary btn-block"
                         >
                           Limpiar campos...
@@ -126,9 +155,15 @@
                           class="btn btn-primary btn-block"
                           [disabled]="!newUsuario.valid || !ready || loading"
                         >
-                        <i [ngClass]="loading ? 'fas fa-sync-alt fa-spin' : 'far fa-save'"></i>
-                          <span *ngIf="!loading">  Guardar Cambios</span>
-                          <span *ngIf="loading">  Guardando...</span>
+                          <i
+                            [ngClass]="
+                              loading
+                                ? 'fas fa-sync-alt fa-spin'
+                                : 'fas fa-save'
+                            "
+                          ></i>
+                          <span *ngIf="!loading">&nbsp; Guardar Usuario</span>
+                          <span *ngIf="loading">&nbsp; Guardando...</span>
                         </button>
                       </div>
                     </div>
@@ -146,7 +181,7 @@
             #prevSlide
             [ngClass]="
               ready
-                ? 'btn btn-info btn-block'
+                ? 'btn btn-info btn-sm btn-block'
                 : 'btn btn-outline-info btn-sm btn-block'
             "
             href="#datosUsuario"
@@ -161,7 +196,7 @@
             #nextSlide
             [ngClass]="
               ready
-                ? 'btn btn-info btn-block'
+                ? 'btn btn-info btn-sm btn-block'
                 : 'btn btn-outline-info btn-sm btn-block'
             "
             href="#datosUsuario"
@@ -175,3 +210,10 @@
     </div>
   </div>
 </div>
+<!-- Templates para mostrar en validación del Formulario -->
+<ng-template #valido>
+  <i class="fas fa-check-circle text-success"></i>
+</ng-template>
+<ng-template #invalido>
+  <i class="fas fa-times-circle text-danger"></i>
+</ng-template>

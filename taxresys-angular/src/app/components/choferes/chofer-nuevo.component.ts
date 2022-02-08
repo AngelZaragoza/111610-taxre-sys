@@ -3,7 +3,6 @@ import { AdherentesService } from '../../services/adherentes.service';
 import { ChoferesService } from '../../services/choferes.service';
 import {
   FormGroup,
-  FormControl,
   Validators,
   FormBuilder,
 } from '@angular/forms';
@@ -12,6 +11,7 @@ import { Persona } from '../../classes/persona';
 import { Chofer } from '../../classes/chofer';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
+import { AlertasService } from 'src/app/services/alertas.service';
 
 @Component({
   selector: 'app-chofer-nuevo',
@@ -21,9 +21,10 @@ import { HttpErrorResponse } from '@angular/common/http';
 export class ChoferNuevoComponent implements OnInit {
   //Crea una referencia a un elemento del DOM
   @ViewChild('comboAdh', { read: ElementRef }) comboAdh: ElementRef;
-  @ViewChild('carnet', { read: ElementRef }) carnet: ElementRef;
+  @ViewChild('formCarnet', { read: ElementRef }) formCarnet: ElementRef;
 
-  lista: any[] = [];
+  //Listado
+  listaAdherentes: any[] = [];
 
   //Clases modelo para los objetos
   detalle: any = {};
@@ -33,22 +34,25 @@ export class ChoferNuevoComponent implements OnInit {
   //Formulario
   newChofer: FormGroup;
 
-  //Listo para guardar nuevo Chofer
-  ready: boolean;
-  nuevo: boolean;
+  //Auxiliares
+  cantAdherentes: number;
+  cargaFull: boolean;
   loading: boolean;
   eleccion: boolean;
+  errorMessage: string;
 
   constructor(
     private _adherentesService: AdherentesService,
     private _choferesService: ChoferesService,
     private formBuilder: FormBuilder,
+    private _alertas: AlertasService,
     private route: Router
   ) {
-    //Listo para guardar nuevo Chofer: false
-    this.ready = false;
-    this.nuevo = false;
+    // Listo para guardar nuevo Chofer: false
+    this.cantAdherentes = 0;
+    this.cargaFull = false;
     this.eleccion = false;
+    this.errorMessage = '';
   }
 
   ngOnInit(): void {
@@ -56,34 +60,74 @@ export class ChoferNuevoComponent implements OnInit {
     this.initForm();
   }
 
-  //Recupera la lista de Adherentes
-  async getAdherentes() {
-    this.lista = await this._adherentesService.getAdherentes();
-  }
-
-  //Inicializa el formulario con valores por defecto
-  initForm() {
+  /**
+   * Inicializa el formulario y setea los validadores
+   */
+  initForm() {    
     this.newChofer = this.formBuilder.group({
-      persona_id: new FormControl(0),
-      carnet_nro: new FormControl('', [
+      persona_id: [''],
+      carnet_nro: ['', [
         Validators.required,
         Validators.minLength(5),
         Validators.maxLength(22),
-      ]),
-      carnet_vence: new FormControl('', Validators.required),
-      habilitado: new FormControl(1),
+        Validators.pattern(/(^[\w]{2,4}-[\d]+$)|(^[\d]+$)/),
+      ]],
+      carnet_vence: ['', Validators.required],
+      habilitado: [1],
     });
   }
 
+  //Accesores del Form
+  //*******************
+  get carnet() {
+    return this.newChofer.get('carnet_nro');
+  }
+
+  get vencimiento() {
+    return this.newChofer.get('carnet_vence');
+  }
+
+  //Métodos del componente
+  //**********************
+  //Recupera la lista de Adherentes
+  async getAdherentes() {
+    let listado: any[];
+
+    // Si el listado en el servicio está vacío, se realiza el llamado a la BD
+    if (!this._choferesService.listaAdherentes.length) {
+      listado = await this._adherentesService.getAdherentes();
+    } else {
+      listado = this._choferesService.listaAdherentes;
+    }
+
+    if (listado instanceof HttpErrorResponse) {
+      this.errorMessage = listado.error['message'];
+      return;
+    }
+    // Se filtra la lista de Adherentes para mostrar solamente
+    // aquellos que no tienen un Chofer asociado en el combo
+    this.listaAdherentes = listado.filter((adherente) => {
+      return !this._choferesService.listaChoferes.some(
+        (chofer) => chofer['persona_id'] === adherente['persona_id']
+      );
+    });
+
+    // Se setea el mensaje de error según el resultado del filtro
+    this.errorMessage =
+      this.listaAdherentes.length > 0
+        ? ''
+        : 'No hay Adherentes cargados cuyos datos puedan usarse para crear un Chofer';
+  }
+
   nuevoDesdeCero() {
-    this.nuevo = true;
+    this.cargaFull = true;
     this.eleccion = true;
     this.newChofer.reset();
     this.initForm();
   }
 
   nuevoDesdeAdh() {
-    this.nuevo = false;
+    this.cargaFull = false;
     this.eleccion = true;
     this.newChofer.reset();
     this.initForm();
@@ -93,77 +137,105 @@ export class ChoferNuevoComponent implements OnInit {
     //Recibe el objeto "persona" desde el evento del componente hijo
     this.persona = persona;
 
-    console.log('Nueva Persona =>');
-    console.table(this.persona);
-
     //Invoca el click en el botón oculto
-    console.log(this.carnet);
-    this.carnet.nativeElement.dispatchEvent(
+    this.formCarnet.nativeElement.dispatchEvent(
       new Event('click', { bubbles: true, cancelable: true })
     );
   }
 
   //Muestra el modal con el formulario para los datos del Carnet
   modalCarnet(event?: Event) {
-    let persona_id;
-    console.log('Evento =>', event);
+    // Chequea si se carga desde un Adherente o una carga Completa
+    if (!this.cargaFull) {
+      // Chequea si existe el combo (Adherentes disponibles)
+      if (!this.comboAdh) {
+        // Se impide la apertura del modal interrumpiendo el evento del botón
+        event.stopImmediatePropagation();
+        return;
+      }
 
-    if (!this.nuevo) {
-      persona_id = this.comboAdh.nativeElement.value;
-      console.log('Combo value => ', persona_id);
-
-      //Si el usuario no seleccionó un Adherente del combo...
+      // Chequea si el usuario seleccionó un Adherente del combo
+      let persona_id = this.comboAdh.nativeElement.value;
       if (persona_id === '') {
-        //Se impide la apertura del modal interrumpiendo el botón
+        // Se impide la apertura del modal interrumpiendo el evento del botón
         event.stopImmediatePropagation();
 
-        //A mejorar aspecto...
-        alert('Debe seleccionar un Adherente');
-      } else {
-        //Setea el valor en el campo correspondiente del form y abre el modal
-        this.newChofer.get('persona_id').setValue(persona_id);
+        this._alertas.problemDialog.fire({
+          title: 'Error',
+          text: 'Debe seleccionar un Adherente',
+        });
+        return;
       }
+
+      // Setea el valor del campo del form y permite la apertura del modal
+      this.newChofer.get('persona_id').setValue(persona_id);
     }
+  }
+
+  confirmaGuardado() {
+    //Recibe el objeto con los datos adicionales del Chofer del form
+    this.chofer = { ...this.newChofer.value };
+
+    let mensaje = `¿Guarda el Nuevo Chofer?`;
+    this._alertas.confirmDialog
+      .fire({
+        title: 'Guardar Datos',
+        text: mensaje,
+        icon: 'question',        
+      })
+      .then((result) => {
+        if (result.isConfirmed) {
+          //Si el usuario confirma, se llama el método que guarda en la DB
+          this.saveChofer();
+        }
+      });
   }
 
   async saveChofer() {
     this.loading = true;
-    this.chofer = { ...this.newChofer.value };
+    let mensaje: string;
+    let result: any;
 
-    //Pide confirmación para el guardado (a mejorar aspecto...)
-    if (confirm(`Guardar nuevo Chofer?`)) {
-      let result: any;
-      //Si nuevo es true, se crea un objeto "detalle" uniendo "persona" y "chofer" y se envía al servicio
-      if (this.nuevo) {
-        this.detalle = { ...this.persona, ...this.chofer };
-        console.table(this.detalle);
+    try {
+      // Si cargaFull es true, se crea un objeto "detalle" uniendo "persona" y "chofer" y se envía al servicio
+      if (this.cargaFull) {
+        this.detalle = { ...this.persona, ...this.chofer };        
         result = await this._choferesService.nuevoChofer(
           this.detalle,
-          this.nuevo
+          this.cargaFull
         );
       } else {
-        //Si nuevo es false, se envía el objeto "chofer" al servicio
+        //Si cargaFull es false, se envía solamente el objeto "chofer" al servicio
         result = await this._choferesService.nuevoChofer(
           this.chofer,
-          this.nuevo
+          this.cargaFull
         );
       }
-
-      if (result instanceof HttpErrorResponse) {
-        alert(
-          `Algo falló:\n${result.error.err?.code} \n ${result.statusText}\nNo se guardaron datos.`
-        );
-      } else {
-        alert(`Nuevo Chofer guardado!`);
-        let cerrar = document.querySelector('#cerrar');
-        cerrar.dispatchEvent(new Event('click', { bubbles: true }));
-
-        //Flag para indicar al elemento padre que debe recargar lista
-        this.ready = true;
-        this.route.navigateByUrl('/choferes');
-      }
+    } catch (error) {
+      result = error;
     }
 
+    if (result instanceof HttpErrorResponse) {
+      mensaje = `${result.error['message']} -- No se guardaron datos.`;
+      this._alertas.problemDialog.fire({
+        title: `Algo falló (${result.error['status']})`,
+        text: mensaje,
+      });
+    } else {
+      mensaje = `Nuevo Chofer Creado. Espere...`;
+      this._alertas.successDialog.fire({
+        position: 'center',
+        title: 'Chofer Guardado!',
+        text: mensaje,
+        didOpen: () => {
+          // this.cantAdherentes = false;
+          this.formCarnet.nativeElement.dispatchEvent(
+            new Event('click', { bubbles: true })
+          );
+          this.route.navigateByUrl('/choferes');
+        },
+      });
+    }
     this.loading = false;
   }
 }

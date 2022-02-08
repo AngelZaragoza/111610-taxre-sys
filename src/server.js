@@ -1,6 +1,8 @@
 const express = require("express");
 const dotenv = require("dotenv").config();
-const conexion = require("../db/db-connection");
+const path = require('path');
+const errorMiddleware = require('../lib/error.middleware');
+// const conexion = require("../db/db-connection");
 const cors = require("cors");
 const usuarios = require("../routes/usuarios.route");
 const adherentes = require("../routes/adherentes.route");
@@ -14,7 +16,7 @@ const session = require("express-session");
 const MySQLStore = require("express-mysql-session")(session);
 
 const passport = require('passport');
-require('../lib/passport');
+require('../lib/passport.utils');
 
 
 //*****************************************
@@ -23,13 +25,14 @@ require('../lib/passport');
 
 const app = express();
 const corsOptions = {
-  origin: 'http://localhost:4200',
+  origin: process.env.ORIGIN,
   credentials: true
 }
 
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(express.static('./files'));
 
 //*****************************************
 //Configuración del middleware de sesiones
@@ -77,6 +80,9 @@ const port = Number(process.env.PORT || 3400);
 //Configuración de las rutas del servidor
 //*****************************************
 
+//Apunta por defecto a la carpeta 'files'
+app.use(express.static(path.join(__dirname, 'files')));
+
 app.use("/usuarios", usuarios);
 app.use("/adherentes", adherentes);
 app.use("/choferes", choferes);
@@ -84,6 +90,12 @@ app.use("/moviles", moviles);
 app.use("/jornadas", jornadas);
 app.use("/turnos", turnos);
 app.use("/viajes", viajes);
+
+//*****************************************
+//Configuración del middleware de errores
+//*****************************************
+
+app.use(errorMiddleware);
 
 //*****************************************
 //Levanta el servidor e informa el puerto

@@ -1,359 +1,311 @@
 <div class="container-fluid shadow p-3 mb-3 rounded">
   <div class="row justify-content-center">
     <div class="col-md-11">
-      <form [formGroup]="datosMovil" (ngSubmit)="saveMovil()">
-        <fieldset [disabled]="!editar">
+      <form [formGroup]="datosMovil" (ngSubmit)="confirmaGuardado()">
+        <fieldset [disabled]="!editar || loading">
           <div class="row">
-            <!-- <fieldset class="form-group col-sm-4">
-              <legend class="col-form-label">Tipo de Móvil *</legend>
-              <div class="form-check form-check-inline">
-                <input
-                  class="form-check-input"
-                  type="radio"
-                  formControlName="tipo_movil_id"
-                  id="radioTaxi"
-                />
-                <label class="form-check-label" for="radioTaxi"> Taxi </label>                
-              </div>
-              <div class="form-check form-check-inline">
-                <input
-                  class="form-check-input"
-                  type="radio"
-                  formControlName="tipo_movil_id"
-                  id="radioRemiss"
-                />
-                <label class="form-check-label" for="radioRemiss">
-                  Remiss
-                </label>
-              </div>
-            </fieldset> -->
-            <div *ngIf="nuevo" class="form-group col-sm-4">
+            <div class="form-group col-sm-4">
+              <!-- Combo Tipos de Móvil -->
               <label for="tipo_movil_id" class="col-form-label"
-                >Tipo de Móvil *
+                >Tipo de Móvil &nbsp;
+                <span *ngIf="tipoMovil.touched">
+                  <ng-container
+                    *ngIf="tipoMovil.valid; then valido; else invalido"
+                  ></ng-container>
+                </span>
               </label>
               <select
                 class="form-control"
                 formControlName="tipo_movil_id"
                 [ngClass]="{
-                  'border-danger':
-                    !datosMovil.get('tipo_movil_id').valid &&
-                    datosMovil.get('tipo_movil_id').touched
+                  'border-danger': tipoMovil.touched && !tipoMovil.valid
                 }"
               >
-                <option value="" selected>-- Seleccione uno --</option>
+                <option value="" [selected]="nuevo">
+                  -- Seleccione uno --
+                </option>
                 <option
                   *ngFor="let tipo of listaTipos"
                   [value]="tipo.tipo_movil_id"
+                  [selected]="
+                    !nuevo && tipo.tipo_movil_id == movil.tipo_movil_id
+                  "
                 >
                   {{ tipo.nombre }}
                 </option>
               </select>
               <small
-                *ngIf="
-                  !datosMovil.controls['tipo_movil_id'].valid &&
-                  datosMovil.controls['tipo_movil_id'].touched
-                "
+                *ngIf="tipoMovil.touched && !tipoMovil.valid"
                 class="text-danger"
               >
                 Seleccione un Tipo
               </small>
             </div>
-
-            <div *ngIf="!nuevo" class="form-group col-sm-4">
-              <label for="tipo_movil_id" class="col-form-label"
-                >Tipo de Móvil *
-              </label>
-              <select class="form-control" formControlName="tipo_movil_id">
-                <option
-                  *ngFor="let tipo of listaTipos"
-                  [value]="tipo.tipo_movil_id"
-                  [selected]="tipo.tipo_movil_id == movil.tipo_movil_id"
-                >
-                  {{ tipo.nombre }}
-                </option>
-              </select>
-            </div>
-
-            <div *ngIf="nuevo" class="form-group col-sm-8">
+            <!-- Combo Adherentes -->
+            <div class="form-group col-sm-8">
               <label for="adherente_id" class="col-form-label"
-                >Adherente *
+                >Adherente &nbsp;
+                <span *ngIf="adherente.touched">
+                  <ng-container
+                    *ngIf="adherente.valid; then valido; else invalido"
+                  ></ng-container>
+                </span>
               </label>
               <select
                 class="form-control"
                 formControlName="adherente_id"
                 [ngClass]="{
-                  'border-danger':
-                    !datosMovil.get('adherente_id').valid &&
-                    datosMovil.get('adherente_id').touched
+                  'border-danger': adherente.touched && !adherente.valid
                 }"
               >
-                <option value="" selected>-- Seleccione uno --</option>
+                <option value="" [selected]="nuevo">
+                  -- Seleccione uno --
+                </option>
                 <option
                   *ngFor="let adh of listaAdherentes"
                   [value]="adh.adherente_id"
+                  [selected]="!nuevo && adh.adherente_id == movil.adherente_id"
                 >
                   {{ adh.apellido }}, {{ adh.nombre }} - Móviles:
                   {{ adh.moviles_activos }}
                 </option>
               </select>
               <small
-                *ngIf="
-                  !datosMovil.controls['adherente_id'].valid &&
-                  datosMovil.controls['adherente_id'].touched
-                "
+                *ngIf="adherente.touched && !adherente.valid"
                 class="text-danger"
               >
                 Seleccione un Adherente
               </small>
             </div>
-
-            <div *ngIf="!nuevo" class="form-group col-sm-8">
-              <label for="adherente_id" class="col-form-label"
-                >Adherente *
-              </label>
-              <select
-                class="form-control"
-                formControlName="adherente_id"            
-              >                
-                <option
-                  *ngFor="let adh of listaAdherentes"
-                  [value]="adh.adherente_id"
-                  [selected]="adh.adherente_id == movil.adherente_id" 
-                >
-                  {{ adh.apellido }}, {{ adh.nombre }} - Móviles:
-                  {{ adh.moviles_activos }}
-                </option>
-              </select>
-              
-            </div>
           </div>
-
-          
-          <!-- ====== -->
+          <!-- =================== -->
           <div class="form-row">
-            <div *ngIf="nuevo" class="form-group col-sm-3">
+            <!-- Combo Año Fabricación -->
+            <div class="form-group col-sm-3">
               <label for="anio_fabr" class="col-form-label"
-                >Fabricado:</label
-              >
+                >Fabricado &nbsp;
+                <span *ngIf="fabricado.touched">
+                  <ng-container
+                    *ngIf="fabricado.valid; then valido; else invalido"
+                  ></ng-container>
+                </span>
+              </label>
               <select
                 class="form-control"
                 formControlName="anio_fabr"
                 [ngClass]="{
-                  'border-danger':
-                    !datosMovil.get('anio_fabr').valid &&
-                    datosMovil.get('anio_fabr').touched
+                  'border-danger': fabricado.touched && !fabricado.valid
                 }"
               >
-                <option value="" selected>-- Seleccione uno --</option>
-                <option *ngFor="let anio of aniosFabr" [value]="anio">
+                <option value="" [selected]="nuevo">
+                  -- Seleccione uno --
+                </option>
+                <option
+                  *ngFor="let anio of aniosFabr"
+                  [value]="anio"
+                  [selected]="!nuevo && anio == movil.anio_fabr"
+                >
                   {{ anio }}
                 </option>
               </select>
               <small
-                *ngIf="
-                  !datosMovil.controls['anio_fabr'].valid &&
-                  datosMovil.controls['anio_fabr'].touched
-                "
+                *ngIf="fabricado.touched && !fabricado.valid"
                 class="text-danger"
               >
                 Seleccione un Año
               </small>
             </div>
-            <div *ngIf="!nuevo" class="form-group col-sm-3">
-              <label for="anio_fabr" class="col-form-label"
-                >Fabricado:</label
-              >
-              <select
-                class="form-control"
-                formControlName="anio_fabr"                
-              >
-                
-                <option *ngFor="let anio of aniosFabr" 
-                [value]="anio"
-                [selected]="anio == movil.anio_fabr"
-                >
-                  {{ anio }}
-                </option>
-              </select>              
-            </div>
-
+            <!-- Input Marca del Móvil -->
             <div class="form-group col-sm-4">
-              <label for="marca" class="col-form-label">Marca *</label>
+              <label for="marca" class="col-form-label"
+                >Marca &nbsp;
+                <span *ngIf="marca.touched">
+                  <ng-container
+                    *ngIf="marca.valid; then valido; else invalido"
+                  ></ng-container>
+                </span>
+              </label>
               <input
                 type="text"
                 class="form-control"
-                [ngClass]="{
-                  'border-danger':
-                    !datosMovil.get('marca').valid &&
-                    datosMovil.get('marca').touched
-                }"
+                [ngClass]="{ 'border-danger': marca.touched && !marca.valid }"
                 formControlName="marca"
                 placeholder="Ej: Chevrolet"
               />
-              <small
-                *ngIf="
-                  datosMovil.get('marca').invalid &&
-                  datosMovil.get('marca').touched
-                "
-                class="text-danger"
-              >
+              <small *ngIf="marca.touched && !marca.valid" class="text-danger">
                 Ingrese la Marca
               </small>
             </div>
+            <!-- Input Modelo del Móvil -->
             <div class="form-group col-sm-5">
-              <label for="modelo" class="col-form-label">Modelo *</label>
+              <label for="modelo" class="col-form-label"
+                >Modelo &nbsp;
+                <span *ngIf="modelo.touched">
+                  <ng-container
+                    *ngIf="modelo.valid; then valido; else invalido"
+                  ></ng-container>
+                </span>
+              </label>
               <input
                 type="text"
                 formControlName="modelo"
                 placeholder="Modelo"
                 class="form-control"
-                [ngClass]="{
-                  'border-danger':
-                    !datosMovil.get('modelo').valid &&
-                    datosMovil.get('modelo').touched
-                }"
+                [ngClass]="{ 'border-danger': modelo.touched && !modelo.valid }"
               />
               <small
-                *ngIf="
-                  datosMovil.controls['modelo'].invalid &&
-                  datosMovil.controls['modelo'].touched
-                "
+                *ngIf="modelo.touched && !modelo.valid"
                 class="text-danger"
               >
                 Ingrese el Modelo
               </small>
             </div>
           </div>
-          <!-- ====== -->
+          <!-- =================== -->
           <div class="row">
+            <!-- Input Descripción del Móvil -->
             <div class="form-group col">
               <label for="descripcion" class="col-form-label"
-                >Descripción *</label
-              >
+                >Descripción &nbsp;
+                <span *ngIf="descripcion.touched">
+                  <ng-container
+                    *ngIf="descripcion.valid; then valido; else invalido"
+                  ></ng-container>
+                </span>
+              </label>
               <input
                 type="text"
                 formControlName="descripcion"
                 placeholder="Ej.: blanco / 4 ó 5 puertas / baúl grande"
                 class="form-control"
                 [ngClass]="{
-                  'border-danger':
-                    !datosMovil.get('descripcion').valid &&
-                    datosMovil.get('descripcion').touched
+                  'border-danger': descripcion.touched && !descripcion.valid
                 }"
               />
               <small
-                *ngIf="
-                  !datosMovil.controls['descripcion'].valid &&
-                  datosMovil.controls['descripcion'].touched
-                "
+                *ngIf="descripcion.touched && !descripcion.valid"
                 class="text-danger"
               >
                 Ingrese una Descripción
               </small>
             </div>
           </div>
-          <!-- ====== -->
+          <!-- =================== -->
           <div class="row">
+            <!-- Input Dominio del Móvil -->
             <div class="form-group col-sm-4">
-              <label for="dominio" class="col-form-label">Dominio *</label>
+              <label for="dominio" class="col-form-label"
+                >Nro. Dominio &nbsp;
+                <span *ngIf="dominio.touched">
+                  <ng-container
+                    *ngIf="dominio.valid; then valido; else invalido"
+                  ></ng-container>
+                </span>
+              </label>
               <input
                 type="text"
                 formControlName="dominio"
                 placeholder="Chapa Patente"
                 class="form-control"
                 [ngClass]="{
-                  'border-danger':
-                    !datosMovil.get('dominio').valid &&
-                    datosMovil.get('dominio').touched
+                  'border-danger': dominio.touched && !dominio.valid
                 }"
               />
               <small
-                *ngIf="
-                  !datosMovil.controls['dominio'].valid &&
-                  datosMovil.controls['dominio'].touched
-                "
+                *ngIf="dominio.touched && !dominio.valid"
                 class="text-danger"
               >
                 Ingrese el Dominio
               </small>
             </div>
+            <!-- Input Número de Habilitación del Móvil -->
             <div class="form-group col-sm-4">
               <label for="nro_habilitacion" class="col-form-label"
-                >Habilitación *</label
-              >
+                >Nro. Habilitación &nbsp;
+                <span *ngIf="habilitacion.touched">
+                  <ng-container
+                    *ngIf="habilitacion.valid; then valido; else invalido"
+                  ></ng-container>
+                </span>
+              </label>
               <input
                 type="text"
                 formControlName="nro_habilitacion"
                 placeholder="Ej.:001"
                 class="form-control"
                 [ngClass]="{
-                  'border-danger':
-                    !datosMovil.get('nro_habilitacion').valid &&
-                    datosMovil.get('nro_habilitacion').touched
+                  'border-danger': habilitacion.touched && !habilitacion.valid
                 }"
               />
               <small
-                *ngIf="
-                  !datosMovil.controls['nro_habilitacion'].valid &&
-                  datosMovil.controls['nro_habilitacion'].touched
-                "
+                *ngIf="habilitacion.touched && !habilitacion.valid"
                 class="text-danger"
               >
                 Ingrese Nro. Habilitación
               </small>
             </div>
+            <!-- Input Número Interno del Móvil -->
             <div class="form-group col-sm-4">
               <label for="nro_interno" class="col-form-label"
-                >Nro. Interno *</label
-              >
+                >Nro. Interno &nbsp;
+                <span *ngIf="nroInterno.touched">
+                  <ng-container
+                    *ngIf="nroInterno.valid; then valido; else invalido"
+                  ></ng-container>
+                </span>
+              </label>
               <input
                 type="text"
                 formControlName="nro_interno"
                 placeholder="Ej. 20"
                 class="form-control"
                 [ngClass]="{
-                  'border-danger':
-                    !datosMovil.get('nro_interno').valid &&
-                    datosMovil.get('nro_interno').touched
+                  'border-danger': nroInterno.touched && !nroInterno.valid
                 }"
               />
               <small
-                *ngIf="
-                  !datosMovil.controls['nro_interno'].valid &&
-                  datosMovil.controls['nro_interno'].touched
-                "
+                *ngIf="nroInterno.touched && !nroInterno.valid"
                 class="text-danger"
               >
                 Ingrese Nro. Interno
               </small>
             </div>
           </div>
-          <!-- ====== -->
-          <hr />
+          <!-- =================== -->
           <fieldset>
-            <!-- <legend class="col-form-label float-sm-left">
+            <!-- <span class="col-form-label">
               Datos adicionales (opcional)
-            </legend> -->
-            <div class="form-row">
+            </span> -->
+            <hr />
+            <!-- Input Vencimiento del ITV -->
+            <div class="row">
               <div class="form-group col-md-3">
-                <label for="fecha_itv" class="col-form-label"
-                  >Vencimiento <br />
-                  I.T.V.</label
+                <label for="fecha_itv" class="col-form-label text-wrap"
+                  >Fecha Vencim. I.T.V.</label
                 >
                 <input
-                  type="date"
+                  [owlDateTime]="fechaITV"
+                  [owlDateTimeTrigger]="fechaITV"
+                  [min]="fechasITV.minimo"
+                  [max]="fechasITV.maximo"
                   class="form-control"
                   formControlName="fecha_itv"
-                  [min]="minMaxITV[0]"
-                  [max]="minMaxITV[1]"
-                  (click)="logFechaHora()"
                 />
+                <owl-date-time
+                  [pickerType]="'calendar'"
+                  #fechaITV
+                ></owl-date-time>
               </div>
+              <!-- Input Información de Aseguradora -->
               <div class="form-group col-md-4">
-                <label for="seguro" class="col-form-label"
-                  >Información de <br />
-                  Seguro</label
-                >
+                <label for="seguro" class="col-form-label text-wrap"
+                  >Información de Aseguradora &nbsp;
+                  <span *ngIf="seguro.touched">
+                    <ng-container
+                      *ngIf="seguro.valid; then valido; else invalido"
+                    ></ng-container>
+                  </span>
+                </label>
                 <input
                   type="text"
                   class="form-control"
@@ -361,71 +313,62 @@
                   placeholder="Ej.: Nro. Póliza / Aseguradora / Validez"
                 />
               </div>
+              <!-- Combo Chofer Preferido -->
               <div class="form-group col-md-5">
-                <label for="chofer_pref" class="col-form-label"
-                  >Chofer Preferido<br />(Al iniciar Jornada)</label
+                <label for="chofer_pref" class="col-form-label text-wrap"
+                  >Chofer Preferido -- Por defecto al iniciar la Jornada</label
                 >
-                <select *ngIf="nuevo" class="form-control" formControlName="chofer_pref">
-                  <option value="" selected>-- Seleccione uno --</option>
-                  <option
-                    *ngFor="let chofer of listaChoferes"
-                    [value]="chofer.chofer_id"
-                  >
-                    {{ chofer.apellido }}, {{ chofer.nombre }}
-                  </option>
-                </select>
-                <select *ngIf="!nuevo" class="form-control" formControlName="chofer_pref">
-                  <option value="" selected>-- Seleccione uno --</option>
-                  <option
-                    *ngFor="let chofer of listaChoferes"
-                    [value]="chofer.chofer_id"
-                    [selected]="chofer.chofer_id == movil.chofer_pref"
-                  >
-                    {{ chofer.apellido }}, {{ chofer.nombre }}
-                  </option>
-                </select>
+                <ng-container *ngIf="listaChoferes.length; else elseTemplate">
+                  <select class="form-control" formControlName="chofer_pref">
+                    <option value="" [selected]="nuevo">
+                      -- Seleccione uno --
+                    </option>
+                    <option
+                      *ngFor="let chofer of listaChoferes"
+                      [value]="chofer.chofer_id"
+                      [selected]="
+                        !nuevo && chofer.chofer_id == movil.chofer_pref
+                      "
+                    >
+                      {{ chofer.apellido }}, {{ chofer.nombre }}
+                    </option>
+                  </select>
+                </ng-container>
+                <ng-template #elseTemplate>
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="No hay choferes cargados"
+                    readonly
+                  />
+                </ng-template>
               </div>
-              <!-- <div *ngIf="!nuevo" class="form-group col-md-5">
-                <label for="chofer_pref" class="col-form-label"
-                  >Chofer Preferido<br />(Por defecto al iniciar Jornada)</label
-                >
-                <select class="form-control" formControlName="chofer_pref">
-                  <option value="" selected>-- Seleccione uno --</option>
-                  <option
-                    *ngFor="let chofer of listaChoferes"
-                    [value]="chofer.chofer_id"
-                    [selected]="chofer.chofer_id == movil.chofer_pref"
-                  >
-                    {{ chofer.apellido }}, {{ chofer.nombre }}
-                  </option>
-                </select>
-              </div> -->
             </div>
           </fieldset>
 
           <div *ngIf="editar" class="form-group row">
             <div class="col-sm-6">
-              <button                
+              <button
+                type="button"
                 (click)="cancelEdit()"
                 class="btn btn-secondary btn-block"
               >
-                {{ nuevo ? 'Limpiar Campos...' : 'Descartar Cambios...' }}
+                {{ nuevo ? "Limpiar Campos..." : "Descartar Cambios..." }}
               </button>
-              <!-- <button
-                *ngIf="nuevo"
-                type="reset"
-                class="btn btn-secondary btn-block"
-              >
-                Limpiar campos...
-              </button> -->
             </div>
             <div class="col-sm-6">
               <button
                 type="submit"
                 class="btn btn-primary btn-block"
-                [disabled]="datosMovil.invalid"
+                [disabled]="datosMovil.invalid || loading"
               >
-                Guardar cambios...
+                <i
+                  [ngClass]="
+                    loading ? 'fas fa-sync-alt fa-spin' : 'fas fa-save'
+                  "
+                ></i>
+                <span *ngIf="!loading">&nbsp; Guardar Cambios</span>
+                <span *ngIf="loading">&nbsp; Guardando...</span>
               </button>
             </div>
           </div>
@@ -435,4 +378,10 @@
   </div>
 </div>
 
-<pre> {{ datosMovil.value | json }}  </pre>
+<!-- Templates para mostrar en validación del Formulario -->
+<ng-template #valido>
+  <i class="fas fa-check-circle text-success"></i>
+</ng-template>
+<ng-template #invalido>
+  <i class="fas fa-times-circle text-danger"></i>
+</ng-template>

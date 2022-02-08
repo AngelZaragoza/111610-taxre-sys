@@ -1,11 +1,11 @@
-import { Component, DoCheck, OnInit } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
-// import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
+
 import { Movil } from '../../classes/movil';
 import { MovilesService } from 'src/app/services/moviles.service';
 import { UsuariosService } from 'src/app/services/usuarios.service';
-// import { Adherente } from '../../classes/adherente';
-// import { AdherentesService } from '../../services/adherentes.service';
+import { AlertasService } from 'src/app/services/alertas.service';
 
 @Component({
   selector: 'app-movil-editar',
@@ -13,47 +13,103 @@ import { UsuariosService } from 'src/app/services/usuarios.service';
   styles: [],
 })
 export class MovilEditarComponent implements OnInit {
+  @ViewChild('inicio', { read: ElementRef }) inicio: ElementRef;
+  
+  //Listados
+  listaAdherentes: any[] = [];
+  listaChoferes: any[] = [];
+  listaTipos: any[] = [];
+
+  //Clases modelo para los objetos
+  movil: Movil = new Movil();
+
+  //Auxiliares
   idParam: any;
   editar: boolean;
   loading: boolean;
-  
-  //Clases modelo para los objetos
-  movil: Movil = new Movil();
+  ready: boolean;
+  nuevo: boolean;
+  errorMessage: string = '';
+  nombreComponente: string;
 
   constructor(
     private _movilesService: MovilesService,
     private _usuariosService: UsuariosService,
-    private activatedRoute: ActivatedRoute,
-    private route: Router
+    private _alertas: AlertasService,
+    private activatedRoute: ActivatedRoute
   ) {
+    this.nombreComponente = 'mov_detalle';
+
+    this.nuevo = false;
     //Se ejecuta con cada llamada a la ruta que renderiza este componente
     //excepto cuando el parámetro que viene con la ruta no cambia.
     //Setea "editar" en falso para evitar ediciones accidentales.
     this.activatedRoute.params.subscribe((params) => {
       this.idParam = params['movil_id'];
-      this.detalleMovil(this.idParam).finally(() => console.table(this.movil));
-
       this.editar = false;
+      this.ready = false;
+
+      this.detalleMovil(this.idParam).finally(() => {
+        if (!this.ready) {
+          console.warn(this.movil)
+        } 
+        // Se desplaza hasta el inicio del formulario
+        this.inicio.nativeElement.scrollIntoView(true, {
+          behavior: 'smooth',
+          block: 'center',
+        });
+      });
     });
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.getDatosCombos();
+  }
+
+  //Métodos accesores en general
+  //****************************
+  get isAdmin(): boolean {
+    return this._usuariosService.user['rol_id'] === 1;
+  }
+
+  get isManager(): boolean {
+    return this._usuariosService.user['rol_id'] == 2;
+  }
+
+  //Métodos del componente
+  //**********************
+  async getDatosCombos() {
+    //Controlar como se ve si no hay adherentes cargados...
+    try {
+      if (!this._movilesService.iniciado) {
+        await this._movilesService.cargarListas();
+      }
+      this.listaAdherentes = this._movilesService.listaAdherentes;
+      this.listaChoferes = this._movilesService.listaChoferes;
+      this.listaTipos = this._movilesService.listaTipos;
+      this.ready = true;
+      this.errorMessage = '';
+    } catch (error) {
+      this.errorMessage = error.error?.message;
+      this.ready = false;
+    }
+  }
 
   async detalleMovil(id) {
     this.loading = true;
-    this._usuariosService.mostrarSpinner(this.loading, 'movil_detalle');
+    this._usuariosService.mostrarSpinner(this.loading, this.nombreComponente);
 
     this.movil = await this._movilesService.detalleMovil(id);
+    if (this.movil instanceof HttpErrorResponse) {
+      this.ready = false;
+      this.errorMessage = this.movil.error['message'];
+    } else {
+      this.ready = true;
+      this.errorMessage = '';
+    }
 
-    // for (let field in this.detalle) {
-    //   //Toma los campos del detalle y los divide en sus respectivos objetos
-    //   if (this.usuario[field] !== undefined)
-    //     this.usuario[field] = this.detalle[field];
-    //   if (this.persona[field] !== undefined)
-    //     this.persona[field] = this.detalle[field];
-    // }
     this.loading = false;
-    this._usuariosService.mostrarSpinner(this.loading, 'movil_detalle');
+    this._usuariosService.mostrarSpinner(this.loading, this.nombreComponente);
   }
 
   activarEdicion(): void {
@@ -63,24 +119,36 @@ export class MovilEditarComponent implements OnInit {
   listenMovil(movil: Movil): void {
     //Recibe el objeto "movil" desde el evento del componente hijo
     this.movil = movil;
-    this.activarEdicion();
-    console.table(this.movil);
     this.updateMovil();
   }
 
   async updateMovil() {
-    console.log('Llegó al update');
-    
+    this.loading = true;
+    this._usuariosService.mostrarSpinner(this.loading, this.nombreComponente);
+    let mensaje: string;
     let result = await this._movilesService.updateMovil(
       this.movil,
       this.movil.movil_id
     );
-    if (result['success']) {
-      alert(`Cambios guardados! Móvil: ${result['nro_interno']}`);
-      this.route.navigateByUrl('/moviles');
-    } else {
-      alert(`Algo falló`);
-    }
     
+    if (result instanceof HttpErrorResponse) {
+      mensaje = `${result.error['message']} -- No se guardaron datos.`;
+      this._alertas.problemDialog.fire({
+        title: `Algo falló (${result.error['status']})`,
+        text: mensaje,
+      });
+    } else {
+      this._alertas.successDialog.fire({
+        position: 'center',
+        title: 'Cambios guardados!',
+        text: 'Espere...',
+        didOpen: () => {
+          this.activarEdicion();
+        },
+      });
+    }
+
+    this.loading = false;
+    this._usuariosService.mostrarSpinner(this.loading, this.nombreComponente);
   }
 }

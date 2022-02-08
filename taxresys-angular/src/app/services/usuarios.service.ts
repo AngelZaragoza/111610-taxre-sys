@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { NgxSpinnerService } from 'ngx-spinner';
-import { Subject } from 'rxjs';
+import { ReplaySubject, Subject } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { RequestService } from './request.service';
 
@@ -8,8 +8,10 @@ import { RequestService } from './request.service';
   providedIn: 'root',
 })
 export class UsuariosService {
+  // Auxiliares
   user: any = {};
-  userObs$: Subject<any>;
+  userObs$: ReplaySubject<any>;
+  personaObs$: Subject<any>;
   turno: any;
   roles: any[] = [];
 
@@ -17,216 +19,207 @@ export class UsuariosService {
     private _conexion: RequestService,
     private _spinner: NgxSpinnerService
   ) {
-    console.log('Usuarios listo');
-    console.log('Roles => ', this.roles, this.roles.length);
+    // Instancia los objetos que serán retornados como Observables
+    this.userObs$ = new ReplaySubject(1);
+    this.personaObs$ = new Subject();
 
-    //Instancia el objeto que será retornado como Observable
-    this.userObs$ = new Subject();
-    //Chequea contra el servidor que haya un usuario logueado
-    this.checkAuth(true);
+    this.user = this.readUser();
+    console.log('Usuarios listo');
   }
 
   //Chequea si hay un usuario logueado
   //**********************************
-  // checkAuth() {
-  //   try {
-  //     let local = localStorage.getItem('user');
-
-  //     if (local) {
-  //       //Si se recupera data de localStorage, se procede con:
-  //       this.user = JSON.parse(local);
-
-  //       //Si hay un id en el localStorage, recupera su alias y devuelve true
-  //       if (this.user['usuario_id']) {
-  //         console.log(this.user.alias, this.user.rol_id);
-  //         this.logged = true;
-  //         return true;
-  //       } else {
-  //         this.logged = false;
-  //         return false;
-  //       }
-  //     } else {
-  //       //Si no se recupera nada de localStorage, se procede con:
-  //       localStorage.setItem('user', JSON.stringify({ logged: false }));
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //     return false;
-  //   }
-  // }
-
-  async checkAuth(chkServer: boolean, passportResult?: any) {
+  public async checkAuth() {
     try {
-      if (passportResult) {
-        //Si se recibe un objeto, la llamada vino desde el LogIn o el LogOut:
-        //Se escribe en localStorage y se recuperan los roles de usuario
-
-        if (passportResult.logged) {
-          await this.getTurnoAbierto();
-          await this.getRoles();
-        }
-        this.user = { ...passportResult, ...this.turno };
-        localStorage.setItem('user', JSON.stringify(this.user));
-        return this.user;
-      }
-
-      if (chkServer) {
-        //Se chequea desde la sesión almacenada en server
-        //y se recuperan los roles de usuario
-        let result: Object = await this._conexion.request(
-          'GET',
-          `${environment.serverUrl}/usuarios/isauth`
-        );
-        await this.getTurnoAbierto();
-
-        this.user = { ...result, ...this.turno };
-        localStorage.setItem('user', JSON.stringify(this.user));
-        this.getRoles();
-        return this.user;
-      }
-
-      //Se recupera data de localStorage, se procede con:
-      this.user = JSON.parse(localStorage.getItem('user'));
-      return this.user;
+      const passportResult: Object = await this._conexion.request(
+        'GET',
+        `${environment.serverUrl}/usuarios/isauth`
+      );
+      this.setUser(passportResult);
     } catch (error) {
-      console.log(error);
-      localStorage.setItem('user', JSON.stringify(error['error']));
-      this.user = JSON.parse(localStorage.getItem('user'));
-      return this.user;
-    } finally {
-      this.userObs$.next(this.user);
+      console.error(error);
+      this.setUser(error.error);
     }
   }
 
-  //Métodos de Autenticación
-  //************************
+  // Métodos de Autenticación
+  // ************************
+  /**
+   * Si un Usuario hace login, recupera el último turno y los roles,
+   * luego almacena en localStorage los datos del Usuario.
+   */
+  public async setUser(user: any) {
+    if (user.logged) {
+      await Promise.all([this.getTurnoAbierto(), this.getRoles()])
+        .then((results) => {
+          [this.turno, this.roles] = results;
+        })
+        .catch((error) => {
+          console.error(error);
+        });      
+    } else {
+      this.turno = {};
+    }
+    this.user = { ...user, ...this.turno };
+    localStorage.setItem('user', JSON.stringify(this.user));
+    this.userObs$.next(this.user);
+  }
+
+  /**
+   * Intenta leer desde localStorage los datos del Usuario.
+   * Si no encuentra uno, devuelve un objeto 'not logged'.
+   */
+  public readUser() {
+    try {
+      return (
+        JSON.parse(localStorage.getItem('user')) ?? {
+          logged: false,
+          message: 'Sesión Cerrada',
+        }
+      );
+    } catch (error) {
+      return { logged: false, message: 'Sesión Cerrada' };
+    }
+  }
+
   async passportLogin(user: any) {
-    console.log(user);
-    let result: any;
-
-    await this._conexion
-      .request('POST', `${environment.serverUrl}/usuarios/passportLogin`, user)
-      .then((res: any) => {
-        console.log('Resp. Login =>', res);
-        // localStorage.setItem('user', JSON.stringify(res));
-        result = res;
-      })
-      .catch((err: any) => {
-        console.log(err);
-        result = err;
-      })
-      .finally(() => {
-        console.log('Pasa por finally');
-        this.checkAuth(false, result);
-      });
-
-    return result;
+    try {
+      let passportResult: {} = await this._conexion.request(
+        'POST',
+        `${environment.serverUrl}/usuarios/passportLogin`,
+        user
+      );
+      this.setUser(passportResult);
+      return passportResult;
+    } catch (error) {
+      throw error;
+    }
   }
 
   async passportLogout() {
-    let result: any;
-    await this._conexion
-      .request('GET', `${environment.serverUrl}/usuarios/passportLogout`)
-      .then((res: any) => {
-        console.log('Then. Logout => ', res);
-        result = res;
-        // localStorage.setItem('user', JSON.stringify(res));
-      })
-      .catch((err: any) => {
-        result = err;
-        console.log(err);
-      })
-      .finally(() => {
-        console.log('Finally. Logout => ', result);
-        // this.checkAuth(false, result);
-      });
-
-    this.turno = {};
-    this.checkAuth(false, result);
-
-    return result;
+    try {
+      let passportResult: {} = await this._conexion.request(
+        'GET',
+        `${environment.serverUrl}/usuarios/passportLogout`
+      );
+      this.setUser(passportResult);
+      return passportResult;
+    } catch (error) {
+      throw error;
+    }
   }
 
   //Métodos de manejo de Usuarios
   //*****************************
   async getUsuarios() {
-    let lista: any[] = [];
-    await this._conexion
-      .request('GET', `${environment.serverUrl}/usuarios`)
-      .then((res: any[]) => {
-        lista = res.map((u) => u);
-      })
-      .catch((err: any) => {
-        lista = err;
-        console.log(err);
-      });
-    return lista;
+    try {
+      let lista = await this._conexion.request(
+        'GET',
+        `${environment.serverUrl}/usuarios`
+      );
+      return lista;
+    } catch (error) {
+      console.error(error);
+      return error;
+    }
   }
 
   async detalleUsuario(id: Number) {
-    let usuario: any;
-    await this._conexion
-      .request('GET', `${environment.serverUrl}/usuarios/detalle/${id}`)
-      .then((res: any) => {
-        console.log(res);
-        usuario = res;
-      })
-      .catch((err) => {
-        usuario = err;
-      });
-    return usuario[0];
+    try {
+      let usuario = await this._conexion.request(
+        'GET',
+        `${environment.serverUrl}/usuarios/detalle/${id}`
+      );
+      return usuario[0];
+    } catch (error) {
+      console.error(error);
+      return error;
+    }
   }
 
   async nuevoUsuarioFull(nuevo: any) {
-    let usuario: any;
-    await this._conexion
-      .request('POST', `${environment.serverUrl}/usuarios/nuevo`, nuevo)
-      .then((res) => (usuario = res))
-      .catch((err) => (usuario = err));
-    return usuario;
+    try {
+      let usuario = await this._conexion.request(
+        'POST',
+        `${environment.serverUrl}/usuarios`,
+        nuevo
+      );
+      //Se emiten los datos mediante el Observable para actualizar la lista
+      this.personaObs$.next(usuario);
+
+      return usuario;
+    } catch (error) {
+      console.error(error);
+      return error;
+    }
   }
 
-  async updatePersona(persona: any, id: Number) {
-    let pers: any;
-    await this._conexion
-      .request(
+  async updatePersona(origen: string, persona: any, id: Number) {
+    try {
+      let result: any = await this._conexion.request(
         'PUT',
-        `${environment.serverUrl}/usuarios/detalle/${id}`,
+        `${environment.serverUrl}${origen}/detalle/${id}`,
         persona
-      )
-      .then((res) => (pers = res));
-    return pers;
+      );
+
+      //Se emiten los datos básicos para actualizar listas
+      let { apellido, nombre, persona_id } = persona;
+      let { action } = result;
+      this.personaObs$.next({
+        apellido,
+        nombre,
+        persona_id,
+        action,
+      });
+
+      return result;
+    } catch (error) {
+      console.error(error);
+      return error;
+    }
+  }
+
+  async updateUsuario(usuario: any, id: Number) {
+    try {
+      let result: any = await this._conexion.request(
+        'PATCH',
+        `${environment.serverUrl}/usuarios/detalle/${id}`,
+        usuario
+      );
+
+      //Se emiten los datos básicos para actualizar listas
+      let { alias, rol_id, persona_id } = usuario;
+      let { action } = result;
+
+      this.personaObs$.next({ alias, rol_id, persona_id, action });
+      return result;
+    } catch (error) {
+      console.error(error);
+      return error;
+    }
   }
 
   //Métodos auxiliares
   //*****************************
   async getRoles() {
-    let lista: any[] = [];
-    await this._conexion
-      .request('GET', `${environment.serverUrl}/usuarios/roles`)
-      .then((res: any[]) => {
-        lista = res.map((rol) => rol);
-      })
-      .catch((err: any) => {
-        lista = err;
-        console.log(err);
-      })
-      .finally(() => {
-        this.roles = lista;
-      });
-
-    return lista;
+    try {
+      const lista = await this._conexion.request(
+        'GET',
+        `${environment.serverUrl}/usuarios/roles`
+      );
+      return <any[]>lista;
+    } catch (error) {
+      console.error('No se pudieron recuperar roles', error);
+    }
   }
 
   async getTurnoAbierto() {
     let turno: any;
     await this._conexion
       .request('GET', `${environment.serverUrl}/turnos/inout`)
-      .then((res: any) => {
-        console.log('Desde chequeo ultimo turno =>', res);
-        console.log('cierre =>', res['turno'].hora_cierre);
+      .then((res: any) => {        
         if (res['turno'].hora_cierre) {
-          turno['open'] = false;
+          turno = { open: false };
         } else {
           turno = {
             open: true,
@@ -235,7 +228,6 @@ export class UsuariosService {
             owner: res['turno'].usuario_id,
           };
         }
-        this.turno = turno;
       })
       .catch((err) => {
         this.turno = { open: false };
@@ -254,10 +246,31 @@ export class UsuariosService {
     }
   }
 
+  // Reemplazar por la nueva función en Viajes e Histórico
   calcularFechaMaxima(fechaInicio: Date, horasSumadas: number): Date {
     let fechaMaxima = new Date(
       fechaInicio.valueOf() + 1000 * 60 * 60 * horasSumadas
     );
+    return fechaMaxima;
+  }
+
+  calculaFechaMax(fechaBase: Date, unidad: string, valor: number): Date {
+    let totalMilisegundos = 1000 * 60 * 60;
+    switch (unidad) {
+      case 'h':
+        totalMilisegundos *= valor;
+        break;
+      case 'd':
+        totalMilisegundos *= valor * 24;
+        break;
+      case 'm':
+        totalMilisegundos *= valor * 30 * 24;
+        break;
+      case 'y':
+        totalMilisegundos *= valor * 365 * 24;
+    }
+
+    let fechaMaxima = new Date(fechaBase.getTime() + totalMilisegundos);
     return fechaMaxima;
   }
 }

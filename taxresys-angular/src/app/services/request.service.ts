@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 // import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -14,15 +14,13 @@ export class RequestService {
 
   //Método principal para manejar los requests
   //******************************************
-  request(method: string, url: string, data?: any) {
+  request(method: string, url: string, data?: any, params?: HttpParams) {
     const result = this.http.request(method, url, {
       body: data,
       responseType: 'json',
       observe: 'body',
       withCredentials: true,
-      // headers: {
-      //   Authorization: `Bearer ${token}`,
-      // },
+      params: params,
     });
 
     return new Promise((resolve, reject) => {

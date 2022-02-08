@@ -2,25 +2,17 @@
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { NgbModalModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModalModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import {
   OwlDateTimeModule,
   OwlNativeDateTimeModule,
   OWL_DATE_TIME_LOCALE,
-  OwlDateTimeIntl
+  OwlDateTimeIntl,
 } from 'ng-pick-datetime';
 import { DefaultIntl } from './classes/default-intl';
 import { NgxSpinnerModule } from 'ngx-spinner';
-
-//Servicios
-// import { UsuariosService } from './services/usuarios.service';
-// import { AdherentesService } from './services/adherentes.service';
-// import { ChoferesService } from './services/choferes.service';
-// import { MovilesService } from './services/moviles.service';
-// import { TurnosService } from './services/turnos.service';
-// import { RequestService } from './services/request.service';
 
 //Rutas
 import { AppRoutingModule } from './app.routes';
@@ -59,6 +51,7 @@ import { NombreCompletoPipe } from './pipes/nombre-completo.pipe';
 import { NomElemPipe } from './pipes/nom-elem.pipe';
 import { NroMovilPipe } from './pipes/nro-movil.pipe';
 import { FiltroChoferEstadoPipe } from './pipes/filtro-chofer-estado.pipe';
+import { ServerStatusInterceptor } from './interceptors/server-status.interceptor';
 
 @NgModule({
   declarations: [
@@ -98,22 +91,19 @@ import { FiltroChoferEstadoPipe } from './pipes/filtro-chofer-estado.pipe';
     BrowserAnimationsModule,
     AppRoutingModule,
     NgbModalModule,
+    NgbTooltipModule,
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
     OwlDateTimeModule,
     OwlNativeDateTimeModule,
-    NgxSpinnerModule,    
+    NgxSpinnerModule,
   ],
-  providers: [
-    // UsuariosService,
-    // AdherentesService,
-    // ChoferesService,
-    // MovilesService,
-    // TurnosService,
-    // RequestService,
+  providers: [    
+    // Configuración para el componente DateTimePicker e Interceptor
     { provide: OWL_DATE_TIME_LOCALE, useValue: 'es-ar' },
-    { provide: OwlDateTimeIntl, useClass: DefaultIntl }
+    { provide: OwlDateTimeIntl, useClass: DefaultIntl },
+    { provide: HTTP_INTERCEPTORS, useClass: ServerStatusInterceptor, multi: true }
   ],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
