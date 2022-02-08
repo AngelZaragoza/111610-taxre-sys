@@ -11,7 +11,7 @@ import { Observable, throwError } from 'rxjs';
 import { Router } from '@angular/router';
 import { catchError } from 'rxjs/operators';
 import { AlertasService } from '../services/alertas.service';
-import { PreviousRouteService } from '../services/previous-route.service';
+import { RouteUtilsService } from '../services/route-utils.service';
 import { UsuariosService } from '../services/usuarios.service';
 
 @Injectable()
@@ -20,7 +20,7 @@ export class ServerStatusInterceptor implements HttpInterceptor {
     public router: Router,
     public usuarios: UsuariosService,
     public alertas: AlertasService,
-    public previous: PreviousRouteService
+    public routeUtils: RouteUtilsService
   ) {}
 
   handleErrors(
@@ -62,11 +62,9 @@ export class ServerStatusInterceptor implements HttpInterceptor {
       this.alertas.problemDialog.fire({
         title: `Algo falló (${err.status})`,
         text: 'El servidor no responde. Intente recargar el sitio.',
-      });
-      // this.router.navigate([this.previous.getPreviousUrl()]);
+      });      
       return throwError(err);
-    }
-    // this.authService.logOut();
+    }    
     return throwError(err);
   }
 

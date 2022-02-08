@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { PreviousRouteService } from 'src/app/services/previous-route.service';
+import { RouteUtilsService } from 'src/app/services/route-utils.service';
 
 @Component({
   selector: 'app-error',
@@ -21,7 +21,7 @@ export class ErrorComponent implements OnInit {
   constructor(
     private _activated: ActivatedRoute, 
     private _route: Router, 
-    private _previous: PreviousRouteService
+    private _routeUtils: RouteUtilsService
   ) {
     this.errorListas = [
       'usr_lista',
@@ -78,12 +78,12 @@ export class ErrorComponent implements OnInit {
   }
 
   backToPrevious() {
-    let previous = this._previous.getPreviousUrl();
+    let previous = this._routeUtils.getPreviousUrl();
     this._route.navigateByUrl(previous);
   }
 
   backToParent() {
-    let parent = this._previous.getParentUrl();
+    let parent = this._routeUtils.getParentUrl();
     this._route.navigateByUrl(parent || '/home');
   }
 }

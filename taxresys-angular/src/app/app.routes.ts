@@ -47,17 +47,23 @@ import { AdminGuard } from './auth/admin.guard';
 import { ErrorComponent } from './components/shared/error/error.component';
 
 const routes: Routes = [
-  { path: 'home', component: HomeComponent },
-  { path: 'login', component: LoginComponent },
+  { path: 'home', component: HomeComponent, data: { title: 'Home' } },
+  { path: 'login', component: LoginComponent, data: { title: 'Log In' } },
   {
     path: 'usuarios',
     component: UsuarioListaComponent,
+    data: { title: 'Usuarios' },
     children: [
-      { path: 'detalle/:usuario_id', component: UsuarioEditarComponent },
+      {
+        path: 'detalle/:usuario_id',
+        component: UsuarioEditarComponent,
+        data: { title: 'Detalle' },
+      },
       {
         path: 'nuevo',
         component: UsuarioNuevoComponent,
         canActivate: [AdminGuard],
+        data: { title: 'Nuevo Usuario' },
       },
     ],
     canActivate: [AuthGuard],
@@ -66,12 +72,18 @@ const routes: Routes = [
   {
     path: 'adherentes',
     component: AdherenteListaComponent,
+    data: { title: 'Adherentes' },
     children: [
-      { path: 'detalle/:adherente_id', component: AdherenteEditarComponent },
+      {
+        path: 'detalle/:adherente_id',
+        component: AdherenteEditarComponent,
+        data: { title: 'Detalle' },
+      },
       {
         path: 'nuevo',
         component: AdherenteNuevoComponent,
         canActivate: [AdminGuard],
+        data: { title: 'Nuevo Adherente' },
       },
     ],
     canActivate: [AuthGuard],
@@ -79,18 +91,36 @@ const routes: Routes = [
   {
     path: 'choferes',
     component: ChoferListaComponent,
+    data: { title: 'Choferes' },
     children: [
-      { path: 'detalle/:chofer_id', component: ChoferEditarComponent },
-      { path: 'nuevo', component: ChoferNuevoComponent },
+      {
+        path: 'detalle/:chofer_id',
+        component: ChoferEditarComponent,
+        data: { title: 'Detalle' },
+      },
+      {
+        path: 'nuevo',
+        component: ChoferNuevoComponent,
+        data: { title: 'Nuevo Chofer' },
+      },
     ],
     canActivate: [AuthGuard],
   },
   {
     path: 'moviles',
     component: MovilListaComponent,
+    data: { title: 'Móviles' },
     children: [
-      { path: 'detalle/:movil_id', component: MovilEditarComponent },
-      { path: 'nuevo', component: MovilNuevoComponent },
+      {
+        path: 'detalle/:movil_id',
+        component: MovilEditarComponent,
+        data: { title: 'Detalle' },
+      },
+      {
+        path: 'nuevo',
+        component: MovilNuevoComponent,
+        data: { title: 'Nuevo Móvil' },
+      },
     ],
     canActivate: [AuthGuard],
   },
@@ -99,39 +129,53 @@ const routes: Routes = [
     path: 'turnos/:operacion',
     component: FormTurnoComponent,
     canActivate: [AuthGuard],
+    data: { title: 'Turnos' },
   },
   {
     path: 'jornadas',
     component: JornadaPlanillaComponent,
     canActivate: [AuthGuard],
     canActivateChild: [JornadaGuard],
+    data: { title: 'Jornadas' },
     children: [
-      { path: 'cierre', component: FormJornadaComponent },
-      { path: 'inicio', component: FormJornadaComponent },
-      { path: 'error', component: ErrorComponent },
+      {
+        path: 'cierre',
+        component: FormJornadaComponent,
+        data: { title: 'Cierre' },
+      },
+      {
+        path: 'inicio',
+        component: FormJornadaComponent,
+        data: { title: 'Inicio' },
+      },
+      { path: 'error', component: ErrorComponent, data: { title: 'Error' } },
     ],
   },
   {
     path: 'viajes',
     canActivate: [AuthGuard],
+    data: { title: 'Viajes' },
     children: [
       {
         path: 'turno',
         component: ViajePlanillaComponent,
         canActivate: [TurnoGuard, OwnerGuard],
+        data: { title: 'Planilla del Turno' },
       },
       {
         path: 'hist-viajes',
         component: ViajeHistoricoComponent,
+        data: { title: 'Histórico' },
       },
       {
         path: 'pendientes',
         component: PendienteListaComponent,
+        data: { title: 'Pendientes' },
       },
     ],
   },
 
-  { path: 'error', component: ErrorComponent },
+  { path: 'error', component: ErrorComponent, data: { title: 'Error' } },
   { path: '**', pathMatch: 'full', redirectTo: 'error' },
 ];
 
